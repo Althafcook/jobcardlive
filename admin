@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI,Arial,sans-serif;
+  background:#111;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+}
+.box{
+  background:#1b1b1b;
+  border:1px solid #333;
+  padding:24px 30px;
+  border-radius:12px;
+  text-align:center;
+}
+.box h1{
+  margin:0 0 10px;
+  font-size:20px;
+}
+.box p{
+  font-size:14px;
+  color:#bbb;
+}
+</style>
+</head>
+
+<body>
+  <div class="box">
+    <h1>Admin Panel</h1>
+    <p>Analytics dashboard coming next.</p>
+  </div>
+</body>
+</html>
