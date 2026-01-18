@@ -3,360 +3,213 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daybook</title>
-
-<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+<title>Jobcard Live</title>
 
 <style>
+*{box-sizing:border-box}
 body{
   margin:0;
+  height:100vh;
+  background:radial-gradient(circle at top,#1a1a1a,#000);
   font-family:"Segoe UI",Arial,sans-serif;
-  background:#111;
   color:#fff;
+  overflow:hidden;
 }
 
-/* ================= HEADER ================= */
-.header{
-  padding:10px 16px;
-  background:#000;
-  display:grid;
-  grid-template-columns:1fr auto 1fr;
-  align-items:center;
-  border-bottom:1px solid #333;
-  gap:8px;
-}
-.header h1{
-  margin:0;
-  font-size:20px;
-  font-weight:600;
-}
-
-/* SUMMARY */
-.summary{
-  display:flex;
-  gap:10px;
-  justify-content:center;
-  font-size:13px;
-}
-.summary span{
-  padding:4px 10px;
-  border-radius:4px;
-  font-weight:600;
-  cursor:pointer;
-  opacity:.85;
-  white-space:nowrap;
-}
-.summary span.active{
-  outline:2px solid #fff;
-  opacity:1;
-}
-
-.sum-arun{background:#d94a4a;color:#fff}
-.sum-siyad{background:#8bc34a;color:#000}
-.sum-sajid{background:#f2d23c;color:#000}
-.sum-ashraf{background:#eee;color:#000}
-.sum-total{background:#333;color:#fff}
-
-.date{
-  text-align:right;
-  font-size:14px;
-  color:#aaa;
-}
-
-/* ================= MOBILE HEADER FIX ================= */
-@media (max-width:768px){
-  .header{
-    grid-template-columns:1fr;
-    text-align:center;
-  }
-
-  .header h1{
-    justify-self:center;
-    font-size:18px;
-  }
-
-  .summary{
-    justify-content:flex-start;
-    overflow-x:auto;
-    padding:6px 0;
-  }
-
-  .summary::-webkit-scrollbar{
-    display:none;
-  }
-
-  .date{
-    text-align:center;
-    font-size:13px;
-  }
-}
-
-/* ================= TABLE ================= */
-.table-wrapper{
-  height:calc(100vh - 60px);
-  overflow:auto;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-}
-
-thead th{
-  position:sticky;
-  top:0;
-  background:#000;
-  color:red;
-  font-size:13px;
-  padding:8px;
-  border-bottom:1px solid #444;
-  white-space:nowrap;
-}
-
-tbody td{
-  font-size:13px;
-  padding:4px 6px;
-  height:24px;
-  border-bottom:1px solid #222;
-  text-align:center;
-  white-space:nowrap;
-}
-
-/* AIC COLORS */
-.aic-arun{background:#d94a4a;color:#fff}
-.aic-siyad{background:#8bc34a;color:#000}
-.aic-sajid{background:#f2d23c;color:#000}
-.aic-ashraf{background:#eee;color:#000}
-
-tbody tr:hover{background:#1b1b1b}
-
-/* ================= EMPTY STATE ================= */
-.empty-state{
-  display:none;
-  height:calc(100vh - 60px);
-  align-items:center;
-  justify-content:center;
-}
-.empty-card{
-  background:#1b1b1b;
-  border:1px solid #333;
-  border-radius:14px;
-  padding:24px 28px;
-  text-align:center;
-  max-width:260px;
-}
-.empty-card p{
-  margin-top:10px;
-  font-size:14px;
-  color:#ccc;
-}
-
-/* ================= LOADER ================= */
-.loader{
+/* THUNDER CANVAS */
+canvas{
   position:fixed;
   inset:0;
-  background:#000c;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:999;
+  z-index:0;
 }
-.hidden{display:none}
 
-.meter{
-  width:160px;
-  height:160px;
-  border-radius:50%;
-  border:8px solid #333;
+/* CONTAINER */
+.container{
   position:relative;
-}
-.needle{
-  width:4px;
-  height:70px;
-  background:red;
-  position:absolute;
-  bottom:50%;
-  left:50%;
-  transform-origin:bottom;
-  animation:sweep 1.2s linear infinite;
-}
-@keyframes sweep{
-  from{transform:rotate(-90deg)}
-  to{transform:rotate(90deg)}
-}
-.timer{
-  position:absolute;
-  inset:0;
+  z-index:2;
+  height:100%;
   display:flex;
+  flex-direction:column;
   align-items:center;
-  justify-content:center;
-  font-size:18px;
+  padding-top:50px;
+}
+
+/* TITLE */
+.title{
+  font-size:38px;
+  letter-spacing:3px;
+  margin-bottom:60px;
+}
+.title .job{color:#fff}
+.title .live{
+  color:#ff3b3b;
+  animation:blink 1.2s infinite;
+}
+@keyframes blink{
+  0%,100%{opacity:1}
+  50%{opacity:.3}
+}
+
+/* MENU */
+.menu{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+/* BUTTON */
+.btn{
+  width:220px;
+  padding:14px;
+  text-align:center;
+  border-radius:18px;
+  font-size:16px;
+  color:#fff;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.25);
+  cursor:pointer;
+  transition:.3s;
+}
+.btn:hover{
+  background:rgba(255,255,255,0.18);
+  box-shadow:0 0 20px rgba(255,255,255,0.25);
+  transform:scale(1.03);
+}
+
+/* WORKBOOK DROPDOWN */
+.dropdown{
+  position:absolute;
+  left:240px;
+  top:120px;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.25);
+  border-radius:14px;
+  overflow:hidden;
+  opacity:0;
+  pointer-events:none;
+  transform:translateX(-10px);
+  transition:.3s;
+}
+.dropdown.show{
+  opacity:1;
+  pointer-events:auto;
+  transform:translateX(0);
+}
+.dropdown div{
+  padding:12px 20px;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:.25s;
+}
+
+/* ✅ AIC HOVER COLORS */
+.dropdown .arun:hover{
+  background:#d94a4a;
+  color:#fff;
+}
+.dropdown .siyad:hover{
+  background:#8bc34a;
+  color:#000;
+}
+.dropdown .sajid:hover{
+  background:#f2d23c;
+  color:#000;
+}
+.dropdown .ashraf:hover{
+  background:#eeeeee;
+  color:#000;
+}
+
+/* MOBILE */
+@media(max-width:600px){
+  .title{font-size:30px}
+  .btn{width:200px}
+  .dropdown{
+    left:0;
+    top:260px;
+    width:200px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <h1>Daybook</h1>
-  <div class="summary" id="summary"></div>
-  <div class="date" id="currentDate"></div>
-</div>
+<canvas id="thunder"></canvas>
 
-<div class="empty-state" id="emptyState">
-  <div class="empty-card">
-    <lottie-player
-      src="https://assets7.lottiefiles.com/packages/lf20_xlmz9xwm.json"
-      background="transparent"
-      speed="1"
-      style="width:160px;height:160px"
-      loop autoplay>
-    </lottie-player>
-    <p><b>Today no jobcard entered</b></p>
+<div class="container">
+  <div class="title">
+    <span class="job">JOBCARD</span>
+    <span class="live"> LIVE</span>
   </div>
-</div>
 
-<div class="table-wrapper" id="tableWrapper">
-<table>
-<thead>
-<tr>
-<th>No.</th><th>Date</th><th>Time</th><th>Jobcard</th>
-<th>AIC</th><th>Customer</th><th>Executive</th>
-<th>Vehicle</th><th>Chassis</th>
-</tr>
-</thead>
-<tbody id="daybookBody"></tbody>
-</table>
-</div>
+  <div class="menu">
+    <div class="btn" onclick="location.href='daybook.html'">Daybook</div>
+    <div class="btn">Search</div>
+    <div class="btn" id="workbookBtn">Workbook</div>
 
-<div class="loader hidden" id="loader">
-  <div class="meter">
-    <div class="needle"></div>
-    <div class="timer" id="timer">0s</div>
+    <!-- DROPDOWN -->
+    <div class="dropdown" id="workbookMenu">
+      <div class="arun"   onclick="openWorkbook('Arun')">Arun</div>
+      <div class="sajid"  onclick="openWorkbook('Sajid')">Sajid</div>
+      <div class="siyad"  onclick="openWorkbook('Siyad')">Siyad</div>
+      <div class="ashraf" onclick="openWorkbook('Ashraf')">Ashraf</div>
+    </div>
   </div>
 </div>
 
 <script>
-const DATA_URL="https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
+/* WORKBOOK DROPDOWN */
+const btn=document.getElementById("workbookBtn");
+const menu=document.getElementById("workbookMenu");
 
-let allRows=[],lastHash="",currentFilter="TOTAL";
-let hadDataBefore=false,isFetching=false,timerInt;
+btn.onclick=e=>{
+  e.stopPropagation();
+  menu.classList.toggle("show");
+};
+document.body.onclick=()=>menu.classList.remove("show");
 
-/* DATE */
-document.getElementById("currentDate").innerText =
-  new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
-
-/* LOADER */
-function showLoader(){
-  if(timerInt) return;
-  let start=Date.now();
-  document.getElementById("loader").classList.remove("hidden");
-  timerInt=setInterval(()=>{
-    document.getElementById("timer").innerText =
-      Math.floor((Date.now()-start)/1000)+"s";
-  },500);
-}
-function hideLoader(){
-  clearInterval(timerInt);
-  timerInt=null;
-  document.getElementById("loader").classList.add("hidden");
+function openWorkbook(name){
+  alert("Workbook: "+name);
+  // later → location.href = "workbook.html?name="+name;
 }
 
-/* AIC CLASS */
-const aicClass=n=>({
-  Arun:"aic-arun",Siyad:"aic-siyad",
-  Sajid:"aic-sajid",Ashraf:"aic-ashraf"
-}[n]||"");
+/* THUNDER EFFECT */
+const canvas=document.getElementById("thunder");
+const ctx=canvas.getContext("2d");
 
-/* SUMMARY */
-function renderSummary(rows){
-  const c={Arun:0,Siyad:0,Sajid:0,Ashraf:0};
-  rows.forEach(r=>c[r.aic]++);
-  document.getElementById("summary").innerHTML=`
-    <span class="sum-arun ${currentFilter==='Arun'?'active':''}" onclick="setFilter('Arun')">Arun ${c.Arun}</span>
-    <span class="sum-siyad ${currentFilter==='Siyad'?'active':''}" onclick="setFilter('Siyad')">Siyad ${c.Siyad}</span>
-    <span class="sum-sajid ${currentFilter==='Sajid'?'active':''}" onclick="setFilter('Sajid')">Sajid ${c.Sajid}</span>
-    <span class="sum-ashraf ${currentFilter==='Ashraf'?'active':''}" onclick="setFilter('Ashraf')">Ashraf ${c.Ashraf}</span>
-    <span class="sum-total ${currentFilter==='TOTAL'?'active':''}" onclick="setFilter('TOTAL')">Total ${rows.length}</span>`;
+function resize(){
+  canvas.width=innerWidth;
+  canvas.height=innerHeight;
+}
+resize();
+addEventListener("resize",resize);
+
+function lightning(x,y,angle,len,depth){
+  if(depth<=0) return;
+  const x2=x+Math.cos(angle)*len;
+  const y2=y+Math.sin(angle)*len;
+
+  ctx.beginPath();
+  ctx.moveTo(x,y);
+  ctx.lineTo(x2,y2);
+  ctx.strokeStyle="rgba(255,255,255,0.8)";
+  ctx.lineWidth=2;
+  ctx.stroke();
+
+  lightning(x2,y2,angle+(Math.random()-.5),len*0.7,depth-1);
+  lightning(x2,y2,angle-(Math.random()-.5),len*0.7,depth-1);
 }
 
-/* FILTER */
-function setFilter(f){
-  currentFilter=f;
-  renderTable();
-  renderSummary(allRows);
+function spark(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  lightning(Math.random()*canvas.width,0,Math.PI/2,canvas.height/6,6);
+  setTimeout(()=>ctx.clearRect(0,0,canvas.width,canvas.height),120);
 }
-
-/* TABLE */
-function renderTable(){
-  const tbody=document.getElementById("daybookBody");
-  tbody.replaceChildren();
-
-  const rows=currentFilter==="TOTAL"
-    ? allRows
-    : allRows.filter(r=>r.aic===currentFilter);
-
-  rows.forEach((r,i)=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td>${i+1}</td><td>${r.date}</td><td>${r.time}</td>
-      <td>${r.jobcard}</td>
-      <td class="${aicClass(r.aic)}">${r.aic}</td>
-      <td>${r.customer}</td><td></td>
-      <td>${r.vehicle}</td><td>${r.chassis}</td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-/* VIEW STATE */
-function updateView(){
-  const empty=document.getElementById("emptyState");
-  const table=document.getElementById("tableWrapper");
-
-  if(allRows.length===0){
-    if(hadDataBefore){
-      showLoader();
-      empty.style.display="none";
-      table.style.display="none";
-    }else{
-      hideLoader();
-      empty.style.display="flex";
-      table.style.display="none";
-    }
-  }else{
-    hadDataBefore=true;
-    hideLoader();
-    empty.style.display="none";
-    table.style.display="block";
-  }
-}
-
-/* LOAD */
-async function loadDaybook(){
-  if(isFetching) return;
-  isFetching=true;
-  try{
-    const r=await fetch(DATA_URL,{cache:"no-store"});
-    const d=await r.json();
-    const h=JSON.stringify(d.rows||[]);
-    if(h!==lastHash){
-      lastHash=h;
-      allRows=d.rows||[];
-      renderSummary(allRows);
-      renderTable();
-      updateView();
-    }
-  }catch(e){
-    showLoader();
-  }finally{
-    isFetching=false;
-  }
-}
-
-/* INIT */
-showLoader();
-loadDaybook();
-setInterval(loadDaybook,30000);
+setInterval(spark,3000+Math.random()*3000);
 </script>
 
 </body>
