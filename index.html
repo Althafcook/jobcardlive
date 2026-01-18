@@ -105,23 +105,28 @@ canvas{
   transition:.25s;
 }
 
-/* ✅ AIC HOVER COLORS */
-.dropdown .arun:hover{
-  background:#d94a4a;
+/* AIC COLORS */
+.dropdown .arun:hover{background:#d94a4a;color:#fff}
+.dropdown .siyad:hover{background:#8bc34a;color:#000}
+.dropdown .sajid:hover{background:#f2d23c;color:#000}
+.dropdown .ashraf:hover{background:#eee;color:#000}
+
+/* ADMIN BUTTON */
+.admin-btn{
+  position:fixed;
+  bottom:16px;
+  right:16px;
+  background:#222;
   color:#fff;
+  border:1px solid #444;
+  border-radius:8px;
+  padding:8px 14px;
+  font-size:13px;
+  cursor:pointer;
+  opacity:0.9;
+  z-index:5; /* 🔥 IMPORTANT FIX */
 }
-.dropdown .siyad:hover{
-  background:#8bc34a;
-  color:#000;
-}
-.dropdown .sajid:hover{
-  background:#f2d23c;
-  color:#000;
-}
-.dropdown .ashraf:hover{
-  background:#eeeeee;
-  color:#000;
-}
+.admin-btn:hover{opacity:1}
 
 /* MOBILE */
 @media(max-width:600px){
@@ -151,17 +156,30 @@ canvas{
     <div class="btn">Search</div>
     <div class="btn" id="workbookBtn">Workbook</div>
 
-    <!-- DROPDOWN -->
     <div class="dropdown" id="workbookMenu">
-      <div class="arun"   onclick="openWorkbook('Arun')">Arun</div>
-      <div class="sajid"  onclick="openWorkbook('Sajid')">Sajid</div>
-      <div class="siyad"  onclick="openWorkbook('Siyad')">Siyad</div>
+      <div class="arun" onclick="openWorkbook('Arun')">Arun</div>
+      <div class="sajid" onclick="openWorkbook('Sajid')">Sajid</div>
+      <div class="siyad" onclick="openWorkbook('Siyad')">Siyad</div>
       <div class="ashraf" onclick="openWorkbook('Ashraf')">Ashraf</div>
     </div>
   </div>
 </div>
 
+<!-- ✅ ADMIN BUTTON (NOW VISIBLE) -->
+<button class="admin-btn" id="adminBtn">Admin</button>
+
 <script>
+/* ADMIN LOGIN */
+document.getElementById("adminBtn").onclick = () => {
+  const u = prompt("Admin username:");
+  const p = prompt("Admin password:");
+  if (u === "althaf" && p === "9745990154") {
+    location.href = "admin.html";
+  } else {
+    alert("Access denied");
+  }
+};
+
 /* WORKBOOK DROPDOWN */
 const btn=document.getElementById("workbookBtn");
 const menu=document.getElementById("workbookMenu");
@@ -172,9 +190,8 @@ btn.onclick=e=>{
 };
 document.body.onclick=()=>menu.classList.remove("show");
 
-function openWorkbook(name){
-  alert("Workbook: "+name);
-  // later → location.href = "workbook.html?name="+name;
+function openWorkbook(n){
+  alert("Workbook: "+n);
 }
 
 /* THUNDER EFFECT */
@@ -188,22 +205,19 @@ function resize(){
 resize();
 addEventListener("resize",resize);
 
-function lightning(x,y,angle,len,depth){
-  if(depth<=0) return;
-  const x2=x+Math.cos(angle)*len;
-  const y2=y+Math.sin(angle)*len;
-
+function lightning(x,y,a,l,d){
+  if(d<=0) return;
+  const x2=x+Math.cos(a)*l;
+  const y2=y+Math.sin(a)*l;
   ctx.beginPath();
   ctx.moveTo(x,y);
   ctx.lineTo(x2,y2);
-  ctx.strokeStyle="rgba(255,255,255,0.8)";
+  ctx.strokeStyle="rgba(255,255,255,.8)";
   ctx.lineWidth=2;
   ctx.stroke();
-
-  lightning(x2,y2,angle+(Math.random()-.5),len*0.7,depth-1);
-  lightning(x2,y2,angle-(Math.random()-.5),len*0.7,depth-1);
+  lightning(x2,y2,a+(Math.random()-.5),l*.7,d-1);
+  lightning(x2,y2,a-(Math.random()-.5),l*.7,d-1);
 }
-
 function spark(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   lightning(Math.random()*canvas.width,0,Math.PI/2,canvas.height/6,6);
