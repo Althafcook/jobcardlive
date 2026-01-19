@@ -3,153 +3,158 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport"
-  content="width=device-width, initial-scale=1, user-scalable=yes">
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 
 <title>Jobcard</title>
 
 <style>
+/* ===== PAGE ===== */
 body{
   margin:0;
   background:#000;
   display:flex;
   justify-content:center;
-  overflow:auto;
-}
-
-/* ===== SCALE WRAPPER ===== */
-.scale-wrap{
-  transform-origin: top center;
-}
-
-/* ===== JOBCARD CANVAS ===== */
-.jobcard{
-  width:1200px;
-  background:#000;
-  border:2px solid #666;
+  padding:20px;
   color:#fff;
   font-family:Segoe UI, Arial, sans-serif;
 }
 
+/* ===== SCALE WRAPPER ===== */
+.scale-wrapper{
+  transform-origin: top center;
+}
+
+/* Desktop scaling */
+@media (min-width:900px){
+  .scale-wrapper{
+    transform:scale(0.6);
+  }
+}
+
+/* Mobile fit */
+@media (max-width:899px){
+  .scale-wrapper{
+    transform:scale(calc(100vw / 1000));
+  }
+}
+
+/* ===== JOBCARD CANVAS ===== */
+.jobcard{
+  width:1000px;
+  background:#000;
+  border:2px solid #666;
+  padding:12px;
+}
+
 /* ===== COMMON ===== */
+.box{
+  border:1px solid #666;
+}
 .row{
   display:grid;
-  border-bottom:1px solid #444;
 }
 .cell{
-  border-right:1px solid #444;
+  border:1px solid #555;
   padding:4px 6px;
-  min-height:22px;
+  font-size:13px;
 }
-.cell:last-child{border-right:none}
+.hdr{
+  background:#1f4e79;
+  text-align:center;
+  font-weight:600;
+}
 
 /* ===== HEADER ===== */
-.top{
-  height:50px;
-  border-bottom:2px solid #666;
+.header{
+  height:40px;
+  margin-bottom:8px;
 }
 
-/* ===== INFO BLOCK ===== */
-.info-3{
-  grid-template-columns:1fr 2fr 1fr;
+/* ===== INFO GRID ===== */
+.info1{
+  grid-template-columns: 1fr 1fr 1fr;
 }
-.info-2{
-  grid-template-columns:2fr 1fr 1fr;
-}
-
-.label{
-  background:#1f4f78;
-  font-weight:600;
-  text-align:center;
+.info2{
+  grid-template-columns: 1fr 1fr 1fr;
 }
 
-/* ===== ITEM TABLE ===== */
-.items-head{
-  grid-template-columns:60px 1fr 180px 220px;
-}
-.items-row{
-  grid-template-columns:60px 1fr 180px 220px;
-}
-.items-row .cell{
-  height:15px;           /* Excel row height */
+/* ===== ITEMS TABLE ===== */
+.items{
+  margin-top:10px;
 }
 
-/* ===== SPACING ===== */
-.section-gap{
-  border-top:2px solid #666;
+.items-header{
+  grid-template-columns:60px 1fr 160px 200px;
+}
+
+.items-body{
+  grid-template-columns:60px 1fr 160px 200px;
+}
+
+.item-row{
+  height:15px; /* Excel-like */
 }
 </style>
 </head>
 
 <body>
 
-<div class="scale-wrap" id="scaleWrap">
+<div class="scale-wrapper">
 <div class="jobcard">
 
-  <!-- TOP EMPTY HEADER -->
-  <div class="top"></div>
+  <!-- TOP BLANK BAR -->
+  <div class="box header"></div>
 
   <!-- DATE / CUSTOMER / VEHICLE -->
-  <div class="row info-3">
-    <div class="cell label">Date</div>
-    <div class="cell label">Customer name</div>
-    <div class="cell label">Vehicle</div>
-  </div>
-  <div class="row info-3">
-    <div class="cell"></div>
-    <div class="cell"></div>
-    <div class="cell"></div>
+  <div class="row info1">
+    <div class="cell hdr">Date</div>
+    <div class="cell hdr">Customer name</div>
+    <div class="cell hdr">Vehicle</div>
+
+    <div class="cell">&nbsp;</div>
+    <div class="cell">&nbsp;</div>
+    <div class="cell">&nbsp;</div>
   </div>
 
   <!-- EXECUTIVE / COLOR / CHASSIS -->
-  <div class="row info-3 section-gap">
-    <div class="cell label">Executive</div>
-    <div class="cell label">Color</div>
-    <div class="cell label">Chassis no.</div>
-  </div>
-  <div class="row info-3">
-    <div class="cell"></div>
-    <div class="cell"></div>
-    <div class="cell"></div>
+  <div class="row info2" style="margin-top:6px">
+    <div class="cell hdr">Executive</div>
+    <div class="cell hdr">Color</div>
+    <div class="cell hdr">Chassis no.</div>
+
+    <div class="cell">&nbsp;</div>
+    <div class="cell">&nbsp;</div>
+    <div class="cell">&nbsp;</div>
   </div>
 
-  <!-- ITEMS HEADER -->
-  <div class="row items-head section-gap">
-    <div class="cell label">No</div>
-    <div class="cell label">Item</div>
-    <div class="cell label">Store status</div>
-    <div class="cell label">Supervisor Note</div>
-  </div>
+  <!-- ITEMS -->
+  <div class="items box">
 
-  <!-- 50 EMPTY ROWS -->
-  <div id="items"></div>
+    <!-- ITEMS HEADER -->
+    <div class="row items-header">
+      <div class="cell hdr">No</div>
+      <div class="cell hdr">Item</div>
+      <div class="cell hdr">Store status</div>
+      <div class="cell hdr">Supervisor Note</div>
+    </div>
+
+    <!-- 30 BLANK ROWS -->
+    <!-- copy/paste if more needed -->
+    <div class="row items-body item-row">
+      <div class="cell">&nbsp;</div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+    </div>
+    <div class="row items-body item-row">
+      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+    </div>
+    <div class="row items-body item-row">
+      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+    </div>
+    <!-- repeat rows as required -->
+
+  </div>
 
 </div>
 </div>
-
-<script>
-/* ===== GENERATE 50 ROWS ===== */
-const items=document.getElementById("items");
-for(let i=0;i<50;i++){
-  const r=document.createElement("div");
-  r.className="row items-row";
-  r.innerHTML=`
-    <div class="cell"></div>
-    <div class="cell"></div>
-    <div class="cell"></div>
-    <div class="cell"></div>`;
-  items.appendChild(r);
-}
-
-/* ===== AUTO FIT TO SCREEN ===== */
-function fit(){
-  const wrap=document.getElementById("scaleWrap");
-  const w=window.innerWidth;
-  const scale=Math.min(1, w / 1200);
-  wrap.style.transform=`scale(${scale})`;
-}
-fit();
-window.addEventListener("resize",fit);
-</script>
 
 </body>
 </html>
