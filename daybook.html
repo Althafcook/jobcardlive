@@ -20,7 +20,7 @@ body{
   padding:8px 12px;
   background:#000;
   display:grid;
-  grid-template-columns:auto 1fr auto;
+  grid-template-columns:auto 1fr auto auto;
   align-items:center;
   border-bottom:1px solid #333;
   gap:10px;
@@ -30,13 +30,14 @@ body{
   margin:0;
   font-size:18px;
   font-weight:600;
+  white-space:nowrap;
 }
 
 /* HOME BUTTON */
 .home-btn{
   cursor:pointer;
   font-size:18px;
-  opacity:.8;
+  opacity:.85;
 }
 .home-btn:hover{opacity:1}
 
@@ -193,8 +194,11 @@ tbody tr:hover{background:#1b1b1b}
 <body>
 
 <div class="header">
-  <div class="home-btn" onclick="location.href='index.html'">🏠</div>
+  <h1>Daybook</h1>
+
   <div class="summary" id="summary"></div>
+
+  <div class="home-btn" onclick="location.href='index.html'">🏠</div>
   <div class="date" id="currentDate"></div>
 </div>
 
@@ -336,7 +340,7 @@ function updateView(){
   }
 }
 
-/* LOAD (DOUBLING FIXED) */
+/* LOAD (ANTI-DOUBLING SAFE) */
 async function loadDaybook(){
   if(isFetching) return;
   isFetching=true;
