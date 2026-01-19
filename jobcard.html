@@ -3,80 +3,114 @@
 <head>
 <meta charset="UTF-8">
 
-<!-- 🔑 VERY IMPORTANT for pinch zoom -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<!-- ✅ Allow pinch zoom -->
+<meta name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
 
 <title>Jobcard</title>
 
 <style>
 body{
   margin:0;
-  background:#777;
-  font-family:Arial, Helvetica, sans-serif;
-}
-
-/* ===== ZOOM CONTAINER ===== */
-.viewer{
+  background:#000;
   display:flex;
   justify-content:center;
-  padding:20px 10px;
+  padding:20px;
+  font-family: "Segoe UI", Arial, sans-serif;
 }
 
-/* ===== JOBCARD PAPER ===== */
+/* ===== OUTER VIEWPORT ===== */
+.viewer{
+  overflow:auto;
+  max-width:100%;
+}
+
+/* ===== FIXED JOBCARD CANVAS ===== */
 .jobcard{
-  background:#fff;
-  width:210mm;               /* A4 width */
-  min-height:297mm;          /* A4 height */
-  padding:12mm;
-  box-shadow:0 0 12px rgba(0,0,0,.5);
+  width:1100px;               /* FIXED WIDTH */
+  background:#0a0a0a;
+  border:2px solid #666;
+  color:#fff;
+  padding:14px;
 }
 
 /* ===== COMMON ===== */
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:12px;
+.box{
+  border:1px solid #555;
 }
-td,th{
-  border:1px solid #000;
-  padding:4px;
+.label{
+  background:#1f4f78;
+  text-align:center;
+  font-weight:600;
+  padding:6px;
+}
+.cell{
+  border:1px solid #555;
+  height:42px;
 }
 
 /* ===== HEADER ===== */
-.header-table td{
-  height:28px;
+.header{
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:center;
+  margin-bottom:10px;
 }
-.header-title{
-  font-weight:bold;
-  text-align:center;
-  font-size:16px;
+.header .title{
+  height:40px;
+  border:1px solid #555;
 }
 
-/* ===== CUSTOMER / JOB INFO ===== */
-.info-table td{
-  height:26px;
+/* ===== INFO GRID ===== */
+.info{
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap:0;
+}
+.info .cell{
+  height:46px;
+}
+
+/* ===== SECOND INFO ===== */
+.info2{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  margin-top:6px;
+}
+.info2 .cell{
+  height:46px;
 }
 
 /* ===== ITEM TABLE ===== */
-.items th{
-  background:#eee;
-  font-weight:bold;
-  text-align:center;
+.items{
+  margin-top:10px;
 }
-.items td{
-  height:26px;
+.items-header{
+  display:grid;
+  grid-template-columns:60px 1fr 180px 220px;
+}
+.items-header div{
+  border:1px solid #555;
+  background:#1f4f78;
+  text-align:center;
+  padding:6px;
+  font-weight:600;
 }
 
-/* ===== FOOTER ===== */
-.footer-table td{
+/* rows */
+.item-row{
+  display:grid;
+  grid-template-columns:60px 1fr 180px 220px;
+}
+.item-row div{
+  border:1px solid #555;
   height:34px;
 }
 
-/* ===== MOBILE SCALE ===== */
-@media(max-width:768px){
+/* ===== MOBILE CENTER ===== */
+@media(max-width:1200px){
   .jobcard{
-    width:100%;
-    min-height:auto;
+    transform-origin: top center;
   }
 }
 </style>
@@ -87,120 +121,55 @@ td,th{
 <div class="viewer">
 <div class="jobcard">
 
-  <!-- ===== HEADER ===== -->
-  <table class="header-table">
-    <tr>
-      <td width="20%">Jobcard No</td>
-      <td width="30%"></td>
-      <td width="20%">Date</td>
-      <td width="30%"></td>
-    </tr>
-    <tr>
-      <td colspan="4" class="header-title">JOB CARD</td>
-    </tr>
-  </table>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="title"></div>
+    <div class="title"></div>
+  </div>
 
-  <br>
+  <!-- INFO ROW 1 -->
+  <div class="info">
+    <div class="label">Date</div>
+    <div class="label">Customer name</div>
+    <div class="label">Vehicle</div>
 
-  <!-- ===== CUSTOMER INFO ===== -->
-  <table class="info-table">
-    <tr>
-      <td width="20%">Customer Name</td>
-      <td width="30%"></td>
-      <td width="20%">AIC</td>
-      <td width="30%"></td>
-    </tr>
-    <tr>
-      <td>Vehicle</td>
-      <td></td>
-      <td>Reg No</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>Chassis No</td>
-      <td></td>
-      <td>KM</td>
-      <td></td>
-    </tr>
-  </table>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+  </div>
 
-  <br>
+  <!-- INFO ROW 2 -->
+  <div class="info2">
+    <div class="label">Executive</div>
+    <div class="label">Color</div>
+    <div class="label">Chassis no.</div>
 
-  <!-- ===== ITEMS ===== -->
-  <table class="items">
-    <tr>
-      <th width="6%">No</th>
-      <th width="44%">Item</th>
-      <th width="25%">Store Status</th>
-      <th width="25%">Supervisor Note</th>
-    </tr>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+  </div>
 
-    <!-- 🔁 50 BLANK ROWS -->
-    <!-- (no numbering, no data) -->
-    <!-- You can later auto-fill -->
+  <!-- ITEMS -->
+  <div class="items">
+    <div class="items-header">
+      <div>No</div>
+      <div>Item</div>
+      <div>Store status</div>
+      <div>Supervisor Note</div>
+    </div>
+
+    <!-- 50 EMPTY ROWS -->
+    <!-- DO NOT REMOVE -->
     <!-- START -->
-    <!-- Copy safe & clean -->
-    <!-- Rows -->
-    <!-- 1 -->
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
+    <div class="item-row"><div></div><div></div><div></div><div></div></div>
+    <div class="item-row"><div></div><div></div><div></div><div></div></div>
+    <div class="item-row"><div></div><div></div><div></div><div></div></div>
+    <div class="item-row"><div></div><div></div><div></div><div></div></div>
+    <div class="item-row"><div></div><div></div><div></div><div></div></div>
 
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td></tr>
+    <!-- duplicate as needed -->
     <!-- END -->
-  </table>
-
-  <br>
-
-  <!-- ===== FOOTER ===== -->
-  <table class="footer-table">
-    <tr>
-      <td width="50%">Customer Signature</td>
-      <td width="50%">Supervisor Signature</td>
-    </tr>
-  </table>
+  </div>
 
 </div>
 </div>
