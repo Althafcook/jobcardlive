@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jobcard</title>
+
+<style>
+body{
+  margin:0;
+  background:#000;
+  color:#fff;
+  font-family:"Segoe UI", Arial, sans-serif;
+}
+
+/* ===== HEADER ===== */
+.top-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 14px;
+  border-bottom:1px solid #333;
+}
+
+.title{
+  font-size:18px;
+  font-weight:600;
+  letter-spacing:1px;
+}
+
+.status{
+  background:#ffc107;
+  color:#000;
+  padding:4px 10px;
+  font-size:13px;
+  font-weight:600;
+  border-radius:3px;
+}
+
+/* ===== INFO TABLE ===== */
+.info-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:6px;
+}
+
+.info-table th{
+  background:#1f4f78;
+  padding:6px;
+  font-size:13px;
+  text-align:center;
+}
+
+.info-table td{
+  padding:8px;
+  font-size:13px;
+  text-align:center;
+}
+
+/* ===== ITEM TABLE ===== */
+.item-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+
+.item-table thead th{
+  background:#1f4f78;
+  font-size:13px;
+  padding:6px;
+}
+
+.item-table tbody td{
+  padding:6px;
+  font-size:13px;
+  text-align:center;
+}
+
+/* ITEM COLORS */
+.item-name{
+  color:#ff4444;
+  text-align:left;
+  padding-left:10px;
+}
+
+/* STORE STATUS */
+.billed{
+  background:#00cc00;
+  color:#000;
+  font-weight:600;
+}
+.unbilled{
+  background:#cc0000;
+  color:#fff;
+  font-weight:600;
+}
+.pending{
+  background:#ffcc00;
+  color:#000;
+  font-weight:600;
+}
+
+/* SUPERVISOR NOTE */
+.note{
+  background:#ff4500;
+  color:#fff;
+}
+
+/* REMOVE BORDERS */
+.item-table td,
+.item-table th{
+  border:none;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="top-bar">
+  <div class="title">SAJID – MUVATTUPUZHA</div>
+  <div class="status">Work in progress</div>
+</div>
+
+<!-- JOB INFO -->
+<table class="info-table">
+<tr>
+  <th>Date</th>
+  <th>Customer name</th>
+  <th>Vehicle</th>
+</tr>
+<tr>
+  <td></td>
+  <td></td>
+  <td></td>
+</tr>
+
+<tr>
+  <th>Executive</th>
+  <th>Color</th>
+  <th>Chassis no.</th>
+</tr>
+<tr>
+  <td></td>
+  <td></td>
+  <td></td>
+</tr>
+</table>
+
+<!-- ITEMS -->
+<table class="item-table">
+<thead>
+<tr>
+  <th style="width:40px">No</th>
+  <th>Item</th>
+  <th style="width:120px">Store status</th>
+  <th style="width:160px">Supervisor Note</th>
+</tr>
+</thead>
+
+<tbody>
+<!-- 50 EMPTY ROWS -->
+<script>
+for(let i=1;i<=50;i++){
+  document.write(`
+    <tr>
+      <td></td>
+      <td class="item-name"></td>
+      <td></td>
+      <td></td>
+    </tr>
+  `);
+}
+</script>
+</tbody>
+</table>
+
+</body>
+</html>
