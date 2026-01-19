@@ -2,156 +2,167 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+
+<!-- IMPORTANT: pinch zoom ENABLED -->
 <meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+      content="width=device-width, initial-scale=1, maximum-scale=5">
 
 <title>Jobcard</title>
 
 <style>
-/* ===== PAGE ===== */
+*{ box-sizing:border-box }
+
 body{
   margin:0;
   background:#000;
-  display:flex;
-  justify-content:center;
-  padding:20px;
   color:#fff;
   font-family:Segoe UI, Arial, sans-serif;
+  display:flex;
+  justify-content:center;
+  padding:14px;
 }
 
-/* ===== SCALE WRAPPER ===== */
-.scale-wrapper{
-  transform-origin: top center;
+/* ===== OUTER WRAPPER (controls size) ===== */
+.jobcard-wrapper{
+  width:100%;
+  display:flex;
+  justify-content:center;
 }
 
-/* Desktop scaling */
-@media (min-width:900px){
-  .scale-wrapper{
-    transform:scale(0.6);
-  }
-}
-
-/* Mobile fit */
-@media (max-width:899px){
-  .scale-wrapper{
-    transform:scale(calc(100vw / 1000));
-  }
-}
-
-/* ===== JOBCARD CANVAS ===== */
+/* ===== JOBCARD ===== */
 .jobcard{
-  width:1000px;
+  width:100%;
+  max-width:980px;              /* desktop limit */
   background:#000;
   border:2px solid #666;
-  padding:12px;
+  padding:10px;
 }
 
-/* ===== COMMON ===== */
-.box{
-  border:1px solid #666;
-}
+/* ===== GRID HELPERS ===== */
 .row{
   display:grid;
+  gap:0;
+  border-bottom:1px solid #444;
 }
+.row:last-child{ border-bottom:none }
+
 .cell{
-  border:1px solid #555;
-  padding:4px 6px;
+  border-right:1px solid #444;
+  padding:6px 8px;
+  min-height:28px;              /* Excel row ≈ 15 */
+  display:flex;
+  align-items:center;
   font-size:13px;
 }
-.hdr{
-  background:#1f4e79;
-  text-align:center;
-  font-weight:600;
-}
+.cell:last-child{ border-right:none }
 
-/* ===== HEADER ===== */
+/* ===== HEADERS ===== */
 .header{
-  height:40px;
-  margin-bottom:8px;
+  background:#1f4e79;
+  font-weight:600;
+  justify-content:center;
+  color:#fff;
 }
 
-/* ===== INFO GRID ===== */
-.info1{
-  grid-template-columns: 1fr 1fr 1fr;
-}
-.info2{
-  grid-template-columns: 1fr 1fr 1fr;
+/* ===== TOP BLANK BAR ===== */
+.top-blank{
+  height:34px;
+  border-bottom:1px solid #444;
 }
 
-/* ===== ITEMS TABLE ===== */
-.items{
-  margin-top:10px;
+/* ===== SECTIONS ===== */
+.grid-3{ grid-template-columns:1fr 1fr 1fr }
+.grid-2{ grid-template-columns:1fr 1fr }
+.grid-items{
+  grid-template-columns:60px 1fr 140px 160px;
 }
 
-.items-header{
-  grid-template-columns:60px 1fr 160px 200px;
+/* ===== ITEMS ROW ===== */
+.item-row .cell{
+  height:26px;
 }
 
-.items-body{
-  grid-template-columns:60px 1fr 160px 200px;
+/* ===== MOBILE FIT ===== */
+@media(max-width:768px){
+  body{ padding:6px }
+  .jobcard{
+    max-width:100%;
+  }
+  .grid-items{
+    grid-template-columns:50px 1fr 120px 140px;
+  }
 }
 
-.item-row{
-  height:15px; /* Excel-like */
+/* ===== VERY SMALL SCREENS ===== */
+@media(max-width:420px){
+  .cell{
+    font-size:12px;
+    padding:4px 6px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="scale-wrapper">
+<div class="jobcard-wrapper">
+
 <div class="jobcard">
 
-  <!-- TOP BLANK BAR -->
-  <div class="box header"></div>
+  <!-- TOP BLANK (AIC + STATUS AREA) -->
+  <div class="top-blank"></div>
 
   <!-- DATE / CUSTOMER / VEHICLE -->
-  <div class="row info1">
-    <div class="cell hdr">Date</div>
-    <div class="cell hdr">Customer name</div>
-    <div class="cell hdr">Vehicle</div>
-
-    <div class="cell">&nbsp;</div>
-    <div class="cell">&nbsp;</div>
-    <div class="cell">&nbsp;</div>
+  <div class="row grid-3">
+    <div class="cell header">Date</div>
+    <div class="cell header">Customer name</div>
+    <div class="cell header">Vehicle</div>
+  </div>
+  <div class="row grid-3">
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
   </div>
 
   <!-- EXECUTIVE / COLOR / CHASSIS -->
-  <div class="row info2" style="margin-top:6px">
-    <div class="cell hdr">Executive</div>
-    <div class="cell hdr">Color</div>
-    <div class="cell hdr">Chassis no.</div>
-
-    <div class="cell">&nbsp;</div>
-    <div class="cell">&nbsp;</div>
-    <div class="cell">&nbsp;</div>
+  <div class="row grid-3">
+    <div class="cell header">Executive</div>
+    <div class="cell header">Color</div>
+    <div class="cell header">Chassis no.</div>
+  </div>
+  <div class="row grid-3">
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
   </div>
 
-  <!-- ITEMS -->
-  <div class="items box">
-
-    <!-- ITEMS HEADER -->
-    <div class="row items-header">
-      <div class="cell hdr">No</div>
-      <div class="cell hdr">Item</div>
-      <div class="cell hdr">Store status</div>
-      <div class="cell hdr">Supervisor Note</div>
-    </div>
-
-    <!-- 30 BLANK ROWS -->
-    <!-- copy/paste if more needed -->
-    <div class="row items-body item-row">
-      <div class="cell">&nbsp;</div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-    </div>
-    <div class="row items-body item-row">
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-    </div>
-    <div class="row items-body item-row">
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-    </div>
-    <!-- repeat rows as required -->
-
+  <!-- ITEMS HEADER -->
+  <div class="row grid-items">
+    <div class="cell header">No</div>
+    <div class="cell header">Item</div>
+    <div class="cell header">Store status</div>
+    <div class="cell header">Supervisor Note</div>
   </div>
+
+  <!-- 50 BLANK ITEM ROWS -->
+  <!-- Row 1 -->
+  <div class="row grid-items item-row">
+    <div class="cell"></div><div class="cell"></div>
+    <div class="cell"></div><div class="cell"></div>
+  </div>
+  <!-- Row 2 -->
+  <div class="row grid-items item-row">
+    <div class="cell"></div><div class="cell"></div>
+    <div class="cell"></div><div class="cell"></div>
+  </div>
+  <!-- Row 3 -->
+  <div class="row grid-items item-row">
+    <div class="cell"></div><div class="cell"></div>
+    <div class="cell"></div><div class="cell"></div>
+  </div>
+
+  <!-- COPY THIS BLOCK UNTIL 50 ROWS -->
+  <!-- (intentionally static – no JS rendering) -->
 
 </div>
 </div>
