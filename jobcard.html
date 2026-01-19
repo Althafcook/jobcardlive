@@ -2,90 +2,108 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 <title>Jobcard</title>
 
 <style>
+*{box-sizing:border-box}
+
 body{
   margin:0;
   background:#000;
   color:#fff;
-  font-family:"Segoe UI", Arial, sans-serif;
+  font-family:"Segoe UI",Arial,sans-serif;
 }
 
-.wrapper{
-  max-width:1000px;
-  margin:12px auto;
-  padding:8px;
+/* ===== ZOOM CONTAINER ===== */
+.zoom-wrap{
+  overflow:auto;
+  touch-action:pan-x pan-y;
+  width:100vw;
+  height:100vh;
 }
 
-/* COMMON */
-.box{
+/* ===== MAIN JOBCARD ===== */
+.jobcard{
+  min-width:900px;          /* desktop reference width */
+  margin:20px auto;
   border:2px solid #666;
-  margin-bottom:10px;
+  background:#000;
 }
 
-.row{
+/* ===== TOP BLANK HEADER ===== */
+.top-header{
+  height:48px;
+  border-bottom:2px solid #666;
+}
+
+/* ===== INFO GRID ===== */
+.info-grid{
   display:grid;
-}
-
-.cell{
-  border:1px solid #444;
-  padding:10px;
-  min-height:42px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* TOP BLANK HEADER */
-.top-blank{
-  height:60px;
-}
-
-/* BLUE LABEL */
-.label{
-  background:#1f4f78;
-  font-weight:600;
-  text-align:center;
-}
-
-/* SECTION 1 */
-.sec-1{
   grid-template-columns:1fr 2fr 1fr;
+  border-bottom:2px solid #666;
 }
 
-/* SECTION 2 */
-.sec-2{
-  grid-template-columns:1fr 1fr 1fr;
+.info-grid div{
+  border-right:1px solid #666;
+}
+.info-grid div:last-child{border-right:none}
+
+.info-title{
+  background:#1f4f78;
+  text-align:center;
+  font-weight:600;
+  padding:8px;
+  border-bottom:1px solid #666;
 }
 
-/* ITEMS HEADER */
-.items-head{
-  grid-template-columns:60px 1fr 160px 200px;
+.info-value{
+  height:44px;
+  border-bottom:1px solid #666;
 }
 
-/* ITEMS ROW */
-.items-row{
-  grid-template-columns:60px 1fr 160px 200px;
+/* ===== SECOND INFO GRID ===== */
+.info-grid-2{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  border-bottom:2px solid #666;
 }
 
-/* MOBILE */
-@media(max-width:700px){
+.info-grid-2 div{
+  border-right:1px solid #666;
+}
+.info-grid-2 div:last-child{border-right:none}
 
-  .sec-1,
-  .sec-2{
-    grid-template-columns:1fr;
-  }
+/* ===== ITEM TABLE ===== */
+.items{
+  width:100%;
+  border-collapse:collapse;
+}
 
-  .items-head,
-  .items-row{
-    grid-template-columns:50px 1fr 120px 140px;
-  }
+.items th{
+  background:#1f4f78;
+  border:1px solid #666;
+  padding:8px;
+  text-align:center;
+  font-weight:600;
+}
 
-  .cell{
-    font-size:13px;
-    padding:8px;
+.items td{
+  border:1px solid #666;
+  height:32px;
+}
+
+/* column widths */
+.col-no{width:60px;text-align:center}
+.col-item{width:auto}
+.col-status{width:160px}
+.col-note{width:200px}
+
+/* ===== MOBILE SCALE ===== */
+@media(max-width:768px){
+  .jobcard{
+    min-width:1100px;   /* force zoom-on-mobile like image */
   }
 }
 </style>
@@ -93,77 +111,73 @@ body{
 
 <body>
 
-<div class="wrapper">
+<div class="zoom-wrap">
+<div class="jobcard">
 
-  <!-- TOP BLANK (AIC / STATUS AREA) -->
-  <div class="box top-blank"></div>
+  <!-- TOP BLANK HEADER (AIC / STATUS PLACEHOLDER) -->
+  <div class="top-header"></div>
 
-  <!-- DATE / CUSTOMER / VEHICLE -->
-  <div class="box row sec-1">
-    <div class="cell label">Date</div>
-    <div class="cell label">Customer name</div>
-    <div class="cell label">Vehicle</div>
-
-    <div class="cell"></div>
-    <div class="cell"></div>
-    <div class="cell"></div>
+  <!-- ROW 1 -->
+  <div class="info-grid">
+    <div>
+      <div class="info-title">Date</div>
+      <div class="info-value"></div>
+    </div>
+    <div>
+      <div class="info-title">Customer name</div>
+      <div class="info-value"></div>
+    </div>
+    <div>
+      <div class="info-title">Vehicle</div>
+      <div class="info-value"></div>
+    </div>
   </div>
 
-  <!-- EXECUTIVE / COLOR / CHASSIS -->
-  <div class="box row sec-2">
-    <div class="cell label">Executive</div>
-    <div class="cell label">Color</div>
-    <div class="cell label">Chassis no.</div>
-
-    <div class="cell"></div>
-    <div class="cell"></div>
-    <div class="cell"></div>
+  <!-- ROW 2 -->
+  <div class="info-grid-2">
+    <div>
+      <div class="info-title">Executive</div>
+      <div class="info-value"></div>
+    </div>
+    <div>
+      <div class="info-title">Color</div>
+      <div class="info-value"></div>
+    </div>
+    <div>
+      <div class="info-title">Chassis no.</div>
+      <div class="info-value"></div>
+    </div>
   </div>
 
-  <!-- ITEMS TABLE -->
-  <div class="box">
+  <!-- ITEM TABLE -->
+  <table class="items">
+    <thead>
+      <tr>
+        <th class="col-no">No</th>
+        <th class="col-item">Item</th>
+        <th class="col-status">Store status</th>
+        <th class="col-note">Supervisor Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 50 EMPTY ROWS -->
+      <!-- numbers will be filled later -->
+      <!-- borders always visible -->
+      <!-- START -->
+      <!-- repeat -->
+      ${Array.from({length:50}).map(()=>`
+      <tr>
+        <td class="col-no"></td>
+        <td class="col-item"></td>
+        <td class="col-status"></td>
+        <td class="col-note"></td>
+      </tr>
+      `).join("")}
+      <!-- END -->
+    </tbody>
+  </table>
 
-    <!-- ITEMS HEADER -->
-    <div class="row items-head">
-      <div class="cell label">No</div>
-      <div class="cell label">Item</div>
-      <div class="cell label">Store status</div>
-      <div class="cell label">Supervisor Note</div>
-    </div>
-
-    <!-- 50 EMPTY ROWS -->
-    <!-- You can later fill dynamically -->
-    <!-- ROW 1 -->
-    <div class="row items-row">
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-    </div>
-    <!-- ROW 2 -->
-    <div class="row items-row">
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-    </div>
-
-    <!-- ROWS 3–50 -->
-    <!-- Copy-paste pattern -->
-    <!-- (kept blank intentionally) -->
-
-    <!-- QUICK GENERATION -->
-    <script>
-      const container = document.currentScript.parentElement;
-      for(let i=3;i<=50;i++){
-        const r=document.createElement("div");
-        r.className="row items-row";
-        r.innerHTML=`
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-        `;
-        container.appendChild(r);
-      }
-    </script>
-
-  </div>
-
+</div>
 </div>
 
 </body>
