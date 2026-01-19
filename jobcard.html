@@ -2,123 +2,81 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0, user-scalable=yes"
-/>
+
+<!-- 🔑 VERY IMPORTANT for pinch zoom -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+
 <title>Jobcard</title>
 
 <style>
-/* ================= BASE ================= */
 body{
   margin:0;
-  background:#000;
-  font-family:"Segoe UI",Arial,sans-serif;
-  color:#fff;
-  overflow:auto;
+  background:#777;
+  font-family:Arial, Helvetica, sans-serif;
 }
 
-/* Allow zoom like image */
-.zoom-wrapper{
-  overflow:auto;
-  touch-action:pan-x pan-y;
+/* ===== ZOOM CONTAINER ===== */
+.viewer{
+  display:flex;
+  justify-content:center;
+  padding:20px 10px;
 }
 
-/* Fixed jobcard canvas */
+/* ===== JOBCARD PAPER ===== */
 .jobcard{
-  width:1100px;              /* IMPORTANT: fixed width */
-  margin:20px auto;
-  border:2px solid #666;
-  background:#000;
+  background:#fff;
+  width:210mm;               /* A4 width */
+  min-height:297mm;          /* A4 height */
+  padding:12mm;
+  box-shadow:0 0 12px rgba(0,0,0,.5);
 }
 
-/* ================= TOP HEADER ================= */
-.top-row{
-  display:grid;
-  grid-template-columns: 1fr 260px;
-  border-bottom:1px solid #666;
-}
-
-.top-left{
-  height:42px;
-  border-right:1px solid #666;
-}
-
-.top-right{
-  height:42px;
-}
-
-/* ================= INFO GRID ================= */
-.info-grid{
-  display:grid;
-  grid-template-columns: 1fr 2fr 1fr;
-  border-bottom:1px solid #666;
-}
-
-.info-grid div{
-  border-right:1px solid #666;
-  border-bottom:1px solid #666;
-  padding:10px;
-  background:#000;
-}
-
-.info-grid div:last-child{
-  border-right:none;
-}
-
-/* Headings */
-.info-head{
-  background:#1f4e79;
-  font-weight:600;
-  text-align:center;
-}
-
-/* ================= SECOND INFO ================= */
-.info-grid-2{
-  display:grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  border-bottom:1px solid #666;
-}
-
-.info-grid-2 div{
-  border-right:1px solid #666;
-  border-bottom:1px solid #666;
-  padding:10px;
-}
-
-.info-grid-2 div:last-child{
-  border-right:none;
-}
-
-/* ================= ITEMS TABLE ================= */
-.items{
+/* ===== COMMON ===== */
+table{
   width:100%;
   border-collapse:collapse;
+  font-size:12px;
+}
+td,th{
+  border:1px solid #000;
+  padding:4px;
 }
 
+/* ===== HEADER ===== */
+.header-table td{
+  height:28px;
+}
+.header-title{
+  font-weight:bold;
+  text-align:center;
+  font-size:16px;
+}
+
+/* ===== CUSTOMER / JOB INFO ===== */
+.info-table td{
+  height:26px;
+}
+
+/* ===== ITEM TABLE ===== */
 .items th{
-  background:#1f4e79;
-  padding:8px;
-  border:1px solid #666;
-  font-weight:600;
+  background:#eee;
+  font-weight:bold;
   text-align:center;
 }
-
 .items td{
-  height:28px;
-  border:1px solid #666;
+  height:26px;
 }
 
-/* Column widths */
-.col-no{width:60px;text-align:center}
-.col-item{width:520px}
-.col-status{width:200px}
-.col-note{width:320px}
+/* ===== FOOTER ===== */
+.footer-table td{
+  height:34px;
+}
 
-/* ================= MOBILE ================= */
+/* ===== MOBILE SCALE ===== */
 @media(max-width:768px){
   .jobcard{
-    margin:10px;
+    width:100%;
+    min-height:auto;
   }
 }
 </style>
@@ -126,104 +84,125 @@ body{
 
 <body>
 
-<div class="zoom-wrapper">
-  <div class="jobcard">
+<div class="viewer">
+<div class="jobcard">
 
-    <!-- TOP HEADER (BLANK) -->
-    <div class="top-row">
-      <div class="top-left"></div>
-      <div class="top-right"></div>
-    </div>
+  <!-- ===== HEADER ===== -->
+  <table class="header-table">
+    <tr>
+      <td width="20%">Jobcard No</td>
+      <td width="30%"></td>
+      <td width="20%">Date</td>
+      <td width="30%"></td>
+    </tr>
+    <tr>
+      <td colspan="4" class="header-title">JOB CARD</td>
+    </tr>
+  </table>
 
-    <!-- DATE / CUSTOMER / VEHICLE -->
-    <div class="info-grid">
-      <div class="info-head">Date</div>
-      <div class="info-head">Customer name</div>
-      <div class="info-head">Vehicle</div>
+  <br>
 
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
+  <!-- ===== CUSTOMER INFO ===== -->
+  <table class="info-table">
+    <tr>
+      <td width="20%">Customer Name</td>
+      <td width="30%"></td>
+      <td width="20%">AIC</td>
+      <td width="30%"></td>
+    </tr>
+    <tr>
+      <td>Vehicle</td>
+      <td></td>
+      <td>Reg No</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Chassis No</td>
+      <td></td>
+      <td>KM</td>
+      <td></td>
+    </tr>
+  </table>
 
-    <!-- EXECUTIVE / COLOR / CHASSIS -->
-    <div class="info-grid-2">
-      <div class="info-head">Executive</div>
-      <div class="info-head">Color</div>
-      <div class="info-head">Chassis no.</div>
+  <br>
 
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
+  <!-- ===== ITEMS ===== -->
+  <table class="items">
+    <tr>
+      <th width="6%">No</th>
+      <th width="44%">Item</th>
+      <th width="25%">Store Status</th>
+      <th width="25%">Supervisor Note</th>
+    </tr>
 
-    <!-- ITEMS TABLE -->
-    <table class="items">
-      <thead>
-        <tr>
-          <th class="col-no">No</th>
-          <th class="col-item">Item</th>
-          <th class="col-status">Store status</th>
-          <th class="col-note">Supervisor Note</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- 50 EMPTY ROWS -->
-        <!-- Data fill ചെയ്യുമ്പോൾ മാത്രമേ No എഴുതൂ -->
-        <!-- DO NOT REMOVE -->
-        <!-- START -->
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
+    <!-- 🔁 50 BLANK ROWS -->
+    <!-- (no numbering, no data) -->
+    <!-- You can later auto-fill -->
+    <!-- START -->
+    <!-- Copy safe & clean -->
+    <!-- Rows -->
+    <!-- 1 -->
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
 
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
 
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
 
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
 
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
 
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
 
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
 
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <!-- END -->
-      </tbody>
-    </table>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <!-- END -->
+  </table>
 
-  </div>
+  <br>
+
+  <!-- ===== FOOTER ===== -->
+  <table class="footer-table">
+    <tr>
+      <td width="50%">Customer Signature</td>
+      <td width="50%">Supervisor Signature</td>
+    </tr>
+  </table>
+
+</div>
 </div>
 
 </body>
