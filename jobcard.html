@@ -10,113 +10,82 @@ body{
   margin:0;
   background:#000;
   color:#fff;
-  font-family:"Segoe UI",Arial,sans-serif;
+  font-family:"Segoe UI", Arial, sans-serif;
+}
+
+.wrapper{
+  max-width:1000px;
+  margin:12px auto;
+  padding:8px;
 }
 
 /* COMMON */
-.container{
-  max-width:1000px;
-  margin:auto;
-  padding:12px;
+.box{
+  border:2px solid #666;
+  margin-bottom:10px;
 }
 
-/* ================= TOP BOX ================= */
-.top-box{
-  border:2px solid #444;
-  padding:12px;
-  margin-bottom:10px;
+.row{
+  display:grid;
+}
+
+.cell{
+  border:1px solid #444;
+  padding:10px;
+  min-height:42px;
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  min-height:48px;
-}
-.top-left{
-  font-size:20px;
-  font-weight:600;
-  letter-spacing:1px;
-}
-.top-right{
-  width:160px;
-  height:36px;
+  justify-content:center;
 }
 
-/* ================= INFO TABLES ================= */
-.info-box{
-  border:2px solid #444;
-  margin-bottom:10px;
+/* TOP BLANK HEADER */
+.top-blank{
+  height:60px;
 }
 
-.info-row{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-}
-
-.info-row.two{
-  grid-template-columns:repeat(3,1fr);
-}
-
-.info-header{
-  background:#1f4e79;
-  padding:8px;
+/* BLUE LABEL */
+.label{
+  background:#1f4f78;
   font-weight:600;
   text-align:center;
-  border-right:1px solid #333;
-}
-.info-header:last-child{border-right:none}
-
-.info-cell{
-  padding:12px;
-  height:40px;
-  border-top:1px solid #333;
-  border-right:1px solid #333;
-}
-.info-cell:last-child{border-right:none}
-
-/* ================= ITEMS ================= */
-.items-box{
-  border:2px solid #444;
 }
 
-.items-header{
-  display:grid;
-  grid-template-columns:60px 1fr 160px 200px;
-  background:#1f4e79;
-  font-weight:600;
+/* SECTION 1 */
+.sec-1{
+  grid-template-columns:1fr 2fr 1fr;
 }
 
-.items-header div{
-  padding:8px;
-  text-align:center;
+/* SECTION 2 */
+.sec-2{
+  grid-template-columns:1fr 1fr 1fr;
 }
 
-.items-body{
-  max-height:70vh;
-  overflow:auto;
-}
-
-.item-row{
-  display:grid;
+/* ITEMS HEADER */
+.items-head{
   grid-template-columns:60px 1fr 160px 200px;
 }
 
-.item-row div{
-  height:34px;
-  padding:6px;
-  color:#ccc;
+/* ITEMS ROW */
+.items-row{
+  grid-template-columns:60px 1fr 160px 200px;
 }
-
-/* NO row borders intentionally */
 
 /* MOBILE */
-@media(max-width:768px){
-  .info-row,
-  .info-row.two{
+@media(max-width:700px){
+
+  .sec-1,
+  .sec-2{
     grid-template-columns:1fr;
   }
 
-  .items-header,
-  .item-row{
+  .items-head,
+  .items-row{
     grid-template-columns:50px 1fr 120px 140px;
+  }
+
+  .cell{
+    font-size:13px;
+    padding:8px;
   }
 }
 </style>
@@ -124,70 +93,78 @@ body{
 
 <body>
 
-<div class="container">
+<div class="wrapper">
 
-  <!-- TOP -->
-  <div class="top-box">
-    <div class="top-left">&nbsp;</div>
-    <div class="top-right"></div>
-  </div>
+  <!-- TOP BLANK (AIC / STATUS AREA) -->
+  <div class="box top-blank"></div>
 
   <!-- DATE / CUSTOMER / VEHICLE -->
-  <div class="info-box">
-    <div class="info-row">
-      <div class="info-header">Date</div>
-      <div class="info-header">Customer name</div>
-      <div class="info-header">Vehicle</div>
+  <div class="box row sec-1">
+    <div class="cell label">Date</div>
+    <div class="cell label">Customer name</div>
+    <div class="cell label">Vehicle</div>
 
-      <div class="info-cell"></div>
-      <div class="info-cell"></div>
-      <div class="info-cell"></div>
-    </div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
   </div>
 
   <!-- EXECUTIVE / COLOR / CHASSIS -->
-  <div class="info-box">
-    <div class="info-row two">
-      <div class="info-header">Executive</div>
-      <div class="info-header">Color</div>
-      <div class="info-header">Chassis no.</div>
+  <div class="box row sec-2">
+    <div class="cell label">Executive</div>
+    <div class="cell label">Color</div>
+    <div class="cell label">Chassis no.</div>
 
-      <div class="info-cell"></div>
-      <div class="info-cell"></div>
-      <div class="info-cell"></div>
-    </div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
   </div>
 
-  <!-- ITEMS -->
-  <div class="items-box">
-    <div class="items-header">
-      <div>No</div>
-      <div>Item</div>
-      <div>Store status</div>
-      <div>Supervisor Note</div>
+  <!-- ITEMS TABLE -->
+  <div class="box">
+
+    <!-- ITEMS HEADER -->
+    <div class="row items-head">
+      <div class="cell label">No</div>
+      <div class="cell label">Item</div>
+      <div class="cell label">Store status</div>
+      <div class="cell label">Supervisor Note</div>
     </div>
 
-    <div class="items-body" id="itemsBody"></div>
+    <!-- 50 EMPTY ROWS -->
+    <!-- You can later fill dynamically -->
+    <!-- ROW 1 -->
+    <div class="row items-row">
+      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+    </div>
+    <!-- ROW 2 -->
+    <div class="row items-row">
+      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+    </div>
+
+    <!-- ROWS 3–50 -->
+    <!-- Copy-paste pattern -->
+    <!-- (kept blank intentionally) -->
+
+    <!-- QUICK GENERATION -->
+    <script>
+      const container = document.currentScript.parentElement;
+      for(let i=3;i<=50;i++){
+        const r=document.createElement("div");
+        r.className="row items-row";
+        r.innerHTML=`
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+        `;
+        container.appendChild(r);
+      }
+    </script>
+
   </div>
 
 </div>
-
-<script>
-/* CREATE 50 EMPTY ROWS */
-const body=document.getElementById("itemsBody");
-
-for(let i=0;i<50;i++){
-  const row=document.createElement("div");
-  row.className="item-row";
-  row.innerHTML=`
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-  `;
-  body.appendChild(row);
-}
-</script>
 
 </body>
 </html>
