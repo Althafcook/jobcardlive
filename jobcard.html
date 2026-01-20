@@ -29,10 +29,9 @@ body{
 
 /* ===== WRAPPER ===== */
 .wrapper{
-  padding:12px;
+  padding:14px;
 }
 
-/* ===== CARD ===== */
 .jobcard{
   max-width:420px;
   margin:auto;
@@ -47,20 +46,18 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:10px 12px;
+  padding:12px 14px;
   border-bottom:1px solid var(--border);
 }
 
 .title{
-  font-size:17px;
+  font-size:18px;
   font-weight:600;
-  letter-spacing:.4px;
 }
 
 .date{
   font-size:12px;
   color:var(--muted);
-  margin-top:2px;
 }
 
 .status{
@@ -79,18 +76,28 @@ body{
 
 .row{
   display:grid;
-  grid-template-columns:120px 1fr;
   border-bottom:1px solid var(--border);
   min-height:30px;
 }
 
 .row:last-child{border-bottom:none}
 
+/* Single full row */
+.single{
+  grid-template-columns:120px 1fr;
+}
+
+/* Equal split row (Chassis + Vehicle, Color + Executive) */
+.double{
+  grid-template-columns:100px 1fr 80px 1fr;
+}
+
 .label{
   padding:6px 10px;
   font-size:12px;
   color:var(--muted);
   border-right:1px solid var(--border);
+  white-space:nowrap;
 }
 
 .value{
@@ -98,9 +105,9 @@ body{
   font-size:13px;
 }
 
-/* ===== SPLIT ROWS (50 / 50) ===== */
-.row.split{
-  grid-template-columns:120px 1fr 120px 1fr;
+/* remove border from last value */
+.row .value:last-child{
+  border-right:none;
 }
 
 /* ===== ITEMS TABLE ===== */
@@ -114,29 +121,28 @@ body{
   color:#fff;
   font-size:11px;
   font-weight:600;
-  padding:5px 6px;
-  border-right:1px solid var(--border);
+  padding:6px;
   text-align:left;
+  border-right:1px solid var(--border);
 }
 
 .table thead th:last-child{border-right:none}
 
 .table tbody td{
-  height:16px;
-  font-size:11px;
+  height:18px;
   border-bottom:1px solid #222;
   border-right:1px solid #222;
 }
 
 .table tbody td:last-child{border-right:none}
 
-/* ===== COLUMN WIDTHS ===== */
-.col-no{width:34px}
+/* Column widths */
+.col-no{width:32px}
 .col-item{width:auto}
 .col-status{width:56px}
 .col-note{width:56px}
 
-/* ===== MOBILE TIGHT ===== */
+/* ===== MOBILE SAFETY ===== */
 @media(max-width:360px){
   .label{font-size:11px}
   .value{font-size:12px}
@@ -161,22 +167,22 @@ body{
     <!-- INFO -->
     <div class="info">
 
-      <!-- CUSTOMER NAME -->
-      <div class="row">
+      <!-- Customer -->
+      <div class="row single">
         <div class="label">Customer Name</div>
         <div class="value"></div>
       </div>
 
-      <!-- CHASSIS + VEHICLE -->
-      <div class="row split">
+      <!-- Chassis + Vehicle -->
+      <div class="row double">
         <div class="label">Chassis No</div>
         <div class="value"></div>
         <div class="label">Vehicle</div>
         <div class="value"></div>
       </div>
 
-      <!-- COLOR + EXECUTIVE -->
-      <div class="row split">
+      <!-- Color + Executive -->
+      <div class="row double">
         <div class="label">Color</div>
         <div class="value"></div>
         <div class="label">Executive</div>
@@ -196,19 +202,12 @@ body{
         </tr>
       </thead>
       <tbody>
-        <!-- 30 compact rows -->
+        <!-- compact rows -->
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
-
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
