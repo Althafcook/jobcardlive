@@ -2,17 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
 <title>Job Card</title>
 
 <style>
 :root{
-  --bg:#0c0c0c;
-  --card:#141414;
-  --line:#2a2a2a;
-  --header:#1f4f78;
+  --bg:#0b0b0b;
+  --card:#121212;
+  --border:#3a3a3a;
+  --header:#1f4e79;
   --text:#eaeaea;
-  --muted:#9a9a9a;
+  --muted:#9aa0a6;
   --accent:#f4b400;
 }
 
@@ -21,149 +23,187 @@
 body{
   margin:0;
   background:var(--bg);
-  font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
   color:var(--text);
 }
 
-/* CARD */
+/* ===== CARD ===== */
+.wrapper{
+  padding:14px;
+}
+
 .jobcard{
   max-width:420px;
-  margin:16px auto;
-  background:var(--card);
-  border-radius:18px;
-  border:1px solid var(--line);
+  margin:auto;
+  background:linear-gradient(180deg,#141414,#0f0f0f);
+  border:1px solid var(--border);
+  border-radius:14px;
   overflow:hidden;
 }
 
-/* TOP BAR */
-.top{
+/* ===== HEADER ===== */
+.topbar{
   display:flex;
   justify-content:space-between;
   align-items:center;
   padding:12px 14px;
-  border-bottom:1px solid var(--line);
+  border-bottom:1px solid var(--border);
 }
-.top h1{
-  margin:0;
+
+.title{
   font-size:18px;
+  font-weight:600;
   letter-spacing:.5px;
 }
-.status-pill{
+
+.date{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.status{
   background:var(--accent);
   color:#000;
-  font-size:12px;
+  font-size:11px;
   font-weight:700;
-  padding:6px 12px;
+  padding:6px 10px;
   border-radius:20px;
 }
 
-/* INFO ROWS */
-.info-row{
-  padding:8px 14px;          /* 🔹 reduced height */
-  border-bottom:1px solid var(--line);
+/* ===== INFO GRID ===== */
+.info{
+  border-bottom:1px solid var(--border);
+}
+
+.row{
+  display:grid;
+  grid-template-columns:120px 1fr;
+  border-bottom:1px solid var(--border);
+  min-height:32px;
+}
+
+.row:last-child{border-bottom:none}
+
+.label{
+  padding:6px 10px;
+  font-size:12px;
+  color:var(--muted);
+  border-right:1px solid var(--border);
+}
+
+.value{
+  padding:6px 10px;
   font-size:13px;
 }
-.label{
-  color:var(--muted);
-  font-size:11px;
-  margin-bottom:2px;
+
+/* DOUBLE ROWS */
+.double{
+  grid-template-columns:110px 1fr 90px 120px;
 }
 
-/* TABLE */
-.table-wrap{
-  overflow-x:auto;
-}
-
-table{
+/* ===== ITEMS TABLE ===== */
+.table{
   width:100%;
   border-collapse:collapse;
-  table-layout:fixed;
-  font-size:13px;
 }
 
-/* TABLE HEADER */
-thead th{
+.table thead th{
   background:var(--header);
-  padding:6px 6px;          /* 🔹 compact header */
-  border-right:1px solid #163a57;
+  color:#fff;
+  font-size:11px;
   font-weight:600;
+  padding:6px 6px;
+  border-right:1px solid var(--border);
+  text-align:left;
 }
-thead th:last-child{border-right:none}
+
+.table thead th:last-child{border-right:none}
+
+.table tbody td{
+  height:18px;
+  border-bottom:1px solid #222;
+  border-right:1px solid #222;
+}
+
+.table tbody td:last-child{border-right:none}
 
 /* COLUMN WIDTHS */
-.col-no{width:36px}          /* 🔹 2-digit */
+.col-no{width:36px}
 .col-item{width:auto}
-.col-status{width:90px}      /* 🔹 ~10 chars */
-.col-note{width:100px}       /* 🔹 ~10 chars */
+.col-status{width:60px}
+.col-note{width:60px}
 
-/* BODY ROWS */
-tbody td{
-  height:26px;               /* 🔹 slim rows */
-  border-bottom:1px solid var(--line);
-  border-right:1px solid var(--line);
-}
-tbody td:last-child{border-right:none}
-
-/* EMPTY SPACE LOOK */
-tbody tr:last-child td{
-  border-bottom:none;
+/* ===== MOBILE SAFETY ===== */
+@media(max-width:360px){
+  .jobcard{border-radius:10px}
+  .label{font-size:11px}
+  .value{font-size:12px}
 }
 </style>
 </head>
 
 <body>
 
-<div class="jobcard">
+<div class="wrapper">
+  <div class="jobcard">
 
-  <!-- TOP -->
-  <div class="top">
-    <h1>JOB CARD</h1>
-    <div class="status-pill">IN PROGRESS</div>
-  </div>
+    <!-- HEADER -->
+    <div class="topbar">
+      <div>
+        <div class="title">JOB CARD</div>
+        <div class="date">19 Jan 2026</div>
+      </div>
+      <div class="status">IN&nbsp;PROGRESS</div>
+    </div>
 
-  <!-- INFO -->
-  <div class="info-row">
-    <div class="label">Date</div>
-  </div>
-  <div class="info-row">
-    <div class="label">Customer Name</div>
-  </div>
-  <div class="info-row">
-    <div class="label">Vehicle</div>
-  </div>
-  <div class="info-row">
-    <div class="label">Chassis No</div>
-  </div>
-  <div class="info-row">
-    <div class="label">Executive</div>
-  </div>
-  <div class="info-row">
-    <div class="label">Color</div>
-  </div>
+    <!-- INFO -->
+    <div class="info">
 
-  <!-- ITEMS TABLE -->
-  <div class="table-wrap">
-    <table>
+      <div class="row">
+        <div class="label">Customer Name</div>
+        <div class="value"></div>
+      </div>
+
+      <div class="row double">
+        <div class="label">Chassis No</div>
+        <div class="value"></div>
+        <div class="label">Vehicle</div>
+        <div class="value"></div>
+      </div>
+
+      <div class="row double">
+        <div class="label">Color</div>
+        <div class="value"></div>
+        <div class="label">Executive</div>
+        <div class="value"></div>
+      </div>
+
+    </div>
+
+    <!-- ITEMS -->
+    <table class="table">
       <thead>
         <tr>
           <th class="col-no">No</th>
           <th class="col-item">Item</th>
           <th class="col-status">Status</th>
-          <th class="col-note">Supervisor Note</th>
+          <th class="col-note">Note</th>
         </tr>
       </thead>
       <tbody>
-        <!-- 15 EMPTY ROWS (visual only) -->
+        <!-- 30 compact rows -->
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
+
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
+
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
@@ -171,8 +211,8 @@ tbody tr:last-child td{
         <tr><td></td><td></td><td></td><td></td></tr>
       </tbody>
     </table>
-  </div>
 
+  </div>
 </div>
 
 </body>
