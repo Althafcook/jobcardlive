@@ -2,169 +2,210 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
-<!-- IMPORTANT: pinch zoom ENABLED -->
-<meta name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=5">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jobcard</title>
 
 <style>
-*{ box-sizing:border-box }
+:root{
+  --bg:#0c0c0c;
+  --card:#141414;
+  --line:#2f2f2f;
+  --blue:#1f4f78;
+  --text:#eaeaea;
+  --muted:#a0a0a0;
+}
+
+*{box-sizing:border-box}
 
 body{
   margin:0;
-  background:#000;
-  color:#fff;
-  font-family:Segoe UI, Arial, sans-serif;
+  background:var(--bg);
+  font-family:"Segoe UI",system-ui;
+  color:var(--text);
   display:flex;
   justify-content:center;
-  padding:14px;
+  padding:16px;
 }
 
-/* ===== OUTER WRAPPER (controls size) ===== */
-.jobcard-wrapper{
-  width:100%;
-  display:flex;
-  justify-content:center;
-}
-
-/* ===== JOBCARD ===== */
+/* ===== CARD ===== */
 .jobcard{
   width:100%;
-  max-width:980px;              /* desktop limit */
-  background:#000;
-  border:2px solid #666;
-  padding:10px;
+  max-width:720px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
 }
 
-/* ===== GRID HELPERS ===== */
-.row{
-  display:grid;
-  gap:0;
-  border-bottom:1px solid #444;
-}
-.row:last-child{ border-bottom:none }
-
-.cell{
-  border-right:1px solid #444;
-  padding:6px 8px;
-  min-height:28px;              /* Excel row ≈ 15 */
+/* ===== HEADER ===== */
+.header{
   display:flex;
+  justify-content:space-between;
   align-items:center;
+  padding:14px 16px;
+  border-bottom:1px solid var(--line);
+}
+
+.header h1{
+  margin:0;
+  font-size:18px;
+  letter-spacing:1px;
+}
+
+.status{
+  padding:4px 10px;
+  font-size:12px;
+  border-radius:20px;
+  background:#ffb300;
+  color:#000;
+  font-weight:600;
+}
+
+/* ===== INFO GRID ===== */
+.info{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1px;
+  background:var(--line);
+}
+
+.info div{
+  background:#111;
+  padding:10px 12px;
+}
+
+.label{
+  font-size:11px;
+  color:var(--muted);
+}
+
+.value{
+  margin-top:2px;
+  font-size:14px;
+}
+
+/* ===== SECTION TITLE ===== */
+.section-title{
+  background:var(--blue);
+  padding:8px 12px;
+  font-size:14px;
+  font-weight:600;
+}
+
+/* ===== TABLE ===== */
+.table-wrap{
+  max-height:60vh;
+  overflow:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
   font-size:13px;
 }
-.cell:last-child{ border-right:none }
 
-/* ===== HEADERS ===== */
-.header{
-  background:#1f4e79;
-  font-weight:600;
-  justify-content:center;
-  color:#fff;
+thead th{
+  position:sticky;
+  top:0;
+  background:var(--blue);
+  padding:6px;
+  text-align:left;
 }
 
-/* ===== TOP BLANK BAR ===== */
-.top-blank{
-  height:34px;
-  border-bottom:1px solid #444;
+tbody td{
+  padding:4px 6px;
+  border-bottom:1px solid var(--line);
+  height:22px;
 }
 
-/* ===== SECTIONS ===== */
-.grid-3{ grid-template-columns:1fr 1fr 1fr }
-.grid-2{ grid-template-columns:1fr 1fr }
-.grid-items{
-  grid-template-columns:60px 1fr 140px 160px;
+tbody tr:hover{
+  background:#1b1b1b;
 }
 
-/* ===== ITEMS ROW ===== */
-.item-row .cell{
-  height:26px;
-}
+/* STATUS COLORS (future use) */
+.billed{color:#00e676}
+.unbilled{color:#ff5252}
+.pending{color:#ffca28}
 
-/* ===== MOBILE FIT ===== */
-@media(max-width:768px){
-  body{ padding:6px }
-  .jobcard{
-    max-width:100%;
-  }
-  .grid-items{
-    grid-template-columns:50px 1fr 120px 140px;
-  }
-}
-
-/* ===== VERY SMALL SCREENS ===== */
-@media(max-width:420px){
-  .cell{
-    font-size:12px;
-    padding:4px 6px;
-  }
+/* ===== MOBILE ===== */
+@media(max-width:480px){
+  .header h1{font-size:16px}
+  .info{grid-template-columns:1fr}
 }
 </style>
 </head>
 
 <body>
 
-<div class="jobcard-wrapper">
-
 <div class="jobcard">
 
-  <!-- TOP BLANK (AIC + STATUS AREA) -->
-  <div class="top-blank"></div>
-
-  <!-- DATE / CUSTOMER / VEHICLE -->
-  <div class="row grid-3">
-    <div class="cell header">Date</div>
-    <div class="cell header">Customer name</div>
-    <div class="cell header">Vehicle</div>
-  </div>
-  <div class="row grid-3">
-    <div class="cell"></div>
-    <div class="cell"></div>
-    <div class="cell"></div>
+  <!-- HEADER -->
+  <div class="header">
+    <h1>JOB CARD</h1>
+    <div class="status">IN PROGRESS</div>
   </div>
 
-  <!-- EXECUTIVE / COLOR / CHASSIS -->
-  <div class="row grid-3">
-    <div class="cell header">Executive</div>
-    <div class="cell header">Color</div>
-    <div class="cell header">Chassis no.</div>
-  </div>
-  <div class="row grid-3">
-    <div class="cell"></div>
-    <div class="cell"></div>
-    <div class="cell"></div>
+  <!-- INFO -->
+  <div class="info">
+    <div>
+      <div class="label">Date</div>
+      <div class="value"></div>
+    </div>
+    <div>
+      <div class="label">Customer Name</div>
+      <div class="value"></div>
+    </div>
+
+    <div>
+      <div class="label">Vehicle</div>
+      <div class="value"></div>
+    </div>
+    <div>
+      <div class="label">Chassis No</div>
+      <div class="value"></div>
+    </div>
+
+    <div>
+      <div class="label">Executive</div>
+      <div class="value"></div>
+    </div>
+    <div>
+      <div class="label">Color</div>
+      <div class="value"></div>
+    </div>
   </div>
 
-  <!-- ITEMS HEADER -->
-  <div class="row grid-items">
-    <div class="cell header">No</div>
-    <div class="cell header">Item</div>
-    <div class="cell header">Store status</div>
-    <div class="cell header">Supervisor Note</div>
+  <!-- ITEMS -->
+  <div class="section-title">Items</div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:40px">No</th>
+          <th>Item</th>
+          <th style="width:100px">Store</th>
+          <th style="width:140px">Supervisor Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- 50 empty rows -->
+        <script>
+          for(let i=1;i<=50;i++){
+            document.write(`
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            `);
+          }
+        </script>
+      </tbody>
+    </table>
   </div>
 
-  <!-- 50 BLANK ITEM ROWS -->
-  <!-- Row 1 -->
-  <div class="row grid-items item-row">
-    <div class="cell"></div><div class="cell"></div>
-    <div class="cell"></div><div class="cell"></div>
-  </div>
-  <!-- Row 2 -->
-  <div class="row grid-items item-row">
-    <div class="cell"></div><div class="cell"></div>
-    <div class="cell"></div><div class="cell"></div>
-  </div>
-  <!-- Row 3 -->
-  <div class="row grid-items item-row">
-    <div class="cell"></div><div class="cell"></div>
-    <div class="cell"></div><div class="cell"></div>
-  </div>
-
-  <!-- COPY THIS BLOCK UNTIL 50 ROWS -->
-  <!-- (intentionally static – no JS rendering) -->
-
-</div>
 </div>
 
 </body>
