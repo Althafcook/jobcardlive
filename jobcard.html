@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Job Card</title>
 
 <style>
 :root{
   --bg:#0c0c0c;
-  --card:#121212;
-  --border:#2a2a2a;
+  --card:#141414;
+  --line:#2a2a2a;
   --header:#1f4f78;
   --text:#eaeaea;
-  --muted:#9aa0a6;
-  --accent:#f5b400;
+  --muted:#9a9a9a;
+  --accent:#f4b400;
 }
 
 *{box-sizing:border-box}
@@ -21,166 +21,158 @@
 body{
   margin:0;
   background:var(--bg);
-  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+  font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
   color:var(--text);
 }
 
-/* PAGE WRAP */
-.page{
-  padding:12px;
-}
-
 /* CARD */
-.card{
-  max-width:520px;
-  margin:auto;
-  background:linear-gradient(180deg,#151515,#0e0e0e);
-  border:1px solid var(--border);
-  border-radius:14px;
+.jobcard{
+  max-width:420px;
+  margin:16px auto;
+  background:var(--card);
+  border-radius:18px;
+  border:1px solid var(--line);
   overflow:hidden;
 }
 
-/* HEADER */
-.card-header{
+/* TOP BAR */
+.top{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:14px 16px;
-  border-bottom:1px solid var(--border);
+  padding:12px 14px;
+  border-bottom:1px solid var(--line);
 }
-
-.card-header h1{
+.top h1{
   margin:0;
   font-size:18px;
-  letter-spacing:1px;
+  letter-spacing:.5px;
 }
-
-.status{
+.status-pill{
   background:var(--accent);
   color:#000;
   font-size:12px;
+  font-weight:700;
   padding:6px 12px;
   border-radius:20px;
-  font-weight:600;
 }
 
 /* INFO ROWS */
-.info{
-  display:grid;
-  grid-template-columns:1fr;
+.info-row{
+  padding:8px 14px;          /* 🔹 reduced height */
+  border-bottom:1px solid var(--line);
+  font-size:13px;
+}
+.label{
+  color:var(--muted);
+  font-size:11px;
+  margin-bottom:2px;
 }
 
-.info-row{
-  padding:10px 16px;            /* ⬅️ compact height */
-  border-bottom:1px solid var(--border);
+/* TABLE */
+.table-wrap{
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
   font-size:13px;
-  color:var(--muted);
 }
 
 /* TABLE HEADER */
-.table-head{
-  display:grid;
-  grid-template-columns:44px 1fr 110px 140px;
+thead th{
   background:var(--header);
-  font-size:13px;
+  padding:6px 6px;          /* 🔹 compact header */
+  border-right:1px solid #163a57;
   font-weight:600;
-  border-top:1px solid var(--border);
 }
+thead th:last-child{border-right:none}
 
-.table-head div{
-  padding:10px 8px;
-  border-right:1px solid #163a59;
-}
-.table-head div:last-child{border-right:none}
+/* COLUMN WIDTHS */
+.col-no{width:36px}          /* 🔹 2-digit */
+.col-item{width:auto}
+.col-status{width:90px}      /* 🔹 ~10 chars */
+.col-note{width:100px}       /* 🔹 ~10 chars */
 
-/* TABLE BODY */
-.table-body{
-  max-height:420px;
-  overflow:auto;
+/* BODY ROWS */
+tbody td{
+  height:26px;               /* 🔹 slim rows */
+  border-bottom:1px solid var(--line);
+  border-right:1px solid var(--line);
 }
+tbody td:last-child{border-right:none}
 
-.row{
-  display:grid;
-  grid-template-columns:44px 1fr 110px 140px;
-  border-bottom:1px solid var(--border);
-  font-size:12px;
-}
-
-.row div{
-  padding:7px 8px;              /* ⬅️ compact row height */
-  border-right:1px solid var(--border);
-}
-.row div:last-child{border-right:none}
-
-/* MOBILE SCROLL SMOOTH */
-.table-body::-webkit-scrollbar{
-  width:6px;
-}
-.table-body::-webkit-scrollbar-thumb{
-  background:#333;
-  border-radius:6px;
-}
-
-/* SMALL SCREENS */
-@media(max-width:420px){
-  .table-head,
-  .row{
-    grid-template-columns:38px 1fr 90px 120px;
-  }
+/* EMPTY SPACE LOOK */
+tbody tr:last-child td{
+  border-bottom:none;
 }
 </style>
 </head>
 
 <body>
 
-<div class="page">
-  <div class="card">
+<div class="jobcard">
 
-    <!-- HEADER -->
-    <div class="card-header">
-      <h1>JOB CARD</h1>
-      <div class="status">IN PROGRESS</div>
-    </div>
-
-    <!-- INFO SECTION -->
-    <div class="info">
-      <div class="info-row">Date</div>
-      <div class="info-row">Customer Name</div>
-      <div class="info-row">Vehicle</div>
-      <div class="info-row">Chassis No</div>
-      <div class="info-row">Executive</div>
-      <div class="info-row">Color</div>
-    </div>
-
-    <!-- TABLE HEADER -->
-    <div class="table-head">
-      <div>No</div>
-      <div>Item</div>
-      <div>Store</div>
-      <div>Supervisor Note</div>
-    </div>
-
-    <!-- TABLE BODY (EMPTY ROWS) -->
-    <div class="table-body">
-      <!-- 15 sample rows -->
-      <div class="row"><div></div><div></div><div></div><div></div></div>
-      <div class="row"><div></div><div></div><div></div><div></div></div>
-      <div class="row"><div></div><div></div><div></div><div></div></div>
-      <div class="row"><div></div><div></div><div></div><div></div></div>
-      <div class="row"><div></div><div></div><div></div><div></div></div>
-      <div class="row"><div></div><div></div><div></div><div></div></div>
-      <div class="row"><div></div><div></div><div></div><div></div></div>
-      <div class="row"><div></div><div></div><div></div><div></div></div>
-      <div class="row"><div></div><div></div><div></div><div></div></div>
-      <div class="row"><div></div><div></div><div></div><div></div></div>
-      <div class="row"><div></div><div></div><div></div><div></div></div>
-      <div class="row"><div></div><div></div><div></div><div></div></div>
-      <div class="row"><div></div><div></div><div></div><div></div></div>
-      <div class="row"><div></div><div></div><div></div><div></div></div>
-      <div class="row"><div></div><div></div><div></div><div></div></div>
-    </div>
-
+  <!-- TOP -->
+  <div class="top">
+    <h1>JOB CARD</h1>
+    <div class="status-pill">IN PROGRESS</div>
   </div>
+
+  <!-- INFO -->
+  <div class="info-row">
+    <div class="label">Date</div>
+  </div>
+  <div class="info-row">
+    <div class="label">Customer Name</div>
+  </div>
+  <div class="info-row">
+    <div class="label">Vehicle</div>
+  </div>
+  <div class="info-row">
+    <div class="label">Chassis No</div>
+  </div>
+  <div class="info-row">
+    <div class="label">Executive</div>
+  </div>
+  <div class="info-row">
+    <div class="label">Color</div>
+  </div>
+
+  <!-- ITEMS TABLE -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-no">No</th>
+          <th class="col-item">Item</th>
+          <th class="col-status">Status</th>
+          <th class="col-note">Supervisor Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- 15 EMPTY ROWS (visual only) -->
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+
 </div>
 
 </body>
