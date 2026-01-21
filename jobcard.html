@@ -44,7 +44,7 @@ body{
 .topbar{
   display:flex;
   justify-content:space-between;
-  align-items:flex-start;
+  align-items:center;
   padding:12px 14px;
   border-bottom:1px solid var(--border);
 }
@@ -57,7 +57,6 @@ body{
 .date{
   font-size:12px;
   color:var(--muted);
-  margin-top:2px;
 }
 
 .status{
@@ -74,40 +73,36 @@ body{
   border-bottom:1px solid var(--border);
 }
 
-/* SINGLE ROW (Label + Value only) */
 .row{
   display:grid;
-  grid-template-columns:120px 1fr;
   border-bottom:1px solid var(--border);
-  min-height:32px;
+  min-height:30px;
 }
 
 .row:last-child{border-bottom:none}
 
-/* DOUBLE ROW (Label+Value | Label+Value) */
-.row.double{
-  grid-template-columns:110px 1fr 110px 1fr;
+/* label + value */
+.single{
+  grid-template-columns:auto 1fr;
+}
+
+/* label/value + label/value */
+.double{
+  grid-template-columns:auto 1fr auto 1fr;
 }
 
 .label{
   padding:6px 10px;
   font-size:12px;
   color:var(--muted);
+  white-space:nowrap;
   border-right:1px solid var(--border);
-  display:flex;
-  align-items:center;
 }
 
 .value{
   padding:6px 10px;
   font-size:13px;
-  display:flex;
-  align-items:center;
-}
-
-/* vertical divider only between left & right blocks */
-.row.double .value:nth-child(2){
-  border-right:1px solid var(--border);
+  min-width:0; /* IMPORTANT: prevents overflow */
 }
 
 /* ===== ITEMS TABLE ===== */
@@ -137,10 +132,10 @@ body{
 .table tbody td:last-child{border-right:none}
 
 /* COLUMN WIDTHS */
-.col-no{width:34px}
+.col-no{width:36px}
 .col-item{width:auto}
-.col-status{width:52px}
-.col-note{width:52px}
+.col-status{width:60px}
+.col-note{width:60px}
 
 /* ===== MOBILE ===== */
 @media(max-width:360px){
@@ -168,7 +163,7 @@ body{
     <div class="info">
 
       <!-- Customer Name -->
-      <div class="row">
+      <div class="row single">
         <div class="label">Customer Name</div>
         <div class="value"></div>
       </div>
@@ -202,10 +197,17 @@ body{
         </tr>
       </thead>
       <tbody>
-        <!-- compact rows -->
-        ${Array.from({length:15}).map(()=>`
-          <tr><td></td><td></td><td></td><td></td></tr>
-        `).join("")}
+        <!-- Empty rows -->
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
       </tbody>
     </table>
 
