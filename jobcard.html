@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Job Card</title>
 
@@ -27,12 +26,11 @@ body{
   color:var(--text);
 }
 
-/* ===== WRAPPER ===== */
+/* ===== CARD ===== */
 .wrapper{
   padding:14px;
 }
 
-/* ===== CARD ===== */
 .jobcard{
   max-width:420px;
   margin:auto;
@@ -46,7 +44,7 @@ body{
 .topbar{
   display:flex;
   justify-content:space-between;
-  align-items:center;
+  align-items:flex-start;
   padding:12px 14px;
   border-bottom:1px solid var(--border);
 }
@@ -59,6 +57,7 @@ body{
 .date{
   font-size:12px;
   color:var(--muted);
+  margin-top:2px;
 }
 
 .status{
@@ -75,21 +74,19 @@ body{
   border-bottom:1px solid var(--border);
 }
 
-/* SINGLE ROW */
+/* SINGLE ROW (Label + Value only) */
 .row{
   display:grid;
-  grid-template-columns:110px 1fr;
-  min-height:30px;
+  grid-template-columns:120px 1fr;
   border-bottom:1px solid var(--border);
+  min-height:32px;
 }
 
 .row:last-child{border-bottom:none}
 
-/* DOUBLE ROW – FIXED */
+/* DOUBLE ROW (Label+Value | Label+Value) */
 .row.double{
-  grid-template-columns:
-    100px 1fr     /* Left label + big value */
-    80px  1.6fr;  /* Small label + larger value */
+  grid-template-columns:110px 1fr 110px 1fr;
 }
 
 .label{
@@ -97,12 +94,20 @@ body{
   font-size:12px;
   color:var(--muted);
   border-right:1px solid var(--border);
-  white-space:nowrap;
+  display:flex;
+  align-items:center;
 }
 
 .value{
   padding:6px 10px;
   font-size:13px;
+  display:flex;
+  align-items:center;
+}
+
+/* vertical divider only between left & right blocks */
+.row.double .value:nth-child(2){
+  border-right:1px solid var(--border);
 }
 
 /* ===== ITEMS TABLE ===== */
@@ -137,9 +142,8 @@ body{
 .col-status{width:52px}
 .col-note{width:52px}
 
-/* ===== MOBILE SAFETY ===== */
+/* ===== MOBILE ===== */
 @media(max-width:360px){
-  .jobcard{border-radius:10px}
   .label{font-size:11px}
   .value{font-size:12px}
 }
@@ -163,13 +167,13 @@ body{
     <!-- INFO -->
     <div class="info">
 
-      <!-- CUSTOMER -->
+      <!-- Customer Name -->
       <div class="row">
         <div class="label">Customer Name</div>
         <div class="value"></div>
       </div>
 
-      <!-- CHASSIS + VEHICLE -->
+      <!-- Chassis + Vehicle -->
       <div class="row double">
         <div class="label">Chassis No</div>
         <div class="value"></div>
@@ -177,7 +181,7 @@ body{
         <div class="value"></div>
       </div>
 
-      <!-- COLOR + EXECUTIVE -->
+      <!-- Color + Executive -->
       <div class="row double">
         <div class="label">Color</div>
         <div class="value"></div>
@@ -199,17 +203,9 @@ body{
       </thead>
       <tbody>
         <!-- compact rows -->
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
+        ${Array.from({length:15}).map(()=>`
+          <tr><td></td><td></td><td></td><td></td></tr>
+        `).join("")}
       </tbody>
     </table>
 
