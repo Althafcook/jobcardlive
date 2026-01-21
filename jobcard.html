@@ -27,17 +27,18 @@ body{
   color:var(--text);
 }
 
-/* ===== CARD ===== */
+/* ===== WRAPPER ===== */
 .wrapper{
   padding:14px;
 }
 
+/* ===== CARD ===== */
 .jobcard{
   max-width:420px;
   margin:auto;
   background:linear-gradient(180deg,#141414,#0f0f0f);
   border:1px solid var(--border);
-  border-radius:16px;
+  border-radius:14px;
   overflow:hidden;
 }
 
@@ -74,13 +75,22 @@ body{
   border-bottom:1px solid var(--border);
 }
 
+/* SINGLE ROW */
 .row{
   display:grid;
+  grid-template-columns:110px 1fr;
+  min-height:30px;
   border-bottom:1px solid var(--border);
-  min-height:32px;
 }
 
 .row:last-child{border-bottom:none}
+
+/* DOUBLE ROW – FIXED */
+.row.double{
+  grid-template-columns:
+    100px 1fr     /* Left label + big value */
+    80px  1.6fr;  /* Small label + larger value */
+}
 
 .label{
   padding:6px 10px;
@@ -93,25 +103,6 @@ body{
 .value{
   padding:6px 10px;
   font-size:13px;
-}
-
-/* CUSTOMER NAME */
-.single{
-  grid-template-columns:130px 1fr;
-}
-
-/* CHASSIS + VEHICLE */
-.chassis-vehicle{
-  grid-template-columns:
-    120px 1fr   /* Chassis */
-    60px  1fr; /* Vehicle (smaller label) */
-}
-
-/* COLOR + EXECUTIVE */
-.color-executive{
-  grid-template-columns:
-    120px 1fr   /* Color */
-    60px  1fr; /* Executive (smaller label) */
 }
 
 /* ===== ITEMS TABLE ===== */
@@ -141,13 +132,14 @@ body{
 .table tbody td:last-child{border-right:none}
 
 /* COLUMN WIDTHS */
-.col-no{width:36px}
+.col-no{width:34px}
 .col-item{width:auto}
-.col-status{width:60px}
-.col-note{width:60px}
+.col-status{width:52px}
+.col-note{width:52px}
 
-/* MOBILE FINE TUNE */
+/* ===== MOBILE SAFETY ===== */
 @media(max-width:360px){
+  .jobcard{border-radius:10px}
   .label{font-size:11px}
   .value{font-size:12px}
 }
@@ -171,22 +163,22 @@ body{
     <!-- INFO -->
     <div class="info">
 
-      <!-- Customer -->
-      <div class="row single">
+      <!-- CUSTOMER -->
+      <div class="row">
         <div class="label">Customer Name</div>
         <div class="value"></div>
       </div>
 
-      <!-- Chassis + Vehicle -->
-      <div class="row chassis-vehicle">
+      <!-- CHASSIS + VEHICLE -->
+      <div class="row double">
         <div class="label">Chassis No</div>
         <div class="value"></div>
         <div class="label">Vehicle</div>
         <div class="value"></div>
       </div>
 
-      <!-- Color + Executive -->
-      <div class="row color-executive">
+      <!-- COLOR + EXECUTIVE -->
+      <div class="row double">
         <div class="label">Color</div>
         <div class="value"></div>
         <div class="label">Executive</div>
