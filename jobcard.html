@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Job Card</title>
 
@@ -27,12 +26,10 @@ body{
   color:var(--text);
 }
 
-/* ===== WRAPPER ===== */
 .wrapper{
   padding:14px;
 }
 
-/* ===== CARD ===== */
 .jobcard{
   max-width:420px;
   margin:auto;
@@ -78,22 +75,18 @@ body{
 /* single row */
 .row{
   display:grid;
-  grid-template-columns: max-content 1fr;
+  grid-template-columns:110px 1fr;
   border-bottom:1px solid var(--border);
-  min-height:32px;
+  min-height:30px;
 }
 
-/* double row */
+/* double row (two label+value pairs) */
 .row.double{
-  grid-template-columns:
-    max-content 1fr
-    max-content 1fr;
+  grid-template-columns:110px 1fr 110px 1fr;
 }
-
-.row:last-child{border-bottom:none}
 
 .label{
-  padding:6px 10px;
+  padding:6px 8px;
   font-size:12px;
   color:var(--muted);
   border-right:1px solid var(--border);
@@ -101,8 +94,13 @@ body{
 }
 
 .value{
-  padding:6px 10px;
+  padding:6px 8px;
   font-size:13px;
+}
+
+/* remove right border on last value */
+.row > .value:last-child{
+  border-right:none;
 }
 
 /* ===== ITEMS TABLE ===== */
@@ -116,7 +114,7 @@ body{
   color:#fff;
   font-size:11px;
   font-weight:600;
-  padding:6px;
+  padding:6px 6px;
   border-right:1px solid var(--border);
   text-align:left;
 }
@@ -132,15 +130,10 @@ body{
 .table tbody td:last-child{border-right:none}
 
 /* column widths */
-.col-no{width:34px}
+.col-no{width:36px}
 .col-item{width:auto}
-.col-status{width:56px}
-.col-note{width:56px}
-
-/* ===== MOBILE ===== */
-@media(max-width:360px){
-  .jobcard{border-radius:10px}
-}
+.col-status{width:60px}
+.col-note{width:60px}
 </style>
 </head>
 
@@ -196,19 +189,12 @@ body{
         </tr>
       </thead>
       <tbody>
-        <!-- empty rows -->
+        <!-- compact rows -->
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
-
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
