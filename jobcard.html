@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
 <title>Job Card</title>
 
@@ -26,11 +27,12 @@ body{
   color:var(--text);
 }
 
-/* ===== CARD ===== */
+/* ===== WRAPPER ===== */
 .wrapper{
   padding:14px;
 }
 
+/* ===== CARD ===== */
 .jobcard{
   max-width:420px;
   margin:auto;
@@ -73,36 +75,34 @@ body{
   border-bottom:1px solid var(--border);
 }
 
+/* single row */
 .row{
   display:grid;
+  grid-template-columns: max-content 1fr;
   border-bottom:1px solid var(--border);
-  min-height:30px;
+  min-height:32px;
+}
+
+/* double row */
+.row.double{
+  grid-template-columns:
+    max-content 1fr
+    max-content 1fr;
 }
 
 .row:last-child{border-bottom:none}
-
-/* label + value */
-.single{
-  grid-template-columns:auto 1fr;
-}
-
-/* label/value + label/value */
-.double{
-  grid-template-columns:auto 1fr auto 1fr;
-}
 
 .label{
   padding:6px 10px;
   font-size:12px;
   color:var(--muted);
-  white-space:nowrap;
   border-right:1px solid var(--border);
+  white-space:nowrap;
 }
 
 .value{
   padding:6px 10px;
   font-size:13px;
-  min-width:0; /* IMPORTANT: prevents overflow */
 }
 
 /* ===== ITEMS TABLE ===== */
@@ -131,16 +131,15 @@ body{
 
 .table tbody td:last-child{border-right:none}
 
-/* COLUMN WIDTHS */
-.col-no{width:36px}
+/* column widths */
+.col-no{width:34px}
 .col-item{width:auto}
-.col-status{width:60px}
-.col-note{width:60px}
+.col-status{width:56px}
+.col-note{width:56px}
 
 /* ===== MOBILE ===== */
 @media(max-width:360px){
-  .label{font-size:11px}
-  .value{font-size:12px}
+  .jobcard{border-radius:10px}
 }
 </style>
 </head>
@@ -162,8 +161,8 @@ body{
     <!-- INFO -->
     <div class="info">
 
-      <!-- Customer Name -->
-      <div class="row single">
+      <!-- Customer -->
+      <div class="row">
         <div class="label">Customer Name</div>
         <div class="value"></div>
       </div>
@@ -197,12 +196,19 @@ body{
         </tr>
       </thead>
       <tbody>
-        <!-- Empty rows -->
+        <!-- empty rows -->
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
+
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td></tr>
