@@ -320,13 +320,13 @@ function renderTable(){
 
 /* CLICK HANDLER (STEP-1) */
 function jobcardClick(row){
-  alert(
-    "Jobcard: " + row.jobcard +
-    "\nChassis: " + row.chassis +
-    "\nChase No: " + (row.chase_no ?? "(not mapped yet)")
-  );
-}
+  const jobcard = encodeURIComponent(row.jobcard);
+  const chassis = encodeURIComponent(row.chassis);
 
+  // open jobcard page (same tab)
+  window.location.href =
+    `jobcard.html?jobcard=${jobcard}&chassis=${chassis}`;
+}
 /* VIEW STATE */
 function updateView(){
   const empty=document.getElementById("emptyState");
