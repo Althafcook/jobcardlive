@@ -195,9 +195,7 @@ tbody tr:hover{background:#1b1b1b}
 
 <div class="header">
   <h1>Daybook</h1>
-
   <div class="summary" id="summary"></div>
-
   <div class="home-btn" onclick="location.href='index.html'">🏠</div>
   <div class="date" id="currentDate"></div>
 </div>
@@ -292,7 +290,7 @@ function setFilter(f){
   renderSummary(allRows);
 }
 
-/* TABLE */
+/* TABLE (STEP-1 CLICK ADDITION) */
 function renderTable(){
   const tbody=document.getElementById("daybookBody");
   tbody.replaceChildren();
@@ -303,11 +301,14 @@ function renderTable(){
 
   rows.forEach((r,i)=>{
     const tr=document.createElement("tr");
+    tr.style.cursor="pointer";
+    tr.onclick=()=>jobcardClick(r);
+
     tr.innerHTML=`
       <td>${i+1}</td>
       <td>${r.date}</td>
       <td>${r.time}</td>
-      <td>${r.jobcard}</td>
+      <td><b>${r.jobcard}</b></td>
       <td class="${aicClass(r.aic)}">${r.aic}</td>
       <td>${r.customer}</td>
       <td></td>
@@ -315,6 +316,15 @@ function renderTable(){
       <td>${r.chassis}</td>`;
     tbody.appendChild(tr);
   });
+}
+
+/* CLICK HANDLER (STEP-1) */
+function jobcardClick(row){
+  alert(
+    "Jobcard: " + row.jobcard +
+    "\nChassis: " + row.chassis +
+    "\nChase No: " + (row.chase_no ?? "(not mapped yet)")
+  );
 }
 
 /* VIEW STATE */
@@ -340,7 +350,7 @@ function updateView(){
   }
 }
 
-/* LOAD (ANTI-DOUBLING SAFE) */
+/* LOAD */
 async function loadDaybook(){
   if(isFetching) return;
   isFetching=true;
