@@ -1,13 +1,16 @@
 <script>
 const API =
-"https://script.google.com/macros/s/AKfyc.../exec"; // SAME deployed URL
+"https://script.google.com/macros/s/AKfycbw4dVdfgm3NKISHwE_v8CNSMb0tx75SZ4DPS1dMZbqm1gchMSRPL41JkN-/exec";
 
 const qs = new URLSearchParams(location.search);
 const chassis = qs.get("chassis");
 
-async function loadJobcard(){
-  if(!chassis) return;
+if(!chassis){
+  document.body.innerHTML = "No chassis in URL";
+  throw new Error("Missing chassis");
+}
 
+async function loadJobcard(){
   const r = await fetch(`${API}?mode=page`);
   const d = await r.json();
 
@@ -15,10 +18,12 @@ async function loadJobcard(){
     String(r.chasis_no).trim() === String(chassis).trim()
   );
 
-  if(!rows.length) return;
+  if(!rows.length){
+    document.body.innerHTML = "No data for chassis " + chassis;
+    return;
+  }
 
   const h = rows[0];
-
   document.getElementById("cust").innerText = h.customer_name || "";
   document.getElementById("vehicle").innerText = h.vehicle || "";
   document.getElementById("color").innerText = h.color || "";
