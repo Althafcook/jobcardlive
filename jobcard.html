@@ -90,7 +90,7 @@ const chassis = qs.get("chassis");
 async function loadJobcard(){
   const r = await fetch(`${API}?mode=page&chassis=${chassis}`);
   const d = await r.json();
-  const rows = d.rows.filter(r=>r.chase_no==chassis || r.chassis==chassis);
+  const rows = d.rows.filter(r => String(r.chase_no).trim() === String(chassis).trim());
 
   if(!rows.length) return;
 
@@ -108,7 +108,7 @@ async function loadJobcard(){
     tbody.innerHTML += `
       <tr>
         <td>${i+1}</td>
-        <td>${r.item_partnumber}</td>
+        <td>${r.item_partnumber || ""}</td>
         <td>${r.given_status||""}</td>
         <td></td>
       </tr>`;
