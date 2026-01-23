@@ -1,100 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
-<title>Job Card</title>
-
-<style>
-/* ==== SAME CSS (unchanged) ==== */
-:root{
-  --bg:#0b0b0b;
-  --card:#121212;
-  --border:#3a3a3a;
-  --header:#1f4e79;
-  --text:#eaeaea;
-  --muted:#9aa0a6;
-  --accent:#f4b400;
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);font-family:system-ui;color:var(--text)}
-.wrapper{padding:14px}
-.jobcard{max-width:420px;margin:auto;background:#111;border:1px solid var(--border);border-radius:14px;overflow:hidden}
-.topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border)}
-.title{font-size:18px;font-weight:600}
-.date{font-size:12px;color:var(--muted)}
-.status{background:var(--accent);color:#000;font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px}
-.row{display:grid;grid-template-columns:auto 1fr;border-bottom:1px solid var(--border)}
-.row.double{grid-template-columns:auto 1fr auto 1fr}
-.label{padding:6px 10px;font-size:12px;color:var(--muted);border-right:1px solid var(--border)}
-.value{padding:6px 10px;font-size:13px}
-.table{width:100%;border-collapse:collapse}
-thead th{background:var(--header);color:#fff;font-size:11px;padding:6px}
-tbody td{border-bottom:1px solid #222;height:18px}
-</style>
-</head>
-
-<body>
-
-<div class="wrapper">
-  <div class="jobcard">
-
-    <div class="topbar">
-      <div>
-        <div class="title">JOB CARD</div>
-        <div class="date" id="jcDate"></div>
-      </div>
-      <div class="status">IN PROGRESS</div>
-    </div>
-
-    <div class="info">
-      <div class="row">
-        <div class="label">Customer Name</div>
-        <div class="value" id="cust"></div>
-      </div>
-
-      <div class="row double">
-        <div class="label">Chassis No</div>
-        <div class="value" id="chassis"></div>
-        <div class="label">Vehicle</div>
-        <div class="value" id="vehicle"></div>
-      </div>
-
-      <div class="row double">
-        <div class="label">Color</div>
-        <div class="value" id="color"></div>
-        <div class="label">Executive</div>
-        <div class="value" id="exec"></div>
-      </div>
-    </div>
-
-    <table class="table">
-      <thead>
-        <tr><th>No</th><th>Item</th><th>Status</th><th>Note</th></tr>
-      </thead>
-      <tbody id="items"></tbody>
-    </table>
-
-  </div>
-</div>
-
 <script>
 const API =
-"https://script.google.com/macros/s/AKfyc.../exec"; // 🔴 your SAME deployed URL
+"https://script.google.com/macros/s/AKfyc.../exec"; // SAME deployed URL
 
 const qs = new URLSearchParams(location.search);
 const chassis = qs.get("chassis");
 
 async function loadJobcard(){
-  const r = await fetch(`${API}?mode=page&chassis=${chassis}`);
+  if(!chassis) return;
+
+  const r = await fetch(`${API}?mode=page`);
   const d = await r.json();
-  const rows = d.rows.filter(r => String(r.chase_no).trim() === String(chassis).trim());
+
+  const rows = d.rows.filter(r =>
+    String(r.chasis_no).trim() === String(chassis).trim()
+  );
 
   if(!rows.length) return;
 
   const h = rows[0];
+
   document.getElementById("cust").innerText = h.customer_name || "";
   document.getElementById("vehicle").innerText = h.vehicle || "";
   document.getElementById("color").innerText = h.color || "";
@@ -104,12 +28,14 @@ async function loadJobcard(){
     new Date().toLocaleDateString("en-GB");
 
   const tbody = document.getElementById("items");
+  tbody.innerHTML = "";
+
   rows.forEach((r,i)=>{
     tbody.innerHTML += `
       <tr>
         <td>${i+1}</td>
         <td>${r.item_partnumber || ""}</td>
-        <td>${r.given_status||""}</td>
+        <td>${r.given_status || ""}</td>
         <td></td>
       </tr>`;
   });
@@ -117,6 +43,3 @@ async function loadJobcard(){
 
 loadJobcard();
 </script>
-
-</body>
-</html>
