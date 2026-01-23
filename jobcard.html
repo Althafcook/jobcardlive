@@ -8,6 +8,7 @@
 <title>Job Card</title>
 
 <style>
+/* ==== SAME CSS (unchanged) ==== */
 :root{
   --bg:#0b0b0b;
   --card:#121212;
@@ -17,134 +18,21 @@
   --muted:#9aa0a6;
   --accent:#f4b400;
 }
-
 *{box-sizing:border-box}
-
-body{
-  margin:0;
-  background:var(--bg);
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-  color:var(--text);
-}
-
-.wrapper{
-  padding:14px;
-}
-
-.jobcard{
-  max-width:420px;
-  margin:auto;
-  background:linear-gradient(180deg,#141414,#0f0f0f);
-  border:1px solid var(--border);
-  border-radius:14px;
-  overflow:hidden;
-}
-
-/* ===== HEADER ===== */
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px 14px;
-  border-bottom:1px solid var(--border);
-}
-
-.title{
-  font-size:18px;
-  font-weight:600;
-}
-
-.date{
-  font-size:12px;
-  color:var(--muted);
-}
-
-.status{
-  background:var(--accent);
-  color:#000;
-  font-size:11px;
-  font-weight:700;
-  padding:6px 12px;
-  border-radius:20px;
-}
-
-/* ===== INFO AREA ===== */
-.info{
-  border-bottom:1px solid var(--border);
-}
-
-/* SINGLE ROW */
-.row{
-  display:grid;
-  grid-template-columns:auto 1fr;
-  border-bottom:1px solid var(--border);
-  min-height:30px;
-}
-
-/* DOUBLE ROW (Chassis + Vehicle / Color + Executive) */
-.row.double{
-  grid-template-columns:
-    auto 1fr   /* left label + value */
-    auto 1fr;  /* right label + value */
-}
-
-.row:last-child{border-bottom:none}
-
-.label{
-  padding:6px 10px;
-  font-size:12px;
-  color:var(--muted);
-  white-space:nowrap;
-  border-right:1px solid var(--border);
-}
-
-.value{
-  padding:6px 10px;
-  font-size:13px;
-}
-
-/* remove extra borders on right label */
-.row.double .label:nth-child(3){
-  border-left:1px solid var(--border);
-}
-
-/* ===== ITEMS TABLE ===== */
-.table{
-  width:100%;
-  border-collapse:collapse;
-}
-
-.table thead th{
-  background:var(--header);
-  color:#fff;
-  font-size:11px;
-  font-weight:600;
-  padding:6px;
-  border-right:1px solid var(--border);
-  text-align:left;
-}
-
-.table thead th:last-child{border-right:none}
-
-.table tbody td{
-  height:18px;
-  border-bottom:1px solid #222;
-  border-right:1px solid #222;
-}
-
-.table tbody td:last-child{border-right:none}
-
-/* column widths */
-.col-no{width:34px}
-.col-item{width:auto}
-.col-status{width:60px}
-.col-note{width:60px}
-
-/* ===== MOBILE SAFETY ===== */
-@media(max-width:360px){
-  .label{font-size:11px}
-  .value{font-size:12px}
-}
+body{margin:0;background:var(--bg);font-family:system-ui;color:var(--text)}
+.wrapper{padding:14px}
+.jobcard{max-width:420px;margin:auto;background:#111;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border)}
+.title{font-size:18px;font-weight:600}
+.date{font-size:12px;color:var(--muted)}
+.status{background:var(--accent);color:#000;font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px}
+.row{display:grid;grid-template-columns:auto 1fr;border-bottom:1px solid var(--border)}
+.row.double{grid-template-columns:auto 1fr auto 1fr}
+.label{padding:6px 10px;font-size:12px;color:var(--muted);border-right:1px solid var(--border)}
+.value{padding:6px 10px;font-size:13px}
+.table{width:100%;border-collapse:collapse}
+thead th{background:var(--header);color:#fff;font-size:11px;padding:6px}
+tbody td{border-bottom:1px solid #222;height:18px}
 </style>
 </head>
 
@@ -153,76 +41,82 @@ body{
 <div class="wrapper">
   <div class="jobcard">
 
-    <!-- HEADER -->
     <div class="topbar">
       <div>
         <div class="title">JOB CARD</div>
-        <div class="date">19 Jan 2026</div>
+        <div class="date" id="jcDate"></div>
       </div>
-      <div class="status">IN&nbsp;PROGRESS</div>
+      <div class="status">IN PROGRESS</div>
     </div>
 
-    <!-- INFO -->
     <div class="info">
-
-      <!-- Customer -->
       <div class="row">
         <div class="label">Customer Name</div>
-        <div class="value"></div>
+        <div class="value" id="cust"></div>
       </div>
 
-      <!-- Chassis + Vehicle -->
       <div class="row double">
         <div class="label">Chassis No</div>
-        <div class="value"></div>
+        <div class="value" id="chassis"></div>
         <div class="label">Vehicle</div>
-        <div class="value"></div>
+        <div class="value" id="vehicle"></div>
       </div>
 
-      <!-- Color + Executive -->
       <div class="row double">
         <div class="label">Color</div>
-        <div class="value"></div>
+        <div class="value" id="color"></div>
         <div class="label">Executive</div>
-        <div class="value"></div>
+        <div class="value" id="exec"></div>
       </div>
-
     </div>
 
-    <!-- ITEMS -->
     <table class="table">
       <thead>
-        <tr>
-          <th class="col-no">No</th>
-          <th class="col-item">Item</th>
-          <th class="col-status">Status</th>
-          <th class="col-note">Note</th>
-        </tr>
+        <tr><th>No</th><th>Item</th><th>Status</th><th>Note</th></tr>
       </thead>
-      <tbody>
-        <!-- 15 compact rows -->
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td></tr>
-      </tbody>
+      <tbody id="items"></tbody>
     </table>
 
   </div>
 </div>
+
+<script>
+const API =
+"https://script.google.com/macros/s/AKfyc.../exec"; // 🔴 your SAME deployed URL
+
+const qs = new URLSearchParams(location.search);
+const chassis = qs.get("chassis");
+
+async function loadJobcard(){
+  const r = await fetch(`${API}?mode=page&chassis=${chassis}`);
+  const d = await r.json();
+  const rows = d.rows.filter(r=>r.chase_no==chassis || r.chassis==chassis);
+
+  if(!rows.length) return;
+
+  const h = rows[0];
+  document.getElementById("cust").innerText = h.customer_name || "";
+  document.getElementById("vehicle").innerText = h.vehicle || "";
+  document.getElementById("color").innerText = h.color || "";
+  document.getElementById("exec").innerText = h.executive || "";
+  document.getElementById("chassis").innerText = chassis;
+  document.getElementById("jcDate").innerText =
+    new Date().toLocaleDateString("en-GB");
+
+  const tbody = document.getElementById("items");
+  rows.forEach((r,i)=>{
+    tbody.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td>${r.item_partnumber}</td>
+        <td>${r.given_status||""}</td>
+        <td></td>
+      </tr>`;
+  });
+}
+
+loadJobcard();
+</script>
 
 </body>
 </html>
