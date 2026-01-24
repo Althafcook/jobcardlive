@@ -220,5 +220,38 @@ body{
   </div>
 </div>
 
+      <script>
+const API = "https://script.google.com/macros/library/d/1lFBLIC5UtwRKmwY-RYDgxU8mW0Gg8eB6nQ-O136rFUX-1ni7CL1jPhWz/32";
+
+const qs = new URLSearchParams(location.search);
+const chassisParam = qs.get("chassis");
+
+async function loadJobcard(){
+  if(!chassisParam) return;
+
+  const r = await fetch(API);
+  const d = await r.json();
+
+  if(!d.rows) return;
+
+  const row = d.rows.find(
+    x => String(x.chassis).trim() === String(chassisParam).trim()
+  );
+
+  if(!row){
+    console.log("No matching chassis", chassisParam);
+    return;
+  }
+
+  document.getElementById("cust").innerText    = row.customer || "";
+  document.getElementById("chassis").innerText = row.chassis || "";
+  document.getElementById("vehicle").innerText = row.vehicle || "";
+  document.getElementById("exec").innerText    = row.aic || "";
+  document.getElementById("color").innerText   = row.color || "";
+}
+
+loadJobcard();
+</script>
+
 </body>
 </html>
