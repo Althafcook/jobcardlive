@@ -220,18 +220,41 @@ body{
 const API =
 "https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
 
+const COLOR_JSON =
+"https://raw.githubusercontent.com/USERNAME/REPO/main/assets/images/color.json"; // 🔁 replace this
+
 const qs = new URLSearchParams(location.search);
 const chassisParam = qs.get("chassis");
 
-/* extract last word as color (eg: WHITE) */
-function extractColor(text){
-  if(!text) return "";
-  const parts = text.trim().split(/\s+/);
-  return parts[parts.length - 1];
+let COLOR_MAP = {};
+
+// load color.json once
+async function loadColors(){
+  const r = await fetch(COLOR_JSON);
+  COLOR_MAP = await r.json();
+}
+
+// extract color by matching words
+function detectColor(vehicleText){
+  if(!vehicleText) return "";
+
+  const upper = vehicleText.toUpperCase();
+
+  for(const color in COLOR_MAP){
+    const keys = COLOR_MAP[color];
+    for(const k of keys){
+      if(upper.includes(k)){
+        return color;
+      }
+    }
+  }
+  return "";
 }
 
 async function loadJobcard(){
   if(!chassisParam) return;
+
+  await loadColors();
 
   const r = await fetch(API);
   const d = await r.json();
@@ -247,14 +270,14 @@ async function loadJobcard(){
   document.getElementById("chassis").innerText = row.chassis || "";
   document.getElementById("vehicle").innerText = row.vehicle || "";
 
-  /* Executive intentionally blank */
+  // executive blank for now
   document.getElementById("exec").innerText = "";
 
-  /* Color from vehicle text */
+  // ✅ color from JSON match
   document.getElementById("color").innerText =
-    extractColor(row.vehicle);
+    detectColor(row.vehicle);
 
-  /* Store AIC for later header use */
+  // keep AIC for later top usage
   window._AIC_NAME = row.aic || "";
 }
 
