@@ -221,20 +221,26 @@ const API =
 "https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
 
 const COLOR_JSON =
-"https://raw.githubusercontent.com/Althafcook/jobcardlive/main/assets/images/color.json"; // 🔁 replace this
+"https://raw.githubusercontent.com/Althafcook/jobcardlive/main/assets/images/color.json";
 
 const qs = new URLSearchParams(location.search);
 const chassisParam = qs.get("chassis");
 
 let COLOR_MAP = {};
 
-// load color.json once
+// load color.json
 async function loadColors(){
-  const r = await fetch(COLOR_JSON);
-  COLOR_MAP = await r.json();
+  try{
+    const r = await fetch(COLOR_JSON);
+    if(!r.ok) throw "Color JSON load failed";
+    COLOR_MAP = await r.json();
+  }catch(e){
+    console.error("Color JSON error:", e);
+    COLOR_MAP = {};
+  }
 }
 
-// extract color by matching words
+// detect color from vehicle text
 function detectColor(vehicleText){
   if(!vehicleText) return "";
 
@@ -243,7 +249,7 @@ function detectColor(vehicleText){
   for(const color in COLOR_MAP){
     const keys = COLOR_MAP[color];
     for(const k of keys){
-      if(upper.includes(k)){
+      if(upper.includes(k.toUpperCase())){
         return color;
       }
     }
@@ -258,26 +264,38 @@ async function loadJobcard(){
 
   const r = await fetch(API);
   const d = await r.json();
-  if(!d.rows) return;
+
+  if(!d || !Array.isArray(d.rows)){
+    console.error("Invalid API response", d);
+    return;
+  }
 
   const row = d.rows.find(
     x => String(x.chassis).trim() === String(chassisParam).trim()
   );
 
-  if(!row) return;
+  if(!row){
+    console.warn("No matching chassis:", chassisParam);
+    return;
+  }
 
+  // fill fields
   document.getElementById("cust").innerText    = row.customer || "";
   document.getElementById("chassis").innerText = row.chassis || "";
   document.getElementById("vehicle").innerText = row.vehicle || "";
 
-  // executive blank for now
+  // executive intentionally blank
   document.getElementById("exec").innerText = "";
 
-  // ✅ color from JSON match
+  // color from JSON
   document.getElementById("color").innerText =
     detectColor(row.vehicle);
 
-  // keep AIC for later top usage
+  // date
+  document.getElementById("jcDate").innerText =
+    new Date().toLocaleDateString("en-GB");
+
+  // keep AIC for later
   window._AIC_NAME = row.aic || "";
 }
 
