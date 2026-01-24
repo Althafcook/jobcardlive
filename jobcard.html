@@ -221,17 +221,23 @@ body{
 </div>
 
       <script>
-const API = "https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
+const API =
+"https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
 
 const qs = new URLSearchParams(location.search);
 const chassisParam = qs.get("chassis");
+
+function extractColor(vehicleText){
+  if(!vehicleText) return "";
+  const parts = vehicleText.trim().split(" ");
+  return parts.length > 1 ? parts.slice(-1).join(" ") : "";
+}
 
 async function loadJobcard(){
   if(!chassisParam) return;
 
   const r = await fetch(API);
   const d = await r.json();
-
   if(!d.rows) return;
 
   const row = d.rows.find(
@@ -239,15 +245,24 @@ async function loadJobcard(){
   );
 
   if(!row){
-    console.log("No matching chassis", chassisParam);
+    console.log("No matching chassis:", chassisParam);
     return;
   }
 
+  // main fields
   document.getElementById("cust").innerText    = row.customer || "";
   document.getElementById("chassis").innerText = row.chassis || "";
   document.getElementById("vehicle").innerText = row.vehicle || "";
-  document.getElementById("exec").innerText    = row.aic || "";
-  document.getElementById("color").innerText   = row.color || "";
+
+  // ✅ executive MUST stay blank for now
+  document.getElementById("exec").innerText = "";
+
+  // ✅ extract color from vehicle text
+  document.getElementById("color").innerText =
+    extractColor(row.vehicle);
+
+  // 🔒 keep AIC for later use (top header etc.)
+  window._AIC_NAME = row.aic || "";
 }
 
 loadJobcard();
