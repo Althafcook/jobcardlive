@@ -156,16 +156,30 @@ const COLOR_JSON =
 
 const qs = new URLSearchParams(location.search);
 const chassisParam = qs.get("chassis");
+
 let COLOR_MAP = {};
 
+// load color.json safely
 async function loadColors(){
-  const r = await fetch(COLOR_JSON);
+  const r = await fetch(COLOR_JSON, { cache: "no-store" });
   COLOR_MAP = await r.json();
 }
 
-function detectColor(vehicle){
-  if(!vehicle) return "";
-  const text = vehicle.toUpperCase();
+// normalize text (remove + - etc)
+function normalize(txt){
+  return txt
+    .toUpperCase()
+    .replace(/[^A-Z ]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// detect color from vehicle text
+function detectColor(vehicleText){
+  if(!vehicleText) return "";
+
+  const text = normalize(vehicleText);
+
   for(const color in COLOR_MAP){
     for(const key of COLOR_MAP[color]){
       if(text.includes(key)){
@@ -190,14 +204,19 @@ async function loadJobcard(){
   );
   if(!row) return;
 
-  document.getElementById("cust").innerText = row.customer || "";
+  document.getElementById("cust").innerText    = row.customer || "";
   document.getElementById("chassis").innerText = row.chassis || "";
   document.getElementById("vehicle").innerText = row.vehicle || "";
-  document.getElementById("exec").innerText = ""; // keep blank
-  document.getElementById("color").innerText = detectColor(row.vehicle);
 
-  document.getElementById("jcDate").innerText =
-    new Date(row.date || Date.now()).toLocaleDateString("en-GB");
+  // executive intentionally blank
+  document.getElementById("exec").innerText = "";
+
+  // ✅ FINAL FIX
+  document.getElementById("color").innerText =
+    detectColor(row.vehicle);
+
+  // keep AIC for later header use
+  window._AIC_NAME = row.aic || "";
 }
 
 loadJobcard();
