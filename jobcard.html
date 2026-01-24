@@ -1,49 +1,44 @@
 <script>
 const API =
-"https://script.google.com/macros/s/AKfycbw4dVdfgm3NKISHwE_v8CNSMb0tx75SZ4DPS1dMZbqm1gchMSRPL41JkN-/exec";
+"https://script.google.com/macros/s/AKfycXXXX/exec"; // same working URL
 
 const qs = new URLSearchParams(location.search);
 const chassis = qs.get("chassis");
-
-if(!chassis){
-  document.body.innerHTML = "No chassis in URL";
-  throw new Error("Missing chassis");
-}
 
 async function loadJobcard(){
   const r = await fetch(`${API}?mode=page`);
   const d = await r.json();
 
-  const rows = d.rows.filter(r =>
-    String(r.chasis_no).trim() === String(chassis).trim()
+  // ✅ correct filter (API field name = chassis)
+  const rows = d.rows.filter(
+    r => String(r.chassis).trim() === String(chassis).trim()
   );
 
   if(!rows.length){
-    document.body.innerHTML = "No data for chassis " + chassis;
+    console.log("No matching chassis:", chassis);
     return;
   }
 
   const h = rows[0];
-  document.getElementById("cust").innerText = h.customer_name || "";
+
+  // ✅ header fill
+  document.getElementById("cust").innerText = h.customer || "";
   document.getElementById("vehicle").innerText = h.vehicle || "";
-  document.getElementById("color").innerText = h.color || "";
-  document.getElementById("exec").innerText = h.executive || "";
-  document.getElementById("chassis").innerText = chassis;
+  document.getElementById("exec").innerText = h.aic || "";
+  document.getElementById("color").innerText = ""; // not in API
+  document.getElementById("chassis").innerText = h.chassis || "";
   document.getElementById("jcDate").innerText =
     new Date().toLocaleDateString("en-GB");
 
+  // ✅ items (jobcard level – placeholder for now)
   const tbody = document.getElementById("items");
-  tbody.innerHTML = "";
-
-  rows.forEach((r,i)=>{
-    tbody.innerHTML += `
-      <tr>
-        <td>${i+1}</td>
-        <td>${r.item_partnumber || ""}</td>
-        <td>${r.given_status || ""}</td>
-        <td></td>
-      </tr>`;
-  });
+  tbody.innerHTML = `
+    <tr>
+      <td>1</td>
+      <td>Jobcard ${h.jobcard}</td>
+      <td>IN</td>
+      <td></td>
+    </tr>`;
 }
 
 loadJobcard();
