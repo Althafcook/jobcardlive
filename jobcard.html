@@ -1,44 +1,75 @@
 <script>
 const API =
-"https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec"; // same working URL
+"https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
 
-const qs = new URLSearchParams(location.search);
-const chassis = qs.get("chassis");
+const qs = new URLSearchParams(window.location.search);
+const chassisParam = (qs.get("chassis") || "").trim();
 
 async function loadJobcard(){
-  const r = await fetch(`${API}?mode=page`);
-  const d = await r.json();
+  try{
+    const res = await fetch(API + "?mode=page", { cache:"no-store" });
+    const data = await res.json();
 
-  // ✅ correct filter (API field name = chassis)
-  const rows = d.rows.filter(
-    r => String(r.chassis).trim() === String(chassis).trim()
-  );
+    console.log("API RAW:", data);
 
-  if(!rows.length){
-    console.log("No matching chassis:", chassis);
-    return;
+    if(!data.rows || !data.rows.length){
+      console.error("No rows from API");
+      return;
+    }
+
+    // 🔍 normalize chassis field
+    const match = data.rows.find(r => {
+      const ch =
+        r.chassis ??
+        r.Chassis ??
+        r["Chassis No"] ??
+        r.chassis_no ??
+        "";
+      return String(ch).trim() === chassisParam;
+    });
+
+    if(!match){
+      console.error("No matching chassis:", chassisParam);
+      return;
+    }
+
+    console.log("MATCH:", match);
+
+    // 🔹 Fill header
+    document.getElementById("cust").textContent =
+      match.customer || match.Customer || "";
+
+    document.getElementById("vehicle").textContent =
+      match.vehicle || match.Vehicle || "";
+
+    document.getElementById("exec").textContent =
+      match.aic || match.AIC || "";
+
+    document.getElementById("color").textContent =
+      match.color || "";
+
+    document.getElementById("chassis").textContent =
+      match.chassis || match.Chassis || "";
+
+    document.getElementById("jcDate").textContent =
+      match.date || new Date().toLocaleDateString("en-GB");
+
+    // 🔹 Items (temporary – page sheet later)
+    const tbody = document.getElementById("items");
+    tbody.innerHTML = "";
+
+    tbody.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>1</td>
+        <td>Jobcard ${match.jobcard || match.Jobcard || ""}</td>
+        <td>IN</td>
+        <td></td>
+      </tr>
+    `);
+
+  }catch(err){
+    console.error("Jobcard load failed", err);
   }
-
-  const h = rows[0];
-
-  // ✅ header fill
-  document.getElementById("cust").innerText = h.customer || "";
-  document.getElementById("vehicle").innerText = h.vehicle || "";
-  document.getElementById("exec").innerText = h.aic || "";
-  document.getElementById("color").innerText = ""; // not in API
-  document.getElementById("chassis").innerText = h.chassis || "";
-  document.getElementById("jcDate").innerText =
-    new Date().toLocaleDateString("en-GB");
-
-  // ✅ items (jobcard level – placeholder for now)
-  const tbody = document.getElementById("items");
-  tbody.innerHTML = `
-    <tr>
-      <td>1</td>
-      <td>Jobcard ${h.jobcard}</td>
-      <td>IN</td>
-      <td></td>
-    </tr>`;
 }
 
 loadJobcard();
