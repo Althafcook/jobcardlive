@@ -151,49 +151,23 @@ body{
 const API =
 "https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
 
-const COLOR_JSON =
-"https://raw.githubusercontent.com/Althafcook/jobcardlive/main/assets/images/color.json";
-
 const qs = new URLSearchParams(location.search);
 const chassisParam = qs.get("chassis");
 
-let COLOR_MAP = null;
-
-// load color.json safely
-async function loadColors(){
-  const r = await fetch(COLOR_JSON, { cache: "no-store" });
-  COLOR_MAP = await r.json();
-}
-
-// normalize text (important!)
-function normalize(txt){
-  return txt
-    .toUpperCase()
-    .replace(/[^A-Z ]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-// detect color from vehicle string
-function detectColor(vehicleText){
-  if(!vehicleText || !COLOR_MAP) return "";
-
-  const clean = normalize(vehicleText);
-
-  for(const color in COLOR_MAP){
-    for(const key of COLOR_MAP[color]){
-      if(clean.includes(key)){
-        return color;
-      }
-    }
-  }
+// ✅ SIMPLE & RELIABLE color detection
+function extractColor(vehicle){
+  if(!vehicle) return "";
+  const t = vehicle.toUpperCase();
+  if(t.includes("WHITE")) return "WHITE";
+  if(t.includes("BLUE"))  return "BLUE";
+  if(t.includes("BLACK")) return "BLACK";
+  if(t.includes("GREY"))  return "GREY";
+  if(t.includes("RED"))   return "RED";
   return "";
 }
 
 async function loadJobcard(){
   if(!chassisParam) return;
-
-  await loadColors();
 
   const r = await fetch(API);
   const d = await r.json();
@@ -202,25 +176,28 @@ async function loadJobcard(){
   const row = d.rows.find(
     x => String(x.chassis).trim() === String(chassisParam).trim()
   );
-
   if(!row) return;
 
   document.getElementById("cust").innerText    = row.customer || "";
   document.getElementById("chassis").innerText = row.chassis || "";
   document.getElementById("vehicle").innerText = row.vehicle || "";
 
-  // executive intentionally blank
+  // Executive intentionally blank
   document.getElementById("exec").innerText = "";
 
-  // ✅ color from JSON
+  // ✅ Color extracted safely
   document.getElementById("color").innerText =
-    detectColor(row.vehicle);
+    extractColor(row.vehicle);
 
-  // keep AIC for future
+  document.getElementById("jcDate").innerText =
+    new Date().toLocaleDateString("en-GB");
+
+  // keep AIC for later use
   window._AIC_NAME = row.aic || "";
 }
 
 loadJobcard();
 </script>
+
 </body>
 </html>
