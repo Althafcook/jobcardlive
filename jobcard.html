@@ -157,7 +157,7 @@ const COLOR_JSON =
 const qs = new URLSearchParams(location.search);
 const chassisParam = qs.get("chassis");
 
-let COLOR_MAP = {};
+let COLOR_MAP = null;
 
 // load color.json safely
 async function loadColors(){
@@ -165,7 +165,7 @@ async function loadColors(){
   COLOR_MAP = await r.json();
 }
 
-// normalize text (remove + - etc)
+// normalize text (important!)
 function normalize(txt){
   return txt
     .toUpperCase()
@@ -174,15 +174,15 @@ function normalize(txt){
     .trim();
 }
 
-// detect color from vehicle text
+// detect color from vehicle string
 function detectColor(vehicleText){
-  if(!vehicleText) return "";
+  if(!vehicleText || !COLOR_MAP) return "";
 
-  const text = normalize(vehicleText);
+  const clean = normalize(vehicleText);
 
   for(const color in COLOR_MAP){
     for(const key of COLOR_MAP[color]){
-      if(text.includes(key)){
+      if(clean.includes(key)){
         return color;
       }
     }
@@ -202,6 +202,7 @@ async function loadJobcard(){
   const row = d.rows.find(
     x => String(x.chassis).trim() === String(chassisParam).trim()
   );
+
   if(!row) return;
 
   document.getElementById("cust").innerText    = row.customer || "";
@@ -211,11 +212,11 @@ async function loadJobcard(){
   // executive intentionally blank
   document.getElementById("exec").innerText = "";
 
-  // ✅ FINAL FIX
+  // ✅ color from JSON
   document.getElementById("color").innerText =
     detectColor(row.vehicle);
 
-  // keep AIC for later header use
+  // keep AIC for future
   window._AIC_NAME = row.aic || "";
 }
 
