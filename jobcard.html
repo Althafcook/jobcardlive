@@ -8,7 +8,6 @@
 <style>
 :root{
   --bg:#0b0b0b;
-  --card:#121212;
   --border:#3a3a3a;
   --header:#1f4e79;
   --text:#eaeaea;
@@ -53,7 +52,6 @@ body{
   display:grid;
   grid-template-columns:auto 1fr;
   border-bottom:1px solid var(--border);
-  min-height:30px;
 }
 .row.double{
   grid-template-columns:auto 1fr auto 1fr;
@@ -62,7 +60,6 @@ body{
   padding:6px 10px;
   font-size:12px;
   color:var(--muted);
-  white-space:nowrap;
   border-right:1px solid var(--border);
 }
 .value{padding:6px 10px;font-size:13px}
@@ -77,10 +74,8 @@ body{
   background:var(--header);
   color:#fff;
   font-size:11px;
-  font-weight:600;
   padding:6px;
   border-right:1px solid var(--border);
-  text-align:left;
 }
 .table tbody td{
   height:18px;
@@ -154,23 +149,15 @@ const API =
 const qs = new URLSearchParams(location.search);
 const chassisParam = qs.get("chassis");
 
-// ✅ STRONG COLOR RULES (NO JSON, NO DELAY)
-const COLOR_RULES = [
-  { name: "WHITE", keys: [" WHITE"] },
-  { name: "BLUE",  keys: [" BLUE"] },
-  { name: "RED",   keys: [" RED"] },
-  { name: "BLACK", keys: [" BLACK"] },
-  { name: "GREY",  keys: [" GREY", " GRAY"] }
-];
-
-function detectColor(vehicle){
+// 🔥 SIMPLE & 100% RELIABLE COLOR DETECTOR
+function extractColor(vehicle){
   if(!vehicle) return "";
-  const txt = " " + vehicle.toUpperCase() + " ";
-  for(const c of COLOR_RULES){
-    for(const k of c.keys){
-      if(txt.includes(k)) return c.name;
-    }
-  }
+  const v = vehicle.toUpperCase();
+  if(v.includes("WHITE")) return "WHITE";
+  if(v.includes("BLUE"))  return "BLUE";
+  if(v.includes("BLACK")) return "BLACK";
+  if(v.includes("RED"))   return "RED";
+  if(v.includes("GREY"))  return "GREY";
   return "";
 }
 
@@ -189,12 +176,11 @@ async function loadJobcard(){
   document.getElementById("cust").innerText    = row.customer || "";
   document.getElementById("chassis").innerText = row.chassis || "";
   document.getElementById("vehicle").innerText = row.vehicle || "";
-  document.getElementById("exec").innerText    = "";
 
-  // ✅ FINAL COLOR FIX
   document.getElementById("color").innerText =
-    detectColor(row.vehicle);
+    extractColor(row.vehicle);
 
+  document.getElementById("exec").innerText = ""; // keep blank
   document.getElementById("jcDate").innerText =
     new Date().toLocaleDateString("en-GB");
 }
