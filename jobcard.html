@@ -149,15 +149,40 @@ const API =
 const qs = new URLSearchParams(location.search);
 const chassisParam = qs.get("chassis");
 
-// 🔥 SIMPLE & 100% RELIABLE COLOR DETECTOR
-function extractColor(vehicle){
-  if(!vehicle) return "";
-  const v = vehicle.toUpperCase();
-  if(v.includes("WHITE")) return "WHITE";
-  if(v.includes("BLUE"))  return "BLUE";
-  if(v.includes("BLACK")) return "BLACK";
-  if(v.includes("RED"))   return "RED";
-  if(v.includes("GREY"))  return "GREY";
+/* ✅ MASTER COLOR LIST (extend anytime) */
+const COLOR_WORDS = [
+  "WHITE",
+  "BLACK",
+  "BLUE",
+  "RED",
+  "SILVER",
+  "GREY",
+  "GRAY",
+  "BROWN",
+  "GREEN"
+];
+
+/* normalize text */
+function normalize(txt){
+  return txt
+    .toUpperCase()
+    .replace(/[^A-Z ]/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+/* ✅ FINAL color extractor */
+function extractColor(vehicleText){
+  if(!vehicleText) return "";
+
+  const clean = normalize(vehicleText);
+
+  for(const color of COLOR_WORDS){
+    const re = new RegExp("\\b" + color + "\\b");
+    if(re.test(clean)){
+      return color;
+    }
+  }
   return "";
 }
 
@@ -177,12 +202,15 @@ async function loadJobcard(){
   document.getElementById("chassis").innerText = row.chassis || "";
   document.getElementById("vehicle").innerText = row.vehicle || "";
 
+  /* Executive intentionally blank */
+  document.getElementById("exec").innerText = "";
+
+  /* ✅ COLOR FILLS HERE */
   document.getElementById("color").innerText =
     extractColor(row.vehicle);
 
-  document.getElementById("exec").innerText = ""; // keep blank
-  document.getElementById("jcDate").innerText =
-    new Date().toLocaleDateString("en-GB");
+  /* keep AIC for later */
+  window._AIC_NAME = row.aic || "";
 }
 
 loadJobcard();
