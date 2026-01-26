@@ -53,11 +53,7 @@ body{
 
 /* INFO */
 .info{border-bottom:1px solid var(--border)}
-.row{
-  display:grid;
-  grid-template-columns:auto 1fr;
-  border-bottom:1px solid var(--border);
-}
+.row{display:grid;grid-template-columns:auto 1fr;border-bottom:1px solid var(--border)}
 .row.double{grid-template-columns:auto 1fr auto 1fr}
 .label{
   padding:6px 10px;
@@ -78,18 +74,12 @@ body{
 }
 
 /* TABLE */
-.table{
-  width:100%;
-  border-collapse:collapse;
-  table-layout:fixed;
-}
+.table{width:100%;border-collapse:collapse;table-layout:fixed}
 .table thead th{
   background:var(--header);
   color:#fff;
   font-size:11px;
-  font-weight:600;
   padding:6px;
-  text-align:left;
   white-space:nowrap;
 }
 .table tbody td{
@@ -102,7 +92,7 @@ body{
 }
 
 .col-no{width:34px}
-.col-status{width:90px}
+.col-status{width:110px}
 .col-note{width:60px}
 </style>
 </head>
@@ -162,7 +152,8 @@ const chassisParam=qs.get("chassis");
 
 /* STATUS RULE */
 function getStatus(given,adv){
-  given=Number(given); adv=Number(adv);
+  given=Number(given);
+  adv=Number(adv);
   if(given===1 && adv===0) return "Pending";
   if(given===0 && adv===1) return "Billed";
   if(given===1 && adv===1) return "Billed & not given";
@@ -176,15 +167,13 @@ async function loadJobcard(){
   const er=await fetch(API+"?mode=extract",{cache:"no-store"});
   const ed=await er.json();
   let color="",exec="";
-  if(ed.rows){
-    const m=ed.rows.find(x=>String(x.chassis).trim()===String(chassisParam).trim());
-    if(m){color=m.color||"";exec=m.executive||"";}
-  }
+  const ex=ed.rows?.find(x=>String(x.chassis).trim()===chassisParam);
+  if(ex){color=ex.color||"";exec=ex.executive||"";}
 
   /* Daybook */
   const dr=await fetch(API,{cache:"no-store"});
   const dd=await dr.json();
-  const row=dd.rows.find(x=>String(x.chassis).trim()===String(chassisParam).trim());
+  const row=dd.rows.find(x=>String(x.chassis).trim()===chassisParam);
   if(!row) return;
 
   cust.innerText=row.customer||"";
@@ -193,29 +182,31 @@ async function loadJobcard(){
   colorElem.innerText=color;
   execElem.innerText=exec;
 
-  /* Page Items */
+  /* PAGE ITEMS */
   const pr=await fetch(API+"?mode=page",{cache:"no-store"});
   const pd=await pr.json();
   const tbody=document.getElementById("itemBody");
   tbody.replaceChildren();
 
-  const items=pd.rows.filter(r=>String(r.chase_no).trim()===String(chassisParam).trim());
+  const items=pd.rows.filter(
+    r=>String(r.chase_no).trim()===chassisParam
+  );
 
   if(items.length===0){
-    for(let i=0;i<5;i++){
-      tbody.innerHTML+=`<tr><td></td><td></td><td></td><td></td></tr>`;
-    }
+    for(let i=0;i<5;i++)
+      tbody.insertAdjacentHTML("beforeend","<tr><td></td><td></td><td></td><td></td></tr>");
     return;
   }
 
   items.forEach((it,i)=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td>${i+1}</td>
-      <td>${it.item_partnumber||""}</td>
-      <td>${getStatus(it.given_status,it.adv_billing)}</td>
-      <td></td>`;
-    tbody.appendChild(tr);
+    tbody.insertAdjacentHTML("beforeend",`
+      <tr>
+        <td>${i+1}</td>
+        <td>${it.item_partnumber||""}</td>
+        <td>${getStatus(it.w_7,it.w_8)}</td>
+        <td></td>
+      </tr>
+    `);
   });
 }
 
