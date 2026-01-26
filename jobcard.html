@@ -154,61 +154,25 @@ const API =
 const qs = new URLSearchParams(location.search);
 const chassisParam = qs.get("chassis");
 
-/* ---------- COLOR FALLBACK LOGIC ---------- */
-function extractColorFromVehicle(text){
-  if(!text) return "";
-
-  const t = text.toUpperCase();
-
-  if (t.includes("WHITE")) return "WHITE";
-  if (t.includes("BLACK")) return "BLACK";
-  if (t.includes("BLUE"))  return "BLUE";
-  if (t.includes("RED"))   return "RED";
-  if (t.includes("GREY") || t.includes("GRAY")) return "GREY";
-  if (t.includes("SILVER")) return "SILVER";
-
-  return "";
-}
-/* ------------------------------------------ */
-
 async function loadJobcard(){
   if(!chassisParam) return;
 
-  const r = await fetch(API, { cache: "no-store" });
+  const r = await fetch(API,{cache:"no-store"});
   const d = await r.json();
   if(!d.rows) return;
 
   const row = d.rows.find(
     x => String(x.chassis).trim() === String(chassisParam).trim()
   );
-
   if(!row) return;
 
-  // basic fields
   document.getElementById("cust").innerText    = row.customer || "";
   document.getElementById("chassis").innerText = row.chassis || "";
   document.getElementById("vehicle").innerText = row.vehicle || "";
 
-  // executive intentionally blank
-  document.getElementById("exec").innerText = "";
-
-  /* ---------- FINAL COLOR LOGIC ---------- */
-  let color = "";
-
-  // 1️⃣ API provides color directly
-  if (row.color && String(row.color).trim() !== "") {
-    color = row.color;
-  } 
-  // 2️⃣ fallback → detect from vehicle text
-  else {
-    color = extractColorFromVehicle(row.vehicle);
-  }
-
-  document.getElementById("color").innerText = color;
-  /* -------------------------------------- */
-
-  // keep for future
-  window._AIC_NAME = row.aic || "";
+  // color & executive intentionally blank (extract sheet later)
+  document.getElementById("color").innerText = "";
+  document.getElementById("exec").innerText  = "";
 }
 
 loadJobcard();
