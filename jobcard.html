@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Job Card</title>
 
 <style>
@@ -16,7 +16,7 @@
   --grey:#b5b5b5;
 
   --pending:#f2d23c;
-  --billed:#2fbf71;
+  --billed:#35c46a;
   --unbilled:#ff5c5c;
 }
 
@@ -40,7 +40,7 @@ body{
   overflow:hidden;
 }
 
-/* TOP */
+/* ---------- TOP ---------- */
 .topbar{
   display:flex;
   justify-content:space-between;
@@ -49,6 +49,7 @@ body{
   border-bottom:1px solid var(--border);
 }
 .title{font-size:18px;font-weight:600}
+
 .status-pill{
   background:#f4b400;
   color:#000;
@@ -58,8 +59,9 @@ body{
   font-weight:600;
 }
 
-/* INFO */
+/* ---------- INFO ---------- */
 .info{border-bottom:1px solid var(--border)}
+
 .row{
   display:grid;
   grid-template-columns:auto 1fr;
@@ -78,21 +80,23 @@ body{
 .value{
   padding:6px 10px;
   font-size:10px;
-  font-weight:400;
   color:var(--yellow);
+  font-weight:400;
   text-align:center;
   white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 .row.double .label:nth-child(3){
   border-left:1px solid var(--border);
 }
 
-/* TABLE */
+/* ---------- TABLE ---------- */
 .table{
   width:100%;
   border-collapse:collapse;
-  table-layout:auto; /* 🔥 allow item expand */
+  table-layout:fixed;
 }
 
 .table thead th{
@@ -100,51 +104,62 @@ body{
   color:#fff;
   font-size:11px;
   padding:6px;
+  white-space:nowrap;
   border-right:1px solid var(--border);
 }
 
 .table tbody td{
   padding:4px 6px;
-  font-size:10px;
   border-bottom:1px solid #222;
   border-right:1px solid var(--border);
-  vertical-align:top;
+  vertical-align:middle;
 }
 
+/* columns */
 .col-no{
   width:34px;
   text-align:center;
   color:var(--grey);
+  font-size:10px;
 }
 
 .col-item{
   color:var(--grey);
-  white-space:normal;      /* 🔥 wrap text */
-  word-break:break-word;   /* 🔥 mobile safe */
+  font-size:clamp(9px,2.6vw,10px);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  line-height:1.2;
 }
 
 .col-status{
-  width:96px;              /* fits max text */
+  width:86px;           /* mobile friendly */
   text-align:center;
-  font-weight:500;
+  font-size:10px;
+  font-weight:600;
 }
 
 .col-note{width:60px}
 
-/* STATUS STYLES */
+/* ---------- STATUS COLORS ---------- */
 .st-billed{
   background:var(--billed);
   color:#fff;
 }
-
 .st-pending{
   background:var(--pending);
   color:#000;
 }
-
 .st-unbilled{
-  background:transparent;
+  background:none;
   color:var(--unbilled);
+}
+
+/* ---------- MOBILE SAFETY ---------- */
+@media (max-width:420px){
+  .col-item{
+    font-size:clamp(9px,2.4vw,10px);
+  }
 }
 </style>
 </head>
@@ -201,8 +216,8 @@ const chassisParam=qs.get("chassis");
 
 function getStatus(given,adv){
   given=Number(given); adv=Number(adv);
-  if(given===0 && adv===1) return ["Billed","st-billed"];
   if(given===1 && adv===0) return ["Pending","st-pending"];
+  if(given===0 && adv===1) return ["Billed","st-billed"];
   if(given===1 && adv===1) return ["Billed & not given","st-billed"];
   return ["Unbilled","st-unbilled"];
 }
@@ -243,6 +258,13 @@ async function loadJobcard(){
       `);
     });
 }
+
+const cust=document.getElementById("cust");
+const chassis=document.getElementById("chassis");
+const vehicle=document.getElementById("vehicle");
+const color=document.getElementById("color");
+const exec=document.getElementById("exec");
+const itemBody=document.getElementById("itemBody");
 
 loadJobcard();
 </script>
