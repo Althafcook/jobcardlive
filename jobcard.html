@@ -11,20 +11,25 @@
   --card:#121212;
   --border:#3a3a3a;
   --header:#1f4e79;
-  --label:#9aa0a6;
-  --value:#f4d03f;          /* lite yellow */
-  --rowtext:#7ecbff;        /* lite blue */
-  --billed:#2ecc71;
-  --pending:#f1c40f;
-  --unbilled:#e74c3c;
+
+  --yellow:#f2d23c;
+  --grey:#b5b5b5;
+
+  --pending:#f2d23c;
+  --billed:#3ecf8e;
+  --unbilled:#ff5c5c;
 }
 *{box-sizing:border-box}
+
 body{
   margin:0;
   background:var(--bg);
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  color:#fff;
 }
+
 .wrapper{padding:14px}
+
 .jobcard{
   max-width:420px;
   margin:auto;
@@ -42,34 +47,38 @@ body{
   padding:12px 14px;
   border-bottom:1px solid var(--border);
 }
-.title{font-size:18px;font-weight:600;color:#fff}
-.status{
+.title{font-size:18px;font-weight:600}
+.status-pill{
   background:#f4b400;
   color:#000;
   font-size:11px;
-  font-weight:700;
   padding:6px 12px;
   border-radius:20px;
+  font-weight:600;
 }
 
 /* INFO */
 .info{border-bottom:1px solid var(--border)}
-.row{display:grid;grid-template-columns:auto 1fr;border-bottom:1px solid var(--border)}
+.row{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  border-bottom:1px solid var(--border);
+}
 .row.double{grid-template-columns:auto 1fr auto 1fr}
 
 .label{
   padding:6px 10px;
-  font-size:12px;
-  color:var(--label);
+  font-size:11px;
+  color:#9aa0a6;
   border-right:1px solid var(--border);
-  text-align:center;
+  white-space:nowrap;
 }
 
 .value{
   padding:6px 10px;
-  font-size:12px;
-  font-weight:500;
-  color:var(--value);
+  font-size:10px;
+  color:var(--yellow);
+  font-weight:400;
   text-align:center;
   white-space:nowrap;
   overflow:hidden;
@@ -81,22 +90,24 @@ body{
 }
 
 /* TABLE */
-.table{width:100%;border-collapse:collapse;table-layout:fixed}
+.table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+}
 
 .table thead th{
   background:var(--header);
   color:#fff;
   font-size:11px;
   padding:6px;
-  text-align:center;
+  white-space:nowrap;
   border-right:1px solid var(--border);
 }
 
 .table tbody td{
   padding:4px 6px;
-  font-size:12px;
-  text-align:center;
-  color:var(--rowtext);
+  font-size:10px;
   border-bottom:1px solid #222;
   border-right:1px solid var(--border);
   white-space:nowrap;
@@ -104,13 +115,14 @@ body{
   text-overflow:ellipsis;
 }
 
-.col-no{width:34px}
-.col-status{width:110px}
+.col-no{width:34px;text-align:center;color:var(--grey)}
+.col-item{color:var(--grey)}
+.col-status{width:110px;text-align:center}
 .col-note{width:60px}
 
 /* STATUS COLORS */
-.st-billed{color:var(--billed)}
 .st-pending{color:var(--pending)}
+.st-billed{color:var(--billed)}
 .st-unbilled{color:var(--unbilled)}
 </style>
 </head>
@@ -121,7 +133,7 @@ body{
 
 <div class="topbar">
   <div class="title">JOB CARD</div>
-  <div class="status">IN&nbsp;PROGRESS</div>
+  <div class="status-pill">IN PROGRESS</div>
 </div>
 
 <div class="info">
@@ -165,47 +177,57 @@ const API="https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx
 const qs=new URLSearchParams(location.search);
 const chassisParam=qs.get("chassis");
 
-function getStatus(g,a){
-  g=Number(g); a=Number(a);
-  if(g===1 && a===0) return ["Pending","st-pending"];
-  if(g===0 && a===1) return ["Billed","st-billed"];
-  if(g===1 && a===1) return ["Billed & not given","st-billed"];
+function getStatus(given,adv){
+  given=Number(given); adv=Number(adv);
+  if(given===1 && adv===0) return ["Pending","st-pending"];
+  if(given===0 && adv===1) return ["Billed","st-billed"];
+  if(given===1 && adv===1) return ["Billed & not given","st-billed"];
   return ["Unbilled","st-unbilled"];
 }
 
 async function loadJobcard(){
-  const er=await fetch(API+"?mode=extract");
-  const ed=await er.json();
-  const ex=ed.rows.find(x=>String(x.chassis).trim()===chassisParam);
+  if(!chassisParam) return;
 
-  const dr=await fetch(API);
+  const er=await fetch(API+"?mode=extract",{cache:"no-store"});
+  const ed=await er.json();
+  const ex=ed.rows?.find(x=>String(x.chassis).trim()===chassisParam) || {};
+
+  const dr=await fetch(API,{cache:"no-store"});
   const dd=await dr.json();
   const row=dd.rows.find(x=>String(x.chassis).trim()===chassisParam);
+  if(!row) return;
 
-  cust.innerText=row.customer;
-  chassis.innerText=row.chassis;
-  vehicle.innerText=row.vehicle;
-  color.innerText=ex?.color||"";
-  exec.innerText=ex?.executive||"";
+  cust.innerText=row.customer||"";
+  chassis.innerText=row.chassis||"";
+  vehicle.innerText=row.vehicle||"";
+  color.innerText=ex.color||"";
+  exec.innerText=ex.executive||"";
 
-  const pr=await fetch(API+"?mode=page");
+  const pr=await fetch(API+"?mode=page",{cache:"no-store"});
   const pd=await pr.json();
 
-  itemBody.replaceChildren();
-
+  itemBody.innerHTML="";
   pd.rows
-   .filter(r=>String(r.chase_no).trim()===chassisParam)
-   .forEach((it,i)=>{
-     const [txt,cls]=getStatus(it.given_status,it.adv_billing);
-     const tr=document.createElement("tr");
-     tr.innerHTML=`
-       <td>${i+1}</td>
-       <td>${it.item_partnumber||""}</td>
-       <td class="${cls}">${txt}</td>
-       <td></td>`;
-     itemBody.appendChild(tr);
-   });
+    .filter(r=>String(r.chase_no).trim()===chassisParam)
+    .forEach((it,i)=>{
+      const [txt,cls]=getStatus(it.given_status,it.adv_billing);
+      itemBody.insertAdjacentHTML("beforeend",`
+        <tr>
+          <td class="col-no">${i+1}</td>
+          <td class="col-item">${it.item_partnumber||""}</td>
+          <td class="col-status ${cls}">${txt}</td>
+          <td class="col-note"></td>
+        </tr>
+      `);
+    });
 }
+
+const cust=document.getElementById("cust");
+const chassis=document.getElementById("chassis");
+const vehicle=document.getElementById("vehicle");
+const color=document.getElementById("color");
+const exec=document.getElementById("exec");
+const itemBody=document.getElementById("itemBody");
 
 loadJobcard();
 </script>
