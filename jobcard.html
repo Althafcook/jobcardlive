@@ -16,16 +16,13 @@
   --accent:#f4b400;
 }
 *{box-sizing:border-box}
-
 body{
   margin:0;
   background:var(--bg);
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
   color:var(--text);
 }
-
 .wrapper{padding:14px}
-
 .jobcard{
   max-width:420px;
   margin:auto;
@@ -34,8 +31,6 @@ body{
   border-radius:14px;
   overflow:hidden;
 }
-
-/* ---------- TOP ---------- */
 .topbar{
   display:flex;
   justify-content:space-between;
@@ -44,7 +39,6 @@ body{
   border-bottom:1px solid var(--border);
 }
 .title{font-size:18px;font-weight:600}
-.date{font-size:12px;color:var(--muted)}
 .status{
   background:var(--accent);
   color:#000;
@@ -53,21 +47,15 @@ body{
   padding:6px 12px;
   border-radius:20px;
 }
-
-/* ---------- INFO ---------- */
 .info{border-bottom:1px solid var(--border)}
-
 .row{
   display:grid;
   grid-template-columns:auto 1fr;
   border-bottom:1px solid var(--border);
-  min-height:30px;
 }
-
 .row.double{
   grid-template-columns:auto 1fr auto 1fr;
 }
-
 .label{
   padding:6px 10px;
   font-size:12px;
@@ -75,8 +63,6 @@ body{
   white-space:nowrap;
   border-right:1px solid var(--border);
 }
-
-/* ✅ FIX */
 .value{
   padding:6px 10px;
   font-size:13px;
@@ -85,44 +71,26 @@ body{
   text-overflow:ellipsis;
 }
 
-.row.double .label:nth-child(3){
-  border-left:1px solid var(--border);
-}
-
-/* ---------- TABLE ---------- */
 .table{
   width:100%;
   border-collapse:collapse;
-  table-layout:fixed;            /* ✅ IMPORTANT */
+  table-layout:fixed;
 }
-
-.table thead th{
-  background:var(--header);
-  color:#fff;
-  font-size:11px;
-  font-weight:600;
+.table th,.table td{
+  font-size:12px;
   padding:6px;
-  border-right:1px solid var(--border);
-  text-align:left;
+  border-right:1px solid #222;
+  border-bottom:1px solid #222;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
-
-.table tbody td{
-  height:18px;
-  padding:4px 6px;
-  border-bottom:1px solid #222;
-  border-right:1px solid #222;
-  white-space:nowrap;            /* ✅ */
-  overflow:hidden;
-  text-overflow:ellipsis;
+.table th{
+  background:var(--header);
+  color:#fff;
 }
-
-/* fixed columns */
 .col-no{width:34px}
-.col-status{width:60px}
-.col-note{width:60px}
+.col-status{width:110px}
 </style>
 </head>
 
@@ -131,26 +99,21 @@ body{
 <div class="jobcard">
 
 <div class="topbar">
-  <div>
-    <div class="title">JOB CARD</div>
-    <div class="date" id="jcDate"></div>
-  </div>
-  <div class="status">IN&nbsp;PROGRESS</div>
+  <div class="title">JOB CARD</div>
+  <div class="status">IN PROGRESS</div>
 </div>
 
 <div class="info">
   <div class="row">
-    <div class="label">Customer Name</div>
+    <div class="label">Customer</div>
     <div class="value" id="cust"></div>
   </div>
-
   <div class="row double">
-    <div class="label">Chassis No</div>
+    <div class="label">Chassis</div>
     <div class="value" id="chassis"></div>
     <div class="label">Vehicle</div>
     <div class="value" id="vehicle"></div>
   </div>
-
   <div class="row double">
     <div class="label">Color</div>
     <div class="value" id="color"></div>
@@ -165,91 +128,66 @@ body{
   <th class="col-no">No</th>
   <th>Item</th>
   <th class="col-status">Status</th>
-  <th class="col-note">Note</th>
+  <th>Note</th>
 </tr>
 </thead>
-<tbody>
-<tr><td></td><td></td><td></td><td></td></tr>
-<tr><td></td><td></td><td></td><td></td></tr>
-<tr><td></td><td></td><td></td><td></td></tr>
-<tr><td></td><td></td><td></td><td></td></tr>
-<tr><td></td><td></td><td></td><td></td></tr>
-</tbody>
+<tbody id="itemBody"></tbody>
 </table>
 
 </div>
 </div>
 
 <script>
-const API =
-"https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
-
-const qs = new URLSearchParams(location.search);
-const chassisParam = qs.get("chassis");
+const API="https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
+const qs=new URLSearchParams(location.search);
+const chassisParam=qs.get("chassis");
 
 /* ---------- STATUS LOGIC ---------- */
-function getStatus(given, adv){
-  given = Number(given);
-  adv   = Number(adv);
-
-  if(given === 1 && adv === 0) return "Pending";
-  if(given === 0 && adv === 1) return "Billed";
-  if(given === 1 && adv === 1) return "Billed & not given";
+function getStatus(given, billing){
+  if(given==1 && billing==0) return "Pending";
+  if(given==0 && billing==1) return "Billed";
+  if(given==1 && billing==1) return "Billed & not given";
   return "Bill pending";
 }
 
 async function loadJobcard(){
   if(!chassisParam) return;
 
-  /* ---------- 1️⃣ Extract sheet (color & executive) ---------- */
-  const er = await fetch(API + "?mode=extract",{cache:"no-store"});
-  const ed = await er.json();
+  /* ---- extract ---- */
+  const ex=await fetch(API+"?mode=extract",{cache:"no-store"});
+  const exd=await ex.json();
+  const exRow=exd.rows.find(r=>r.chassis==chassisParam)||{};
 
-  let color="", executive="";
-  if(ed.rows){
-    const m = ed.rows.find(x=>String(x.chassis).trim()===String(chassisParam).trim());
-    if(m){
-      color = m.color || "";
-      executive = m.executive || "";
-    }
-  }
+  /* ---- daybook ---- */
+  const dr=await fetch(API,{cache:"no-store"});
+  const dd=await dr.json();
+  const dRow=dd.rows.find(r=>r.chassis==chassisParam);
+  if(!dRow) return;
 
-  /* ---------- 2️⃣ Daybook data ---------- */
-  const r = await fetch(API,{cache:"no-store"});
-  const d = await r.json();
-  if(!d.rows) return;
+  cust.innerText=dRow.customer||"";
+  chassis.innerText=dRow.chassis||"";
+  vehicle.innerText=dRow.vehicle||"";
+  color.innerText=exRow.color||"";
+  exec.innerText=exRow.executive||"";
 
-  const row = d.rows.find(x=>String(x.chassis).trim()===String(chassisParam).trim());
-  if(!row) return;
+  /* ---- page items ---- */
+  const pr=await fetch(API+"?mode=page",{cache:"no-store"});
+  const pd=await pr.json();
 
-  document.getElementById("cust").innerText    = row.customer || "";
-  document.getElementById("chassis").innerText = row.chassis || "";
-  document.getElementById("vehicle").innerText = row.vehicle || "";
-  document.getElementById("color").innerText   = color;
-  document.getElementById("exec").innerText    = executive;
+  const tbody=document.getElementById("itemBody");
+  tbody.innerHTML="";
 
-  /* ---------- 3️⃣ PAGE SHEET → ITEMS ---------- */
-  const pr = await fetch(API + "?mode=page",{cache:"no-store"});
-  const pd = await pr.json();
-  if(!pd.rows) return;
-
-  const tbody = document.querySelector(".table tbody");
-  tbody.replaceChildren();
-
-  const items = pd.rows.filter(
-    r => String(r.chase_no).trim() === String(chassisParam).trim()
-  );
-
-  items.forEach((it,i)=>{
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${i+1}</td>
-      <td>${it.item_partnumber || ""}</td>
-      <td>${getStatus(it.given_status, it.adv_billing)}</td>
-      <td></td>
-    `;
-    tbody.appendChild(tr);
-  });
+  pd.rows
+    .filter(r=>String(r.chase_no).trim()==chassisParam)
+    .forEach((r,i)=>{
+      const tr=document.createElement("tr");
+      tr.innerHTML=`
+        <td>${i+1}</td>
+        <td>${r.item_partnumber}</td>
+        <td>${getStatus(r.given_status, r.adv_billing)}</td>
+        <td></td>`;
+      tbody.appendChild(tr);
+    });
 }
 
 loadJobcard();
