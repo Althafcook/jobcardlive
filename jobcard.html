@@ -188,21 +188,15 @@ async function loadJobcard(){
   const tbody=document.getElementById("itemBody");
   tbody.replaceChildren();
 
-  const items=pd.rows.filter(
-    r=>String(r.chase_no).trim()===chassisParam
-  );
-
-  if(items.length===0){
-    for(let i=0;i<5;i++)
-      tbody.insertAdjacentHTML("beforeend","<tr><td></td><td></td><td></td><td></td></tr>");
-    return;
-  }
+  const items = pd.rows.filter(
+  r => String(r.chase_no).trim() === String(chassisParam).trim()
+);
 
 items.forEach((it,i)=>{
   const tr=document.createElement("tr");
   tr.innerHTML=`
     <td>${i+1}</td>
-    <td>${it.Item_partnumber || ""}</td>
+    <td>${it.item_partnumber || ""}</td>
     <td>${getStatus(it.given_status, it.adv_billing)}</td>
     <td></td>
   `;
