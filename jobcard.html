@@ -31,6 +31,8 @@ body{
   border-radius:14px;
   overflow:hidden;
 }
+
+/* TOP */
 .topbar{
   display:flex;
   justify-content:space-between;
@@ -39,6 +41,7 @@ body{
   border-bottom:1px solid var(--border);
 }
 .title{font-size:18px;font-weight:600}
+.date{font-size:12px;color:var(--muted)}
 .status{
   background:var(--accent);
   color:#000;
@@ -47,15 +50,15 @@ body{
   padding:6px 12px;
   border-radius:20px;
 }
+
+/* INFO */
 .info{border-bottom:1px solid var(--border)}
 .row{
   display:grid;
   grid-template-columns:auto 1fr;
   border-bottom:1px solid var(--border);
 }
-.row.double{
-  grid-template-columns:auto 1fr auto 1fr;
-}
+.row.double{grid-template-columns:auto 1fr auto 1fr}
 .label{
   padding:6px 10px;
   font-size:12px;
@@ -70,27 +73,37 @@ body{
   overflow:hidden;
   text-overflow:ellipsis;
 }
+.row.double .label:nth-child(3){
+  border-left:1px solid var(--border);
+}
 
+/* TABLE */
 .table{
   width:100%;
   border-collapse:collapse;
   table-layout:fixed;
 }
-.table th,.table td{
-  font-size:12px;
+.table thead th{
+  background:var(--header);
+  color:#fff;
+  font-size:11px;
+  font-weight:600;
   padding:6px;
-  border-right:1px solid #222;
+  text-align:left;
+  white-space:nowrap;
+}
+.table tbody td{
+  padding:4px 6px;
+  font-size:12px;
   border-bottom:1px solid #222;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
-.table th{
-  background:var(--header);
-  color:#fff;
-}
+
 .col-no{width:34px}
-.col-status{width:110px}
+.col-status{width:90px}
+.col-note{width:60px}
 </style>
 </head>
 
@@ -99,21 +112,26 @@ body{
 <div class="jobcard">
 
 <div class="topbar">
-  <div class="title">JOB CARD</div>
-  <div class="status">IN PROGRESS</div>
+  <div>
+    <div class="title">JOB CARD</div>
+    <div class="date" id="jcDate"></div>
+  </div>
+  <div class="status">IN&nbsp;PROGRESS</div>
 </div>
 
 <div class="info">
   <div class="row">
-    <div class="label">Customer</div>
+    <div class="label">Customer Name</div>
     <div class="value" id="cust"></div>
   </div>
+
   <div class="row double">
-    <div class="label">Chassis</div>
+    <div class="label">Chassis No</div>
     <div class="value" id="chassis"></div>
     <div class="label">Vehicle</div>
     <div class="value" id="vehicle"></div>
   </div>
+
   <div class="row double">
     <div class="label">Color</div>
     <div class="value" id="color"></div>
@@ -128,7 +146,7 @@ body{
   <th class="col-no">No</th>
   <th>Item</th>
   <th class="col-status">Status</th>
-  <th>Note</th>
+  <th class="col-note">Note</th>
 </tr>
 </thead>
 <tbody id="itemBody"></tbody>
@@ -142,53 +160,70 @@ const API="https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx
 const qs=new URLSearchParams(location.search);
 const chassisParam=qs.get("chassis");
 
-/* ---------- STATUS LOGIC ---------- */
-function getStatus(given, billing){
-  if(given==1 && billing==0) return "Pending";
-  if(given==0 && billing==1) return "Billed";
-  if(given==1 && billing==1) return "Billed & not given";
+/* STATUS RULE */
+function getStatus(given,adv){
+  given=Number(given); adv=Number(adv);
+  if(given===1 && adv===0) return "Pending";
+  if(given===0 && adv===1) return "Billed";
+  if(given===1 && adv===1) return "Billed & not given";
   return "Bill pending";
 }
 
 async function loadJobcard(){
   if(!chassisParam) return;
 
-  /* ---- extract ---- */
-  const ex=await fetch(API+"?mode=extract",{cache:"no-store"});
-  const exd=await ex.json();
-  const exRow=exd.rows.find(r=>r.chassis==chassisParam)||{};
+  /* Extract */
+  const er=await fetch(API+"?mode=extract",{cache:"no-store"});
+  const ed=await er.json();
+  let color="",exec="";
+  if(ed.rows){
+    const m=ed.rows.find(x=>String(x.chassis).trim()===String(chassisParam).trim());
+    if(m){color=m.color||"";exec=m.executive||"";}
+  }
 
-  /* ---- daybook ---- */
+  /* Daybook */
   const dr=await fetch(API,{cache:"no-store"});
   const dd=await dr.json();
-  const dRow=dd.rows.find(r=>r.chassis==chassisParam);
-  if(!dRow) return;
+  const row=dd.rows.find(x=>String(x.chassis).trim()===String(chassisParam).trim());
+  if(!row) return;
 
-  cust.innerText=dRow.customer||"";
-  chassis.innerText=dRow.chassis||"";
-  vehicle.innerText=dRow.vehicle||"";
-  color.innerText=exRow.color||"";
-  exec.innerText=exRow.executive||"";
+  cust.innerText=row.customer||"";
+  chassis.innerText=row.chassis||"";
+  vehicle.innerText=row.vehicle||"";
+  colorElem.innerText=color;
+  execElem.innerText=exec;
 
-  /* ---- page items ---- */
+  /* Page Items */
   const pr=await fetch(API+"?mode=page",{cache:"no-store"});
   const pd=await pr.json();
-
   const tbody=document.getElementById("itemBody");
-  tbody.innerHTML="";
+  tbody.replaceChildren();
 
-  pd.rows
-    .filter(r=>String(r.chase_no).trim()==chassisParam)
-    .forEach((r,i)=>{
-      const tr=document.createElement("tr");
-      tr.innerHTML=`
-        <td>${i+1}</td>
-        <td>${r.item_partnumber}</td>
-        <td>${getStatus(r.given_status, r.adv_billing)}</td>
-        <td></td>`;
-      tbody.appendChild(tr);
-    });
+  const items=pd.rows.filter(r=>String(r.chase_no).trim()===String(chassisParam).trim());
+
+  if(items.length===0){
+    for(let i=0;i<5;i++){
+      tbody.innerHTML+=`<tr><td></td><td></td><td></td><td></td></tr>`;
+    }
+    return;
+  }
+
+  items.forEach((it,i)=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${i+1}</td>
+      <td>${it.item_partnumber||""}</td>
+      <td>${getStatus(it.given_status,it.adv_billing)}</td>
+      <td></td>`;
+    tbody.appendChild(tr);
+  });
 }
+
+const cust=document.getElementById("cust");
+const chassis=document.getElementById("chassis");
+const vehicle=document.getElementById("vehicle");
+const colorElem=document.getElementById("color");
+const execElem=document.getElementById("exec");
 
 loadJobcard();
 </script>
