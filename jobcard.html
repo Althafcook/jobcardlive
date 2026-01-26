@@ -210,9 +210,9 @@ body{
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
-const qs=new URLSearchParams(location.search);
-const chassisParam=qs.get("chassis");
+const API = "https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
+const qs = new URLSearchParams(location.search);
+const chassisParam = qs.get("chassis");
 
 function getStatus(given,adv){
   given=Number(given); adv=Number(adv);
@@ -225,46 +225,32 @@ function getStatus(given,adv){
 async function loadJobcard(){
   if(!chassisParam) return;
 
-  const er=await fetch(API+"?mode=extract",{cache:"no-store"});
-  const ed=await er.json();
-  const ex=ed.rows?.find(x=>String(x.chassis).trim()===chassisParam) || {};
+  const r = await fetch(
+    API + "?mode=jobcard&chassis=" + encodeURIComponent(chassisParam),
+    { cache:"no-store" }
+  );
+  const d = await r.json();
 
-  const dr=await fetch(API,{cache:"no-store"});
-  const dd=await dr.json();
-  const row=dd.rows.find(x=>String(x.chassis).trim()===chassisParam);
-  if(!row) return;
+  cust.innerText = d.customer || "";
+  chassis.innerText = d.chassis || "";
+  vehicle.innerText = d.vehicle || "";
+  color.innerText = d.color || "";
+  exec.innerText = d.executive || "";
 
-  cust.innerText=row.customer||"";
-  chassis.innerText=row.chassis||"";
-  vehicle.innerText=row.vehicle||"";
-  color.innerText=ex.color||"";
-  exec.innerText=ex.executive||"";
+  itemBody.innerHTML = "";
 
-  const pr=await fetch(API+"?mode=page",{cache:"no-store"});
-  const pd=await pr.json();
-
-  itemBody.innerHTML="";
-  pd.rows
-    .filter(r=>String(r.chase_no).trim()===chassisParam)
-    .forEach((it,i)=>{
-      const [txt,cls]=getStatus(it.given_status,it.adv_billing);
-      itemBody.insertAdjacentHTML("beforeend",`
-        <tr>
-          <td class="col-no">${i+1}</td>
-          <td class="col-item">${it.item_partnumber||""}</td>
-          <td class="col-status ${cls}">${txt}</td>
-          <td class="col-note"></td>
-        </tr>
-      `);
-    });
+  d.items.forEach((it,i)=>{
+    const [txt,cls] = getStatus(it.given_status, it.adv_billing);
+    itemBody.insertAdjacentHTML("beforeend",`
+      <tr>
+        <td class="col-no">${i+1}</td>
+        <td class="col-item">${it.item_partnumber||""}</td>
+        <td class="col-status ${cls}">${txt}</td>
+        <td></td>
+      </tr>
+    `);
+  });
 }
-
-const cust=document.getElementById("cust");
-const chassis=document.getElementById("chassis");
-const vehicle=document.getElementById("vehicle");
-const color=document.getElementById("color");
-const exec=document.getElementById("exec");
-const itemBody=document.getElementById("itemBody");
 
 loadJobcard();
 </script>
