@@ -187,18 +187,34 @@ const API =
 const qs = new URLSearchParams(location.search);
 const chassisParam = qs.get("chassis");
 
+/* ---------- STATUS LOGIC ---------- */
+function getStatus(given, adv){
+  given = Number(given);
+  adv   = Number(adv);
+
+  if(given === 1 && adv === 0) return "Pending";
+  if(given === 0 && adv === 1) return "Billed";
+  if(given === 1 && adv === 1) return "Billed & not given";
+  return "Bill pending";
+}
+
 async function loadJobcard(){
   if(!chassisParam) return;
 
+  /* ---------- 1️⃣ Extract sheet (color & executive) ---------- */
   const er = await fetch(API + "?mode=extract",{cache:"no-store"});
   const ed = await er.json();
 
   let color="", executive="";
   if(ed.rows){
     const m = ed.rows.find(x=>String(x.chassis).trim()===String(chassisParam).trim());
-    if(m){ color=m.color||""; executive=m.executive||""; }
+    if(m){
+      color = m.color || "";
+      executive = m.executive || "";
+    }
   }
 
+  /* ---------- 2️⃣ Daybook data ---------- */
   const r = await fetch(API,{cache:"no-store"});
   const d = await r.json();
   if(!d.rows) return;
@@ -206,11 +222,34 @@ async function loadJobcard(){
   const row = d.rows.find(x=>String(x.chassis).trim()===String(chassisParam).trim());
   if(!row) return;
 
-  document.getElementById("cust").innerText=row.customer||"";
-  document.getElementById("chassis").innerText=row.chassis||"";
-  document.getElementById("vehicle").innerText=row.vehicle||"";
-  document.getElementById("color").innerText=color;
-  document.getElementById("exec").innerText=executive;
+  document.getElementById("cust").innerText    = row.customer || "";
+  document.getElementById("chassis").innerText = row.chassis || "";
+  document.getElementById("vehicle").innerText = row.vehicle || "";
+  document.getElementById("color").innerText   = color;
+  document.getElementById("exec").innerText    = executive;
+
+  /* ---------- 3️⃣ PAGE SHEET → ITEMS ---------- */
+  const pr = await fetch(API + "?mode=page",{cache:"no-store"});
+  const pd = await pr.json();
+  if(!pd.rows) return;
+
+  const tbody = document.querySelector(".table tbody");
+  tbody.replaceChildren();
+
+  const items = pd.rows.filter(
+    r => String(r.chase_no).trim() === String(chassisParam).trim()
+  );
+
+  items.forEach((it,i)=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td>${it.item_partnumber || ""}</td>
+      <td>${getStatus(it.given_status, it.adv_billing)}</td>
+      <td></td>
+    `;
+    tbody.appendChild(tr);
+  });
 }
 
 loadJobcard();
