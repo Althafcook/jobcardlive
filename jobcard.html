@@ -198,16 +198,16 @@ async function loadJobcard(){
     return;
   }
 
-  items.forEach((it,i)=>{
-    tbody.insertAdjacentHTML("beforeend",`
-      <tr>
-        <td>${i+1}</td>
-        <td>${it.item_partnumber||""}</td>
-        <td>${getStatus(it.w_7,it.w_8)}</td>
-        <td></td>
-      </tr>
-    `);
-  });
+items.forEach((it,i)=>{
+  const tr=document.createElement("tr");
+  tr.innerHTML=`
+    <td>${i+1}</td>
+    <td>${it.Item_partnumber || ""}</td>
+    <td>${getStatus(it.given_status, it.adv_billing)}</td>
+    <td></td>
+  `;
+  tbody.appendChild(tr);
+});
 }
 
 const cust=document.getElementById("cust");
