@@ -251,15 +251,15 @@ function renderTable(){
     tr.onclick=()=>jobcardClick(r);
 
     tr.innerHTML=`
-      <td>${i+1}</td>
-      <td>${r.date}</td>
-      <td>${r.time}</td>
-      <td><b>${r.jobcard}</b></td>
-      <td class="${aicClass(r.aic)}">${r.aic}</td>
-      <td>${r.customer}</td>
-      <td>${r.executive || ""}</td>
-      <td>${r.vehicle}</td>
-      <td>${r.chassis}</td>`;
+  <td>${i+1}</td>
+  <td>${r.date}</td>
+  <td>${r.time}</td>
+  <td><b>${r.jobcard}</b></td>
+  <td class="${aicClass(r.aic)}">${r.aic}</td>
+  <td>${r.customer}</td>
+  <td>${r.executive || ""}</td>   <!-- ✅ ONLY FIX -->
+  <td>${r.vehicle}</td>
+  <td>${r.chassis}</td>`;
     tbody.appendChild(tr);
   });
 }
@@ -311,3 +311,4 @@ setInterval(loadDaybook,30000);
 </script>
 </body>
 </html>
+
