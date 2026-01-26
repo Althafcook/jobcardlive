@@ -157,7 +157,7 @@ function getStatus(given,adv){
   if(given===1 && adv===0) return "Pending";
   if(given===0 && adv===1) return "Billed";
   if(given===1 && adv===1) return "Billed & not given";
-  return "Bill pending";
+  return "Unbilled";
 }
 
 async function loadJobcard(){
