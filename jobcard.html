@@ -157,7 +157,25 @@ const chassisParam = qs.get("chassis");
 async function loadJobcard(){
   if(!chassisParam) return;
 
-  const r = await fetch(API,{cache:"no-store"});
+  /* ---------- 1️⃣ Load extract sheet ---------- */
+  const er = await fetch(API + "?mode=extract", { cache: "no-store" });
+  const ed = await er.json();
+
+  let color = "";
+  let executive = "";
+
+  if (ed.rows) {
+    const match = ed.rows.find(
+      x => String(x.chassis).trim() === String(chassisParam).trim()
+    );
+    if (match) {
+      color = match.color || "";
+      executive = match.executive || "";
+    }
+  }
+
+  /* ---------- 2️⃣ Load daybook data ---------- */
+  const r = await fetch(API, { cache: "no-store" });
   const d = await r.json();
   if(!d.rows) return;
 
@@ -166,13 +184,12 @@ async function loadJobcard(){
   );
   if(!row) return;
 
+  /* ---------- 3️⃣ Fill UI ---------- */
   document.getElementById("cust").innerText    = row.customer || "";
   document.getElementById("chassis").innerText = row.chassis || "";
   document.getElementById("vehicle").innerText = row.vehicle || "";
-
-  // color & executive intentionally blank (extract sheet later)
-  document.getElementById("color").innerText = "";
-  document.getElementById("exec").innerText  = "";
+  document.getElementById("color").innerText   = color;
+  document.getElementById("exec").innerText    = executive;
 }
 
 loadJobcard();
