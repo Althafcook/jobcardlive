@@ -13,6 +13,7 @@ body{
   background:#111;
   color:#fff;
 }
+
 /* ---------- HEADER ---------- */
 .header{
   padding:8px 12px;
@@ -23,13 +24,10 @@ body{
   border-bottom:1px solid #333;
   gap:10px;
 }
-.header h1{
-  margin:0;
-  font-size:18px;
-  font-weight:600;
-}
+.header h1{margin:0;font-size:18px;font-weight:600}
 .home-btn{cursor:pointer;font-size:18px;opacity:.85}
 .home-btn:hover{opacity:1}
+
 .summary{
   display:flex;
   gap:6px;
@@ -46,11 +44,13 @@ body{
   opacity:.85;
 }
 .summary span.active{outline:2px solid #fff;opacity:1}
+
 .sum-arun{background:#d94a4a;color:#fff}
 .sum-siyad{background:#8bc34a;color:#000}
 .sum-sajid{background:#f2d23c;color:#000}
 .sum-ashraf{background:#eee;color:#000}
 .sum-total{background:#333;color:#fff}
+
 .date{font-size:13px;color:#aaa}
 
 @media (max-width:768px){
@@ -59,8 +59,17 @@ body{
 }
 
 /* ---------- TABLE ---------- */
-.table-wrapper{height:calc(100vh - 56px);overflow:auto}
-table{width:100%;border-collapse:collapse}
+.table-wrapper{
+  height:calc(100vh - 56px);
+  overflow:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed; /* ✅ IMPORTANT */
+}
+
 thead th{
   position:sticky;
   top:0;
@@ -69,18 +78,27 @@ thead th{
   font-size:13px;
   padding:8px;
   border-bottom:1px solid #444;
+  white-space:nowrap;            /* ✅ */
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
+
 tbody td{
   font-size:13px;
   padding:4px 6px;
   height:24px;
   border-bottom:1px solid #222;
   text-align:center;
+  white-space:nowrap;            /* ✅ */
+  overflow:hidden;               /* ✅ */
+  text-overflow:ellipsis;        /* ✅ */
 }
+
 .aic-arun{background:#d94a4a;color:#fff}
 .aic-siyad{background:#8bc34a;color:#000}
 .aic-sajid{background:#f2d23c;color:#000}
 .aic-ashraf{background:#eee;color:#000}
+
 tbody tr:hover{background:#1b1b1b}
 
 /* ---------- EMPTY ---------- */
@@ -112,19 +130,16 @@ tbody tr:hover{background:#1b1b1b}
 }
 .hidden{display:none}
 .meter{
-  width:160px;
-  height:160px;
+  width:160px;height:160px;
   border-radius:50%;
   border:8px solid #333;
   position:relative;
 }
 .needle{
-  width:4px;
-  height:70px;
+  width:4px;height:70px;
   background:red;
   position:absolute;
-  bottom:50%;
-  left:50%;
+  bottom:50%;left:50%;
   transform-origin:bottom;
   animation:sweep 1.2s linear infinite;
 }
@@ -251,15 +266,15 @@ function renderTable(){
     tr.onclick=()=>jobcardClick(r);
 
     tr.innerHTML=`
-  <td>${i+1}</td>
-  <td>${r.date}</td>
-  <td>${r.time}</td>
-  <td><b>${r.jobcard}</b></td>
-  <td class="${aicClass(r.aic)}">${r.aic}</td>
-  <td>${r.customer}</td>
-  <td>${r.executive || ""}</td>   <!-- ✅ ONLY FIX -->
-  <td>${r.vehicle}</td>
-  <td>${r.chassis}</td>`;
+      <td>${i+1}</td>
+      <td>${r.date}</td>
+      <td>${r.time}</td>
+      <td><b>${r.jobcard}</b></td>
+      <td class="${aicClass(r.aic)}">${r.aic}</td>
+      <td>${r.customer}</td>
+      <td>${r.executive || ""}</td>
+      <td>${r.vehicle}</td>
+      <td>${r.chassis}</td>`;
     tbody.appendChild(tr);
   });
 }
@@ -311,4 +326,3 @@ setInterval(loadDaybook,30000);
 </script>
 </body>
 </html>
-
