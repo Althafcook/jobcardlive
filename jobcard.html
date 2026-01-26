@@ -54,6 +54,29 @@ body{
   font-weight:600;
 }
 
+/* PROGRESS */
+.progress-wrap{
+  padding:8px 12px;
+  border-bottom:1px solid var(--border);
+}
+.progress-text{
+  font-size:11px;
+  color:#9aa0a6;
+  margin-bottom:6px;
+}
+.progress-bar{
+  height:6px;
+  background:#222;
+  border-radius:6px;
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#f2d23c,#35c46a);
+  transition:width .15s linear;
+}
+
 /* INFO */
 .info{border-bottom:1px solid var(--border)}
 .row{display:grid;grid-template-columns:auto 1fr;border-bottom:1px solid var(--border)}
@@ -120,6 +143,16 @@ body{
   <div class="status-pill">IN PROGRESS</div>
 </div>
 
+<!-- PROGRESS -->
+<div class="progress-wrap" id="progressWrap">
+  <div class="progress-text" id="progressText">
+    Loading jobcard…
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+</div>
+
 <div class="info">
   <div class="row">
     <div class="label">Customer Name</div>
@@ -157,6 +190,7 @@ body{
 <script>
 const API="https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
 const chassisParam=new URLSearchParams(location.search).get("chassis");
+const EXPECTED_MAX = 10; // seconds
 
 function getStatus(g,a){
   g=Number(g); a=Number(a);
@@ -169,13 +203,26 @@ function getStatus(g,a){
 async function loadJobcard(){
   if(!chassisParam) return;
 
+  const start = performance.now();
+  const fill  = document.getElementById("progressFill");
+  const text  = document.getElementById("progressText");
+  const wrap  = document.getElementById("progressWrap");
+
+  const timer = setInterval(()=>{
+    const elapsed = (performance.now() - start)/1000;
+    const pct = Math.min(95, Math.round((elapsed / EXPECTED_MAX) * 100));
+    fill.style.width = pct + "%";
+    text.innerText = `Loading jobcard… ${pct}% (${elapsed.toFixed(1)}s)`;
+  },100);
+
   const r = await fetch(
     API+"?mode=jobcard&chassis="+encodeURIComponent(chassisParam),
     {cache:"no-store"}
   );
   const d = await r.json();
 
-  /* ✅ CORRECT FIELDS */
+  clearInterval(timer);
+
   cust.innerText    = d.customer || "";
   chassis.innerText = d.chassis  || "";
   vehicle.innerText = d.vehicle  || "";
@@ -194,9 +241,16 @@ async function loadJobcard(){
       </tr>
     `);
   });
+
+  const total = ((performance.now()-start)/1000).toFixed(1);
+  fill.style.width="100%";
+  text.innerText = `Loaded in ${total} seconds`;
+
+  setTimeout(()=>wrap.style.display="none",1200);
 }
 
 loadJobcard();
 </script>
+
 </body>
 </html>
