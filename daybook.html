@@ -61,13 +61,13 @@ body{
 /* ---------- TABLE ---------- */
 .table-wrapper{
   height:calc(100vh - 56px);
-  overflow:auto;
+  overflow:auto;                 /* ✅ horizontal scroll allowed */
 }
 
 table{
   width:100%;
+  min-width:980px;               /* ✅ IMPORTANT FIX */
   border-collapse:collapse;
-  table-layout:fixed; /* ✅ IMPORTANT */
 }
 
 thead th{
@@ -78,9 +78,7 @@ thead th{
   font-size:13px;
   padding:8px;
   border-bottom:1px solid #444;
-  white-space:nowrap;            /* ✅ */
-  overflow:hidden;
-  text-overflow:ellipsis;
+  white-space:nowrap;
 }
 
 tbody td{
@@ -89,11 +87,10 @@ tbody td{
   height:24px;
   border-bottom:1px solid #222;
   text-align:center;
-  white-space:nowrap;            /* ✅ */
-  overflow:hidden;               /* ✅ */
-  text-overflow:ellipsis;        /* ✅ */
+  white-space:nowrap;            /* ✅ single line */
 }
 
+/* AIC COLORS */
 .aic-arun{background:#d94a4a;color:#fff}
 .aic-siyad{background:#8bc34a;color:#000}
 .aic-sajid{background:#f2d23c;color:#000}
