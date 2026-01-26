@@ -169,16 +169,18 @@ function getStatus(g,a){
 async function loadJobcard(){
   if(!chassisParam) return;
 
-  const r = await fetch(API+"?mode=jobcard&chassis="+encodeURIComponent(chassisParam),{cache:"no-store"});
+  const r = await fetch(
+    API+"?mode=jobcard&chassis="+encodeURIComponent(chassisParam),
+    {cache:"no-store"}
+  );
   const d = await r.json();
-  if(!d.head) return;
 
-  /* ✅ FIXED MAPPING */
-  cust.innerText    = d.head.customer || "";
-  chassis.innerText = d.head.chassis  || "";
-  vehicle.innerText = d.head.vehicle  || "";
-  color.innerText   = d.head.color    || "";
-  exec.innerText    = d.head.executive|| "";
+  /* ✅ CORRECT FIELDS */
+  cust.innerText    = d.customer || "";
+  chassis.innerText = d.chassis  || "";
+  vehicle.innerText = d.vehicle  || "";
+  color.innerText   = d.color    || "";
+  exec.innerText    = d.executive|| "";
 
   itemBody.innerHTML="";
   d.items.forEach((it,i)=>{
@@ -193,6 +195,7 @@ async function loadJobcard(){
     `);
   });
 }
+
 loadJobcard();
 </script>
 </body>
