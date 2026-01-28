@@ -208,16 +208,19 @@ function renderTable(){
 
 function jobcardClick(row){
 
-  // 🔥 build cache silently (for safety / refresh)
+  // 🔥 clear previous item cache (VERY IMPORTANT)
+  sessionStorage.removeItem("JOB_CARD_PAYLOAD");
+  sessionStorage.removeItem("JOB_CARD_ITEMS");
+
+  // 🔥 build cache silently (non-blocking)
   fetch(
     DATA_URL +
     "?mode=build&chassis=" +
-    encodeURIComponent(row.chassis)
-
-    sessionStorage.removeItem("JOB_CARD_ITEMS");
+    encodeURIComponent(row.chassis),
+    { mode: "no-cors" }
   );
 
-  // 🔥 STORE FULL DATA
+  // 🔥 STORE TOP DATA (for instant fill)
   sessionStorage.setItem("JOB_CARD_DATA", JSON.stringify(row));
 
   // 🚀 OPEN JOB CARD IMMEDIATELY
@@ -272,6 +275,7 @@ setInterval(loadDaybook,30000);
 </script>
 </body>
 </html>
+
 
 
 
