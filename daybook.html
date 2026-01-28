@@ -17,9 +17,8 @@ body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#111;color:#fff
 }
 .header h1{margin:0;font-size:18px;font-weight:600}
 .home-btn{cursor:pointer;font-size:18px;opacity:.85}
-.date{font-size:13px;color:#aaa}
+.home-btn:hover{opacity:1}
 
-/* SUMMARY */
 .summary{display:flex;gap:6px;justify-content:center;font-size:12px;overflow-x:auto}
 .summary span{
   padding:3px 8px;border-radius:4px;font-weight:600;
@@ -33,6 +32,8 @@ body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#111;color:#fff
 .sum-ashraf{background:#eee;color:#000}
 .sum-total{background:#333;color:#fff}
 
+.date{font-size:13px;color:#aaa}
+
 /* TABLE */
 .table-wrapper{height:calc(100vh - 56px);overflow:auto}
 table{width:100%;min-width:980px;border-collapse:collapse}
@@ -45,8 +46,12 @@ tbody td{
   border-bottom:1px solid #222;text-align:center;
   white-space:nowrap
 }
+tbody tr{
+  cursor:pointer;
+}
 tbody tr:hover{background:#1b1b1b}
 
+/* AIC */
 .aic-arun{background:#d94a4a;color:#fff}
 .aic-siyad{background:#8bc34a;color:#000}
 .aic-sajid{background:#f2d23c;color:#000}
@@ -65,6 +70,25 @@ tbody tr:hover{background:#1b1b1b}
   z-index:999
 }
 .hidden{display:none}
+.meter{
+  width:160px;height:160px;border-radius:50%;
+  border:8px solid #333;position:relative
+}
+.needle{
+  width:4px;height:70px;background:red;
+  position:absolute;bottom:50%;left:50%;
+  transform-origin:bottom;
+  animation:sweep 1.2s linear infinite
+}
+@keyframes sweep{
+  from{transform:rotate(-90deg)}
+  to{transform:rotate(90deg)}
+}
+.timer{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px
+}
 </style>
 </head>
 
@@ -75,6 +99,16 @@ tbody tr:hover{background:#1b1b1b}
   <div class="summary" id="summary"></div>
   <div class="home-btn" onclick="location.href='index.html'">🏠</div>
   <div class="date" id="currentDate"></div>
+</div>
+
+<div class="empty-state" id="emptyState">
+  <lottie-player
+    src="https://assets7.lottiefiles.com/packages/lf20_xlmz9xwm.json"
+    background="transparent"
+    speed="1"
+    style="width:160px;height:160px"
+    loop autoplay>
+  </lottie-player>
 </div>
 
 <div class="table-wrapper" id="tableWrapper">
@@ -90,19 +124,39 @@ tbody tr:hover{background:#1b1b1b}
 </table>
 </div>
 
-<div class="loader hidden" id="loader">Loading…</div>
+<div class="loader" id="loader">
+  <div class="meter">
+    <div class="needle"></div>
+    <div class="timer" id="timer">0s</div>
+  </div>
+</div>
 
 <script>
 const DATA_URL =
 "https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
 
 const CACHE_BUILD_URL =
-"https://script.google.com/macros/s/AKfycbyKbk6rE8YZG8xHdRZf7ge7TPc5MBx9nLTne7B5FqkSB1A-s8z22_eSTSwmPfjGU0Lg/exec?mode=build&chassis=";
+"https://script.google.com/macros/s/AKfycbyKbk6rE8YZG8xHdRZf7ge7TPc5MBx9nLTne7B5FqkSB1A-s8z22_eSTSwmPfjGU0Lg/exec?mode=build_cache&chassis=";
 
-let allRows=[],currentFilter="TOTAL",isFetching=false;
+let allRows=[],currentFilter="TOTAL";
+let timerInt,startTime,isFetching=false;
 
 document.getElementById("currentDate").innerText =
 new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
+
+/* LOADER */
+function showLoader(){
+  startTime=Date.now();
+  document.getElementById("loader").classList.remove("hidden");
+  timerInt=setInterval(()=>{
+    document.getElementById("timer").innerText=
+    Math.floor((Date.now()-startTime)/1000)+"s";
+  },500);
+}
+function hideLoader(){
+  clearInterval(timerInt);
+  document.getElementById("loader").classList.add("hidden");
+}
 
 const aicClass=n=>({
   Arun:"aic-arun",Siyad:"aic-siyad",
@@ -113,11 +167,11 @@ function renderSummary(rows){
   const c={Arun:0,Siyad:0,Sajid:0,Ashraf:0};
   rows.forEach(r=>c[r.aic]++);
   summary.innerHTML=`
-    <span class="sum-arun" onclick="setFilter('Arun')">Arun ${c.Arun}</span>
-    <span class="sum-siyad" onclick="setFilter('Siyad')">Siyad ${c.Siyad}</span>
-    <span class="sum-sajid" onclick="setFilter('Sajid')">Sajid ${c.Sajid}</span>
-    <span class="sum-ashraf" onclick="setFilter('Ashraf')">Ashraf ${c.Ashraf}</span>
-    <span class="sum-total" onclick="setFilter('TOTAL')">Total ${rows.length}</span>`;
+  <span class="sum-arun" onclick="setFilter('Arun')">Arun ${c.Arun}</span>
+  <span class="sum-siyad" onclick="setFilter('Siyad')">Siyad ${c.Siyad}</span>
+  <span class="sum-sajid" onclick="setFilter('Sajid')">Sajid ${c.Sajid}</span>
+  <span class="sum-ashraf" onclick="setFilter('Ashraf')">Ashraf ${c.Ashraf}</span>
+  <span class="sum-total" onclick="setFilter('TOTAL')">Total ${rows.length}</span>`;
 }
 
 function setFilter(f){currentFilter=f;renderTable()}
@@ -126,33 +180,24 @@ function renderTable(){
   daybookBody.innerHTML="";
   const rows=currentFilter==="TOTAL"?allRows:allRows.filter(r=>r.aic===currentFilter);
   rows.forEach((r,i)=>{
-    const tr=document.createElement("tr");
-    tr.onclick=()=>jobcardClick(r);
-    tr.innerHTML=`
-      <td>${i+1}</td><td>${r.date}</td><td>${r.time}</td>
-      <td><b>${r.jobcard}</b></td>
-      <td class="${aicClass(r.aic)}">${r.aic}</td>
-      <td>${r.customer}</td>
-      <td>${r.executive||""}</td>
-      <td>${r.vehicle}</td>
-      <td>${r.chassis}</td>`;
-    daybookBody.appendChild(tr);
+    daybookBody.insertAdjacentHTML("beforeend",`
+      <tr onclick='jobcardClick(${JSON.stringify(r)})'>
+        <td>${i+1}</td><td>${r.date}</td><td>${r.time}</td>
+        <td><b>${r.jobcard}</b></td>
+        <td class="${aicClass(r.aic)}">${r.aic}</td>
+        <td>${r.customer}</td>
+        <td>${r.executive||""}</td>
+        <td>${r.vehicle}</td>
+        <td>${r.chassis}</td>
+      </tr>`);
   });
 }
 
 function jobcardClick(row){
-  // 🔥 HARD RESET (THIS FIXES YOUR ISSUE)
   sessionStorage.removeItem("JOB_CARD_PAYLOAD");
-  sessionStorage.removeItem("JOB_CARD_ITEMS");
-
-  // 🔥 background cache build
-  fetch(CACHE_BUILD_URL + encodeURIComponent(row.chassis),{mode:"no-cors"});
-
-  // 🔥 top data only
-  sessionStorage.setItem("JOB_CARD_DATA", JSON.stringify(row));
-
-  window.location.href =
-    `jobcard.html?chassis=${encodeURIComponent(row.chassis)}`;
+  sessionStorage.setItem("JOB_CARD_DATA",JSON.stringify(row));
+  fetch(CACHE_BUILD_URL+encodeURIComponent(row.chassis),{mode:"no-cors"});
+  location.href=`jobcard.html?chassis=${encodeURIComponent(row.chassis)}`;
 }
 
 async function loadDaybook(){
@@ -164,13 +209,15 @@ async function loadDaybook(){
     allRows=d.rows||[];
     renderSummary(allRows);
     renderTable();
+    hideLoader();
   }catch(e){
-    console.error(e);
+    showLoader();
   }finally{
     isFetching=false;
   }
 }
 
+showLoader();
 loadDaybook();
 setInterval(loadDaybook,30000);
 </script>
