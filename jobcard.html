@@ -148,6 +148,8 @@ const API =
 
 const chassisParam = new URLSearchParams(location.search).get("chassis");
 
+const PAYLOAD_KEY = "JOB_CARD_PAYLOAD_" + chassisParam;
+
 function getStatus(g,a){
   g=Number(g); a=Number(a);
   if(g===1 && a===0) return ["Pending","st-pending"];
@@ -169,14 +171,13 @@ if(cachedRow){
     exec.innerText    = r.executive|| "";
   }catch(e){}
 }
-itemBody.innerHTML = "";
 
 /* =========================
-   2️⃣ INSTANT ITEMS FROM CACHE (if exists)
+   2️⃣ INSTANT ITEMS (CHASSIS SAFE)
    ========================= */
 let itemFilled = false;
 
-const cachedPayload = sessionStorage.getItem("JOB_CARD_PAYLOAD");
+const cachedPayload = sessionStorage.getItem(PAYLOAD_KEY);
 if(cachedPayload){
   try{
     const d = JSON.parse(cachedPayload);
@@ -187,7 +188,7 @@ if(cachedPayload){
 }
 
 /* =========================
-   3️⃣ BACKGROUND LIVE REFRESH
+   3️⃣ LIVE FETCH (FINAL TRUTH)
    ========================= */
 async function loadJobcard(){
   if(!chassisParam) return;
@@ -204,12 +205,10 @@ async function loadJobcard(){
   color.innerText   = d.color     || "";
   exec.innerText    = d.executive || "";
 
-  if(!itemFilled){
-    renderItems(d.items || []);
-  }
+  renderItems(d.items || []);
 
-  // keep payload warm for next open
-  sessionStorage.setItem("JOB_CARD_PAYLOAD", JSON.stringify(d));
+  // 🔒 store per-chassis
+  sessionStorage.setItem(PAYLOAD_KEY, JSON.stringify(d));
 }
 
 function renderItems(items){
