@@ -213,6 +213,8 @@ function jobcardClick(row){
     DATA_URL +
     "?mode=build&chassis=" +
     encodeURIComponent(row.chassis)
+
+    sessionStorage.removeItem("JOB_CARD_ITEMS");
   );
 
   // 🔥 STORE FULL DATA
@@ -270,5 +272,6 @@ setInterval(loadDaybook,30000);
 </script>
 </body>
 </html>
+
 
 
