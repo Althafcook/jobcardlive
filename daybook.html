@@ -207,8 +207,22 @@ function renderTable(){
 }
 
 function jobcardClick(row){
-  sessionStorage.setItem("JOB_CARD_DATA",JSON.stringify(row));
-  location.href=`jobcard.html?jobcard=${encodeURIComponent(row.jobcard)}&chassis=${encodeURIComponent(row.chassis)}`;
+
+  // 🔥 build cache in background
+  fetch(
+    DATA_URL +
+    "?mode=build&chassis=" +
+    encodeURIComponent(row.chassis),
+    { cache: "no-store" }
+  );
+
+  sessionStorage.setItem("JOB_CARD_DATA", JSON.stringify(row));
+
+  // small delay so cache write starts
+  setTimeout(()=>{
+    window.location.href =
+      `jobcard.html?jobcard=${encodeURIComponent(row.jobcard)}&chassis=${encodeURIComponent(row.chassis)}`;
+  }, 300);
 }
 
 async function loadDaybook(){
@@ -258,3 +272,4 @@ setInterval(loadDaybook,30000);
 </script>
 </body>
 </html>
+
