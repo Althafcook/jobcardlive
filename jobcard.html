@@ -200,28 +200,39 @@ function getStatus(g,a){
   return ["Unbilled","st-unbilled"];
 }
 
-async function loadJobcard(){
-  if(!chassisParam) return;
+function loadJobcard(){
 
-  const start = performance.now();
-  const fill  = document.getElementById("progressFill");
-  const text  = document.getElementById("progressText");
-  const wrap  = document.getElementById("progressWrap");
+  const cached = sessionStorage.getItem("JOB_CARD_DATA");
+  if(!cached){
+    document.getElementById("progressText").innerText =
+      "No cached data";
+    return;
+  }
 
-  const timer = setInterval(()=>{
-    const elapsed = (performance.now() - start)/1000;
-    const pct = Math.min(95, Math.round((elapsed / EXPECTED_MAX) * 100));
-    fill.style.width = pct + "%";
-    text.innerText = `Loading jobcard… ${pct}% (${elapsed.toFixed(1)}s)`;
-  },100);
+  const d = JSON.parse(cached);
 
-  const r = await fetch(
-    API+"?mode=jobcard&chassis="+encodeURIComponent(chassisParam),
-    {cache:"no-store"}
-  );
-  const d = await r.json();
+  // fill instantly
+  cust.innerText    = d.customer || "";
+  chassis.innerText = d.chassis  || "";
+  vehicle.innerText = d.vehicle  || "";
+  color.innerText   = d.color    || "";
+  exec.innerText    = d.executive|| "";
 
-  clearInterval(timer);
+  itemBody.innerHTML="";
+  (d.items||[]).forEach((it,i)=>{
+    const [t,c]=getStatus(it.given_status,it.adv_billing);
+    itemBody.insertAdjacentHTML("beforeend",`
+      <tr>
+        <td class="col-no">${i+1}</td>
+        <td class="col-item">${it.item_partnumber||""}</td>
+        <td class="col-status ${c}">${t}</td>
+        <td></td>
+      </tr>
+    `);
+  });
+
+  document.getElementById("progressWrap").style.display="none";
+}
 
   cust.innerText    = d.customer || "";
   chassis.innerText = d.chassis  || "";
