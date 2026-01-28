@@ -17,8 +17,9 @@ body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#111;color:#fff
 }
 .header h1{margin:0;font-size:18px;font-weight:600}
 .home-btn{cursor:pointer;font-size:18px;opacity:.85}
-.home-btn:hover{opacity:1}
+.date{font-size:13px;color:#aaa}
 
+/* SUMMARY */
 .summary{display:flex;gap:6px;justify-content:center;font-size:12px;overflow-x:auto}
 .summary span{
   padding:3px 8px;border-radius:4px;font-weight:600;
@@ -31,13 +32,6 @@ body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#111;color:#fff
 .sum-sajid{background:#f2d23c;color:#000}
 .sum-ashraf{background:#eee;color:#000}
 .sum-total{background:#333;color:#fff}
-
-.date{font-size:13px;color:#aaa}
-
-@media(max-width:768px){
-  .header{grid-template-columns:1fr;text-align:center}
-  .summary{justify-content:flex-start}
-}
 
 /* TABLE */
 .table-wrapper{height:calc(100vh - 56px);overflow:auto}
@@ -63,12 +57,6 @@ tbody tr:hover{background:#1b1b1b}
   display:none;height:calc(100vh - 56px);
   align-items:center;justify-content:center
 }
-.empty-card{
-  background:#1b1b1b;border:1px solid #333;
-  border-radius:14px;padding:24px 28px;
-  text-align:center;max-width:260px
-}
-.empty-card p{margin-top:10px;font-size:14px;color:#ccc}
 
 /* LOADER */
 .loader{
@@ -77,25 +65,6 @@ tbody tr:hover{background:#1b1b1b}
   z-index:999
 }
 .hidden{display:none}
-.meter{
-  width:160px;height:160px;border-radius:50%;
-  border:8px solid #333;position:relative
-}
-.needle{
-  width:4px;height:70px;background:red;
-  position:absolute;bottom:50%;left:50%;
-  transform-origin:bottom;
-  animation:sweep 1.2s linear infinite
-}
-@keyframes sweep{
-  from{transform:rotate(-90deg)}
-  to{transform:rotate(90deg)}
-}
-.timer{
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px
-}
 </style>
 </head>
 
@@ -106,19 +75,6 @@ tbody tr:hover{background:#1b1b1b}
   <div class="summary" id="summary"></div>
   <div class="home-btn" onclick="location.href='index.html'">🏠</div>
   <div class="date" id="currentDate"></div>
-</div>
-
-<div class="empty-state" id="emptyState">
-  <div class="empty-card">
-    <lottie-player
-      src="https://assets7.lottiefiles.com/packages/lf20_xlmz9xwm.json"
-      background="transparent"
-      speed="1"
-      style="width:160px;height:160px"
-      loop autoplay>
-    </lottie-player>
-    <p><b>Today no jobcard entered</b></p>
-  </div>
 </div>
 
 <div class="table-wrapper" id="tableWrapper">
@@ -134,39 +90,19 @@ tbody tr:hover{background:#1b1b1b}
 </table>
 </div>
 
-<div class="loader hidden" id="loader">
-  <div class="meter">
-    <div class="needle"></div>
-    <div class="timer" id="timer">0s</div>
-  </div>
-</div>
+<div class="loader hidden" id="loader">Loading…</div>
 
 <script>
 const DATA_URL =
 "https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
 
 const CACHE_BUILD_URL =
-"https://script.google.com/macros/s/AKfycbyKbk6rE8YZG8xHdRZf7ge7TPc5MBx9nLTne7B5FqkSB1A-s8z22_eSTSwmPfjGU0Lg/exec?mode=build_cache&chassis=";
+"https://script.google.com/macros/s/AKfycbyKbk6rE8YZG8xHdRZf7ge7TPc5MBx9nLTne7B5FqkSB1A-s8z22_eSTSwmPfjGU0Lg/exec?mode=build&chassis=";
 
-let allRows=[],lastHash="",currentFilter="TOTAL";
-let hadDataBefore=false,isFetching=false,timerInt=null;
+let allRows=[],currentFilter="TOTAL",isFetching=false;
 
 document.getElementById("currentDate").innerText =
 new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
-
-function showLoader(){
-  if(timerInt) return;
-  let start=Date.now();
-  document.getElementById("loader").classList.remove("hidden");
-  timerInt=setInterval(()=>{
-    document.getElementById("timer").innerText=
-    Math.floor((Date.now()-start)/1000)+"s";
-  },500);
-}
-function hideLoader(){
-  clearInterval(timerInt);timerInt=null;
-  document.getElementById("loader").classList.add("hidden");
-}
 
 const aicClass=n=>({
   Arun:"aic-arun",Siyad:"aic-siyad",
@@ -176,23 +112,21 @@ const aicClass=n=>({
 function renderSummary(rows){
   const c={Arun:0,Siyad:0,Sajid:0,Ashraf:0};
   rows.forEach(r=>c[r.aic]++);
-  document.getElementById("summary").innerHTML=`
-  <span class="sum-arun ${currentFilter==='Arun'?'active':''}" onclick="setFilter('Arun')">Arun ${c.Arun}</span>
-  <span class="sum-siyad ${currentFilter==='Siyad'?'active':''}" onclick="setFilter('Siyad')">Siyad ${c.Siyad}</span>
-  <span class="sum-sajid ${currentFilter==='Sajid'?'active':''}" onclick="setFilter('Sajid')">Sajid ${c.Sajid}</span>
-  <span class="sum-ashraf ${currentFilter==='Ashraf'?'active':''}" onclick="setFilter('Ashraf')">Ashraf ${c.Ashraf}</span>
-  <span class="sum-total ${currentFilter==='TOTAL'?'active':''}" onclick="setFilter('TOTAL')">Total ${rows.length}</span>`;
+  summary.innerHTML=`
+    <span class="sum-arun" onclick="setFilter('Arun')">Arun ${c.Arun}</span>
+    <span class="sum-siyad" onclick="setFilter('Siyad')">Siyad ${c.Siyad}</span>
+    <span class="sum-sajid" onclick="setFilter('Sajid')">Sajid ${c.Sajid}</span>
+    <span class="sum-ashraf" onclick="setFilter('Ashraf')">Ashraf ${c.Ashraf}</span>
+    <span class="sum-total" onclick="setFilter('TOTAL')">Total ${rows.length}</span>`;
 }
 
-function setFilter(f){currentFilter=f;renderTable();renderSummary(allRows)}
+function setFilter(f){currentFilter=f;renderTable()}
 
 function renderTable(){
-  const tbody=document.getElementById("daybookBody");
-  tbody.replaceChildren();
+  daybookBody.innerHTML="";
   const rows=currentFilter==="TOTAL"?allRows:allRows.filter(r=>r.aic===currentFilter);
   rows.forEach((r,i)=>{
     const tr=document.createElement("tr");
-    tr.style.cursor="pointer";
     tr.onclick=()=>jobcardClick(r);
     tr.innerHTML=`
       <td>${i+1}</td><td>${r.date}</td><td>${r.time}</td>
@@ -202,28 +136,21 @@ function renderTable(){
       <td>${r.executive||""}</td>
       <td>${r.vehicle}</td>
       <td>${r.chassis}</td>`;
-    tbody.appendChild(tr);
+    daybookBody.appendChild(tr);
   });
 }
 
 function jobcardClick(row){
-
-  // 🔥 clear previous item cache (VERY IMPORTANT)
+  // 🔥 HARD RESET (THIS FIXES YOUR ISSUE)
   sessionStorage.removeItem("JOB_CARD_PAYLOAD");
   sessionStorage.removeItem("JOB_CARD_ITEMS");
 
-  // 🔥 build cache silently (non-blocking)
-  fetch(
-    DATA_URL +
-    "?mode=build&chassis=" +
-    encodeURIComponent(row.chassis),
-    { mode: "no-cors" }
-  );
+  // 🔥 background cache build
+  fetch(CACHE_BUILD_URL + encodeURIComponent(row.chassis),{mode:"no-cors"});
 
-  // 🔥 STORE TOP DATA (for instant fill)
+  // 🔥 top data only
   sessionStorage.setItem("JOB_CARD_DATA", JSON.stringify(row));
 
-  // 🚀 OPEN JOB CARD IMMEDIATELY
   window.location.href =
     `jobcard.html?chassis=${encodeURIComponent(row.chassis)}`;
 }
@@ -234,48 +161,18 @@ async function loadDaybook(){
   try{
     const r=await fetch(DATA_URL,{cache:"no-store"});
     const d=await r.json();
-    const rows=d.rows||[];
-
-    /* 🔥 BACKGROUND CACHE BUILD (SAFE) */
-    rows.forEach(r=>{
-      if(r.chassis){
-        fetch(CACHE_BUILD_URL+encodeURIComponent(r.chassis),{mode:"no-cors"});
-      }
-    });
-
-    const h=JSON.stringify(rows);
-    if(h!==lastHash){
-      lastHash=h;allRows=rows;
-      renderSummary(allRows);
-      renderTable();
-      updateView();
-    }
+    allRows=d.rows||[];
+    renderSummary(allRows);
+    renderTable();
   }catch(e){
-    showLoader();
+    console.error(e);
   }finally{
     isFetching=false;
   }
 }
 
-function updateView(){
-  const empty=document.getElementById("emptyState");
-  const table=document.getElementById("tableWrapper");
-  if(allRows.length===0){
-    if(hadDataBefore){showLoader();empty.style.display="none";table.style.display="none";}
-    else{hideLoader();empty.style.display="flex";table.style.display="none";}
-  }else{
-    hadDataBefore=true;hideLoader();
-    empty.style.display="none";table.style.display="block";
-  }
-}
-
-showLoader();
 loadDaybook();
 setInterval(loadDaybook,30000);
 </script>
 </body>
 </html>
-
-
-
-
