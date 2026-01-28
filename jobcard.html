@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Job Card</title>
 
 <style>
@@ -11,10 +11,8 @@
   --card:#121212;
   --border:#3a3a3a;
   --header:#1f4e79;
-
   --yellow:#f2d23c;
   --grey:#b5b5b5;
-
   --pending:#f2d23c;
   --billed:#35c46a;
   --unbilled:#ff5c5c;
@@ -52,29 +50,6 @@ body{
   padding:6px 12px;
   border-radius:20px;
   font-weight:600;
-}
-
-/* PROGRESS */
-.progress-wrap{
-  padding:8px 12px;
-  border-bottom:1px solid var(--border);
-}
-.progress-text{
-  font-size:11px;
-  color:#9aa0a6;
-  margin-bottom:6px;
-}
-.progress-bar{
-  height:6px;
-  background:#222;
-  border-radius:6px;
-  overflow:hidden;
-}
-.progress-fill{
-  height:100%;
-  width:0%;
-  background:linear-gradient(90deg,#f2d23c,#35c46a);
-  transition:width .15s linear;
 }
 
 /* INFO */
@@ -115,7 +90,6 @@ body{
   border-right:1px solid var(--border);
 }
 
-/* columns */
 .col-no{width:34px;text-align:center;color:var(--grey);font-size:10px}
 .col-item{
   color:var(--grey);
@@ -127,7 +101,6 @@ body{
 .col-status{width:86px;text-align:center;font-size:10px;font-weight:600}
 .col-note{width:60px}
 
-/* STATUS COLORS */
 .st-billed{background:var(--billed);color:#fff}
 .st-pending{background:var(--pending);color:#000}
 .st-unbilled{background:none;color:var(--unbilled)}
@@ -141,16 +114,6 @@ body{
 <div class="topbar">
   <div class="title">JOB CARD</div>
   <div class="status-pill">IN PROGRESS</div>
-</div>
-
-<!-- PROGRESS -->
-<div class="progress-wrap" id="progressWrap">
-  <div class="progress-text" id="progressText">
-    Loading jobcard…
-  </div>
-  <div class="progress-bar">
-    <div class="progress-fill" id="progressFill"></div>
-  </div>
 </div>
 
 <div class="info">
@@ -188,9 +151,10 @@ body{
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
-const chassisParam=new URLSearchParams(location.search).get("chassis");
-const EXPECTED_MAX = 10; // seconds
+const API =
+"https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
+
+const chassisParam = new URLSearchParams(location.search).get("chassis");
 
 function getStatus(g,a){
   g=Number(g); a=Number(a);
@@ -200,48 +164,36 @@ function getStatus(g,a){
   return ["Unbilled","st-unbilled"];
 }
 
-function loadJobcard(){
-
-  const cached = sessionStorage.getItem("JOB_CARD_DATA");
-  if(!cached){
-    document.getElementById("progressText").innerText =
-      "No cached data";
-    return;
-  }
-
-  const d = JSON.parse(cached);
-
-  // fill instantly
-  cust.innerText    = d.customer || "";
-  chassis.innerText = d.chassis  || "";
-  vehicle.innerText = d.vehicle  || "";
-  color.innerText   = d.color    || "";
-  exec.innerText    = d.executive|| "";
-
-  itemBody.innerHTML="";
-  (d.items||[]).forEach((it,i)=>{
-    const [t,c]=getStatus(it.given_status,it.adv_billing);
-    itemBody.insertAdjacentHTML("beforeend",`
-      <tr>
-        <td class="col-no">${i+1}</td>
-        <td class="col-item">${it.item_partnumber||""}</td>
-        <td class="col-status ${c}">${t}</td>
-        <td></td>
-      </tr>
-    `);
-  });
-
-  document.getElementById("progressWrap").style.display="none";
+/* 🔥 INSTANT FILL (FROM DAYBOOK) */
+const cachedRow = sessionStorage.getItem("JOB_CARD_DATA");
+if(cachedRow){
+  try{
+    const r = JSON.parse(cachedRow);
+    cust.innerText    = r.customer || "";
+    chassis.innerText = r.chassis  || "";
+    vehicle.innerText = r.vehicle  || "";
+    exec.innerText    = r.executive|| "";
+  }catch(e){}
 }
 
-  cust.innerText    = d.customer || "";
-  chassis.innerText = d.chassis  || "";
-  vehicle.innerText = d.vehicle  || "";
-  color.innerText   = d.color    || "";
-  exec.innerText    = d.executive|| "";
+/* 🔁 BACKGROUND FULL LOAD */
+async function loadJobcard(){
+  if(!chassisParam) return;
+
+  const r = await fetch(
+    API + "?mode=jobcard&chassis=" + encodeURIComponent(chassisParam),
+    { cache:"no-store" }
+  );
+  const d = await r.json();
+
+  cust.innerText    = d.customer  || "";
+  chassis.innerText = d.chassis   || "";
+  vehicle.innerText = d.vehicle   || "";
+  color.innerText   = d.color     || "";
+  exec.innerText    = d.executive || "";
 
   itemBody.innerHTML="";
-  d.items.forEach((it,i)=>{
+  (d.items || []).forEach((it,i)=>{
     const [t,c]=getStatus(it.given_status,it.adv_billing);
     itemBody.insertAdjacentHTML("beforeend",`
       <tr>
@@ -252,12 +204,6 @@ function loadJobcard(){
       </tr>
     `);
   });
-
-  const total = ((performance.now()-start)/1000).toFixed(1);
-  fill.style.width="100%";
-  text.innerText = `Loaded in ${total} seconds`;
-
-  setTimeout(()=>wrap.style.display="none",1200);
 }
 
 loadJobcard();
