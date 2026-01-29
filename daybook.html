@@ -34,6 +34,11 @@ body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#111;color:#fff
 
 .date{font-size:13px;color:#aaa}
 
+@media(max-width:768px){
+  .header{grid-template-columns:1fr;text-align:center}
+  .summary{justify-content:flex-start}
+}
+
 /* TABLE */
 .table-wrapper{height:calc(100vh - 56px);overflow:auto}
 table{width:100%;min-width:980px;border-collapse:collapse}
@@ -46,12 +51,9 @@ tbody td{
   border-bottom:1px solid #222;text-align:center;
   white-space:nowrap
 }
-tbody tr{
-  cursor:pointer;
-}
 tbody tr:hover{background:#1b1b1b}
 
-/* AIC */
+/* AIC COLORS */
 .aic-arun{background:#d94a4a;color:#fff}
 .aic-siyad{background:#8bc34a;color:#000}
 .aic-sajid{background:#f2d23c;color:#000}
@@ -62,6 +64,12 @@ tbody tr:hover{background:#1b1b1b}
   display:none;height:calc(100vh - 56px);
   align-items:center;justify-content:center
 }
+.empty-card{
+  background:#1b1b1b;border:1px solid #333;
+  border-radius:14px;padding:24px 28px;
+  text-align:center;max-width:260px
+}
+.empty-card p{margin-top:10px;font-size:14px;color:#ccc}
 
 /* LOADER */
 .loader{
@@ -102,13 +110,16 @@ tbody tr:hover{background:#1b1b1b}
 </div>
 
 <div class="empty-state" id="emptyState">
-  <lottie-player
-    src="https://assets7.lottiefiles.com/packages/lf20_xlmz9xwm.json"
-    background="transparent"
-    speed="1"
-    style="width:160px;height:160px"
-    loop autoplay>
-  </lottie-player>
+  <div class="empty-card">
+    <lottie-player
+      src="https://assets7.lottiefiles.com/packages/lf20_xlmz9xwm.json"
+      background="transparent"
+      speed="1"
+      style="width:160px;height:160px"
+      loop autoplay>
+    </lottie-player>
+    <p><b>Today no jobcard entered</b></p>
+  </div>
 </div>
 
 <div class="table-wrapper" id="tableWrapper">
@@ -124,7 +135,7 @@ tbody tr:hover{background:#1b1b1b}
 </table>
 </div>
 
-<div class="loader" id="loader">
+<div class="loader hidden" id="loader">
   <div class="meter">
     <div class="needle"></div>
     <div class="timer" id="timer">0s</div>
@@ -132,32 +143,41 @@ tbody tr:hover{background:#1b1b1b}
 </div>
 
 <script>
+/* =========================
+   CONFIG
+   ========================= */
 const DATA_URL =
 "https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
 
-const CACHE_BUILD_URL =
-"https://script.google.com/macros/s/AKfycbyKbk6rE8YZG8xHdRZf7ge7TPc5MBx9nLTne7B5FqkSB1A-s8z22_eSTSwmPfjGU0Lg/exec?mode=build_cache&chassis=";
-
-let allRows=[],currentFilter="TOTAL";
-let timerInt,startTime,isFetching=false;
+/* =========================
+   STATE
+   ========================= */
+let allRows=[], lastHash="", currentFilter="TOTAL";
+let hadDataBefore=false, isFetching=false, timerInt=null;
 
 document.getElementById("currentDate").innerText =
 new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
 
-/* LOADER */
+/* =========================
+   LOADER
+   ========================= */
 function showLoader(){
-  startTime=Date.now();
+  if(timerInt) return;
+  let start=Date.now();
   document.getElementById("loader").classList.remove("hidden");
   timerInt=setInterval(()=>{
     document.getElementById("timer").innerText=
-    Math.floor((Date.now()-startTime)/1000)+"s";
+    Math.floor((Date.now()-start)/1000)+"s";
   },500);
 }
 function hideLoader(){
-  clearInterval(timerInt);
+  clearInterval(timerInt);timerInt=null;
   document.getElementById("loader").classList.add("hidden");
 }
 
+/* =========================
+   HELPERS
+   ========================= */
 const aicClass=n=>({
   Arun:"aic-arun",Siyad:"aic-siyad",
   Sajid:"aic-sajid",Ashraf:"aic-ashraf"
@@ -166,54 +186,115 @@ const aicClass=n=>({
 function renderSummary(rows){
   const c={Arun:0,Siyad:0,Sajid:0,Ashraf:0};
   rows.forEach(r=>c[r.aic]++);
-  summary.innerHTML=`
-  <span class="sum-arun" onclick="setFilter('Arun')">Arun ${c.Arun}</span>
-  <span class="sum-siyad" onclick="setFilter('Siyad')">Siyad ${c.Siyad}</span>
-  <span class="sum-sajid" onclick="setFilter('Sajid')">Sajid ${c.Sajid}</span>
-  <span class="sum-ashraf" onclick="setFilter('Ashraf')">Ashraf ${c.Ashraf}</span>
-  <span class="sum-total" onclick="setFilter('TOTAL')">Total ${rows.length}</span>`;
+  document.getElementById("summary").innerHTML=`
+    <span class="sum-arun ${currentFilter==='Arun'?'active':''}" onclick="setFilter('Arun')">Arun ${c.Arun}</span>
+    <span class="sum-siyad ${currentFilter==='Siyad'?'active':''}" onclick="setFilter('Siyad')">Siyad ${c.Siyad}</span>
+    <span class="sum-sajid ${currentFilter==='Sajid'?'active':''}" onclick="setFilter('Sajid')">Sajid ${c.Sajid}</span>
+    <span class="sum-ashraf ${currentFilter==='Ashraf'?'active':''}" onclick="setFilter('Ashraf')">Ashraf ${c.Ashraf}</span>
+    <span class="sum-total ${currentFilter==='TOTAL'?'active':''}" onclick="setFilter('TOTAL')">Total ${rows.length}</span>`;
 }
 
-function setFilter(f){currentFilter=f;renderTable()}
+function setFilter(f){
+  currentFilter=f;
+  renderTable();
+  renderSummary(allRows);
+}
 
 function renderTable(){
-  daybookBody.innerHTML="";
-  const rows=currentFilter==="TOTAL"?allRows:allRows.filter(r=>r.aic===currentFilter);
+  const tbody=document.getElementById("daybookBody");
+  tbody.replaceChildren();
+
+  const rows=currentFilter==="TOTAL"
+    ? allRows
+    : allRows.filter(r=>r.aic===currentFilter);
+
   rows.forEach((r,i)=>{
-    daybookBody.insertAdjacentHTML("beforeend",`
-      <tr onclick='jobcardClick(${JSON.stringify(r)})'>
-        <td>${i+1}</td><td>${r.date}</td><td>${r.time}</td>
-        <td><b>${r.jobcard}</b></td>
-        <td class="${aicClass(r.aic)}">${r.aic}</td>
-        <td>${r.customer}</td>
-        <td>${r.executive||""}</td>
-        <td>${r.vehicle}</td>
-        <td>${r.chassis}</td>
-      </tr>`);
+    const tr=document.createElement("tr");
+    tr.style.cursor="pointer";
+    tr.onclick=()=>jobcardClick(r);
+    tr.innerHTML=`
+      <td>${i+1}</td>
+      <td>${r.date}</td>
+      <td>${r.time}</td>
+      <td><b>${r.jobcard}</b></td>
+      <td class="${aicClass(r.aic)}">${r.aic}</td>
+      <td>${r.customer}</td>
+      <td>${r.executive||""}</td>
+      <td>${r.vehicle}</td>
+      <td>${r.chassis}</td>`;
+    tbody.appendChild(tr);
   });
 }
 
+/* =========================
+   🔒 OPTION A — ONLY UPDATE POINT
+   ========================= */
 function jobcardClick(row){
+
+  // clear previous jobcard cache (safety)
   sessionStorage.removeItem("JOB_CARD_PAYLOAD");
-  sessionStorage.setItem("JOB_CARD_DATA",JSON.stringify(row));
-  fetch(CACHE_BUILD_URL+encodeURIComponent(row.chassis),{mode:"no-cors"});
-  location.href=`jobcard.html?chassis=${encodeURIComponent(row.chassis)}`;
+  sessionStorage.removeItem("JOB_CARD_ITEMS");
+
+  // 🔥 ONLY HERE cache rebuild happens
+  fetch(
+    DATA_URL +
+    "?mode=build&chassis=" +
+    encodeURIComponent(row.chassis),
+    { mode:"no-cors" }
+  );
+
+  // instant top fill
+  sessionStorage.setItem("JOB_CARD_DATA", JSON.stringify(row));
+
+  // open jobcard
+  window.location.href =
+    `jobcard.html?chassis=${encodeURIComponent(row.chassis)}`;
 }
 
+/* =========================
+   LOAD DAYBOOK
+   ========================= */
 async function loadDaybook(){
   if(isFetching) return;
   isFetching=true;
   try{
     const r=await fetch(DATA_URL,{cache:"no-store"});
     const d=await r.json();
-    allRows=d.rows||[];
-    renderSummary(allRows);
-    renderTable();
-    hideLoader();
+    const rows=d.rows||[];
+
+    const h=JSON.stringify(rows);
+    if(h!==lastHash){
+      lastHash=h;
+      allRows=rows;
+      renderSummary(allRows);
+      renderTable();
+      updateView();
+    }
   }catch(e){
     showLoader();
   }finally{
     isFetching=false;
+  }
+}
+
+function updateView(){
+  const empty=document.getElementById("emptyState");
+  const table=document.getElementById("tableWrapper");
+  if(allRows.length===0){
+    if(hadDataBefore){
+      showLoader();
+      empty.style.display="none";
+      table.style.display="none";
+    }else{
+      hideLoader();
+      empty.style.display="flex";
+      table.style.display="none";
+    }
+  }else{
+    hadDataBefore=true;
+    hideLoader();
+    empty.style.display="none";
+    table.style.display="block";
   }
 }
 
