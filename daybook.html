@@ -4,92 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daybook</title>
-<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
 <style>
 body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#111;color:#fff}
-
-/* HEADER */
-.header{
-  padding:8px 12px;background:#000;display:grid;
-  grid-template-columns:auto 1fr auto auto;
-  align-items:center;border-bottom:1px solid #333;gap:10px;
-}
-.header h1{margin:0;font-size:18px;font-weight:600}
-.home-btn{cursor:pointer;font-size:18px;opacity:.85}
-.home-btn:hover{opacity:1}
-
-.summary{display:flex;gap:6px;justify-content:center;font-size:12px;overflow-x:auto}
-.summary span{
-  padding:3px 8px;border-radius:4px;font-weight:600;
-  cursor:pointer;white-space:nowrap;opacity:.85
-}
-.summary span.active{outline:2px solid #fff;opacity:1}
-
-.sum-arun{background:#d94a4a;color:#fff}
+.header{padding:8px 12px;background:#000;display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;border-bottom:1px solid #333;gap:10px}
+.header h1{margin:0;font-size:18px}
+.summary{display:flex;gap:6px;justify-content:center;font-size:12px}
+.summary span{padding:3px 8px;border-radius:4px;font-weight:600;cursor:pointer}
+.sum-arun{background:#d94a4a}
 .sum-siyad{background:#8bc34a;color:#000}
 .sum-sajid{background:#f2d23c;color:#000}
 .sum-ashraf{background:#eee;color:#000}
-.sum-total{background:#333;color:#fff}
-
-.date{font-size:13px;color:#aaa}
-
-/* TABLE */
+.sum-total{background:#333}
 .table-wrapper{height:calc(100vh - 56px);overflow:auto}
 table{width:100%;min-width:980px;border-collapse:collapse}
-thead th{
-  position:sticky;top:0;background:#000;color:red;
-  font-size:13px;padding:8px;border-bottom:1px solid #444;
-}
-tbody td{
-  font-size:13px;padding:4px 6px;height:24px;
-  border-bottom:1px solid #222;text-align:center;
-  white-space:nowrap
-}
+thead th{position:sticky;top:0;background:#000;color:red;font-size:13px;padding:8px}
+tbody td{font-size:13px;padding:4px 6px;text-align:center}
 tbody tr:hover{background:#1b1b1b}
-
-.aic-arun{background:#d94a4a;color:#fff}
-.aic-siyad{background:#8bc34a;color:#000}
-.aic-sajid{background:#f2d23c;color:#000}
-.aic-ashraf{background:#eee;color:#000}
-
-/* EMPTY */
-.empty-state{
-  display:none;height:calc(100vh - 56px);
-  align-items:center;justify-content:center
-}
-.empty-card{
-  background:#1b1b1b;border:1px solid #333;
-  border-radius:14px;padding:24px 28px;
-  text-align:center;max-width:260px
-}
-
-/* LOADER */
-.loader{
-  position:fixed;inset:0;background:#000c;
-  display:flex;align-items:center;justify-content:center;
-  z-index:999
-}
+.loader{position:fixed;inset:0;background:#000c;display:flex;align-items:center;justify-content:center;z-index:999}
 .hidden{display:none}
-.meter{
-  width:160px;height:160px;border-radius:50%;
-  border:8px solid #333;position:relative
-}
-.needle{
-  width:4px;height:70px;background:red;
-  position:absolute;bottom:50%;left:50%;
-  transform-origin:bottom;
-  animation:sweep 1.2s linear infinite
-}
-@keyframes sweep{
-  from{transform:rotate(-90deg)}
-  to{transform:rotate(90deg)}
-}
-.timer{
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px
-}
 </style>
 </head>
 
@@ -98,24 +31,9 @@ tbody tr:hover{background:#1b1b1b}
 <div class="header">
   <h1>Daybook</h1>
   <div class="summary" id="summary"></div>
-  <div class="home-btn" onclick="location.href='index.html'">🏠</div>
-  <div class="date" id="currentDate"></div>
 </div>
 
-<div class="empty-state" id="emptyState">
-  <div class="empty-card">
-    <lottie-player
-      src="https://assets7.lottiefiles.com/packages/lf20_xlmz9xwm.json"
-      background="transparent"
-      speed="1"
-      style="width:160px;height:160px"
-      loop autoplay>
-    </lottie-player>
-    <p><b>Today no jobcard entered</b></p>
-  </div>
-</div>
-
-<div class="table-wrapper" id="tableWrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -124,108 +42,48 @@ tbody tr:hover{background:#1b1b1b}
   <th>Vehicle</th><th>Chassis</th>
 </tr>
 </thead>
-<tbody id="daybookBody"></tbody>
+<tbody id="body"></tbody>
 </table>
 </div>
 
-<div class="loader hidden" id="loader">
-  <div class="meter">
-    <div class="needle"></div>
-    <div class="timer" id="timer">0s</div>
-  </div>
-</div>
+<div class="loader hidden" id="loader">Loading…</div>
 
 <script>
-const DATA_URL =
-"https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
+const API="https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
+let loaded=false;
 
-let allRows=[],currentFilter="TOTAL",timerInt=null,isFetching=false;
+function show(){ if(!loaded) loader.classList.remove("hidden"); }
+function hide(){ loader.classList.add("hidden"); loaded=true; }
 
-document.getElementById("currentDate").innerText =
-new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
-
-function showLoader(){
-  if(timerInt) return;
-  let start=Date.now();
-  loader.classList.remove("hidden");
-  timerInt=setInterval(()=>{
-    timer.innerText=Math.floor((Date.now()-start)/1000)+"s";
-  },500);
-}
-function hideLoader(){
-  clearInterval(timerInt);timerInt=null;
-  loader.classList.add("hidden");
-}
-
-const aicClass=n=>({
-  Arun:"aic-arun",Siyad:"aic-siyad",
-  Sajid:"aic-sajid",Ashraf:"aic-ashraf"
-}[n]||"");
-
-function renderSummary(rows){
-  const c={Arun:0,Siyad:0,Sajid:0,Ashraf:0};
-  rows.forEach(r=>c[r.aic]++);
-  summary.innerHTML=`
-  <span class="sum-arun ${currentFilter==='Arun'?'active':''}" onclick="setFilter('Arun')">Arun ${c.Arun}</span>
-  <span class="sum-siyad ${currentFilter==='Siyad'?'active':''}" onclick="setFilter('Siyad')">Siyad ${c.Siyad}</span>
-  <span class="sum-sajid ${currentFilter==='Sajid'?'active':''}" onclick="setFilter('Sajid')">Sajid ${c.Sajid}</span>
-  <span class="sum-ashraf ${currentFilter==='Ashraf'?'active':''}" onclick="setFilter('Ashraf')">Ashraf ${c.Ashraf}</span>
-  <span class="sum-total ${currentFilter==='TOTAL'?'active':''}" onclick="setFilter('TOTAL')">Total ${rows.length}</span>`;
-}
-
-function setFilter(f){currentFilter=f;renderTable()}
-
-function renderTable(){
-  daybookBody.innerHTML="";
-  const rows=currentFilter==="TOTAL"?allRows:allRows.filter(r=>r.aic===currentFilter);
+function render(rows){
+  body.innerHTML="";
   rows.forEach((r,i)=>{
     const tr=document.createElement("tr");
     tr.style.cursor="pointer";
-    tr.onclick=()=>jobcardClick(r);
+    tr.onclick=()=>{
+      sessionStorage.setItem("JOB_CARD_DATA",JSON.stringify(r));
+      sessionStorage.removeItem("JOB_CARD_PAYLOAD");
+      location.href=`jobcard.html?chassis=${encodeURIComponent(r.chassis)}`;
+    };
     tr.innerHTML=`
       <td>${i+1}</td><td>${r.date}</td><td>${r.time}</td>
-      <td><b>${r.jobcard}</b></td>
-      <td class="${aicClass(r.aic)}">${r.aic}</td>
-      <td>${r.customer}</td>
-      <td>${r.executive||""}</td>
-      <td>${r.vehicle}</td>
-      <td>${r.chassis}</td>`;
-    daybookBody.appendChild(tr);
+      <td>${r.jobcard}</td><td>${r.aic}</td>
+      <td>${r.customer}</td><td>${r.executive||""}</td>
+      <td>${r.vehicle}</td><td>${r.chassis}</td>`;
+    body.appendChild(tr);
   });
 }
 
-function jobcardClick(row){
-  // 🔥 Option A – clear item cache
-  sessionStorage.removeItem("JOB_CARD_PAYLOAD");
-  sessionStorage.removeItem("JOB_CARD_ITEMS");
-
-  // 🔥 store top data
-  sessionStorage.setItem("JOB_CARD_DATA",JSON.stringify(row));
-
-  // 🚀 open jobcard
-  location.href=`jobcard.html?chassis=${encodeURIComponent(row.chassis)}`;
+async function load(){
+  show();
+  const r=await fetch(API,{cache:"no-store"});
+  const d=await r.json();
+  render(d.rows||[]);
+  hide();
 }
 
-async function loadDaybook(){
-  if(isFetching) return;
-  isFetching=true;
-  try{
-    showLoader();
-    const r=await fetch(DATA_URL,{cache:"no-store"});
-    const d=await r.json();
-    allRows=d.rows||[];
-    renderSummary(allRows);
-    renderTable();
-    emptyState.style.display=allRows.length?"none":"flex";
-    tableWrapper.style.display=allRows.length?"block":"none";
-  }finally{
-    hideLoader();
-    isFetching=false;
-  }
-}
-
-loadDaybook();
-setInterval(loadDaybook,30000);
+load();
+setInterval(load,30000); // silent refresh
 </script>
 </body>
 </html>
