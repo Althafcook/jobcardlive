@@ -203,6 +203,13 @@ function renderTable(){
 /* ===== CLICK ===== */
 function jobcardClick(row){
   sessionStorage.setItem("JOB_CARD_DATA",JSON.stringify(row));
+
+  /* 🔥 OPTION A: background cache build (NON BLOCKING) */
+  fetch(
+    DATA_URL + "?mode=build&chassis=" + encodeURIComponent(row.chassis),
+    { mode:"no-cors" }
+  );
+
   location.href=`jobcard.html?chassis=${encodeURIComponent(row.chassis)}`;
 }
 
@@ -218,7 +225,7 @@ async function loadDaybook(){
     const d=await r.json();
     const rows=d.rows||[];
 
-    // ✅ SHOW LOADER ONLY IF DATA IS EMPTY
+    // ✅ loader ONLY if sheet empty
     if(rows.length===0){
       showLoader();
     }else{
