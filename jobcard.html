@@ -49,6 +49,8 @@ body{
   border-radius:20px;
   font-weight:600;
 }
+
+/* INFO */
 .info{border-bottom:1px solid var(--border)}
 .row{display:grid;grid-template-columns:auto 1fr;border-bottom:1px solid var(--border)}
 .row.double{grid-template-columns:auto 1fr auto 1fr}
@@ -70,6 +72,8 @@ body{
 .row.double .label:nth-child(3){
   border-left:1px solid var(--border);
 }
+
+/* TABLE */
 .table{width:100%;border-collapse:collapse;table-layout:fixed}
 .table thead th{
   background:var(--header);
@@ -93,9 +97,32 @@ body{
 }
 .col-status{width:86px;text-align:center;font-size:10px;font-weight:600}
 .col-note{width:60px}
+
 .st-billed{background:var(--billed);color:#fff}
 .st-pending{background:var(--pending);color:#000}
 .st-unbilled{background:none;color:var(--unbilled)}
+
+/* 🔥 ITEM LOADER */
+.item-loader{
+  padding:14px 10px;
+  text-align:center;
+  font-size:11px;
+  color:#aaa;
+}
+.item-bar{
+  height:6px;
+  background:#2a2a2a;
+  border-radius:10px;
+  overflow:hidden;
+  margin-top:6px;
+}
+.item-bar span{
+  display:block;
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#f2d23c,#35c46a);
+  transition:width .3s linear;
+}
 </style>
 </head>
 
@@ -148,6 +175,7 @@ const API =
 
 const chassisParam = new URLSearchParams(location.search).get("chassis");
 
+/* STATUS */
 function getStatus(g,a){
   g=Number(g); a=Number(a);
   if(g===1 && a===0) return ["Pending","st-pending"];
@@ -156,9 +184,7 @@ function getStatus(g,a){
   return ["Unbilled","st-unbilled"];
 }
 
-/* =========================
-   1️⃣ INSTANT TOP FILL (UNCHANGED)
-   ========================= */
+/* 🔥 INSTANT TOP FILL (UNCHANGED) */
 const cachedRow = sessionStorage.getItem("JOB_CARD_DATA");
 if(cachedRow){
   try{
@@ -170,34 +196,35 @@ if(cachedRow){
   }catch(e){}
 }
 
-/* =========================
-   2️⃣ ALWAYS CLEAR OLD ITEMS
-   ========================= */
-itemBody.innerHTML = "";
-
-/* =========================
-   3️⃣ FETCH ITEMS (SINGLE SOURCE OF TRUTH)
-   ========================= */
-async function loadJobcard(){
-  if(!chassisParam) return;
-
-  const r = await fetch(
-    API + "?mode=jobcard&chassis=" + encodeURIComponent(chassisParam),
-    { cache:"no-store" }
-  );
-
-  const d = await r.json();
-
-  cust.innerText    = d.customer  || "";
-  chassis.innerText = d.chassis   || "";
-  vehicle.innerText = d.vehicle   || "";
-  color.innerText   = d.color     || "";
-  exec.innerText    = d.executive || "";
-
-  renderItems(d.items || []);
+/* 🔥 ITEM LOADER */
+let startTime=null, timerInt=null;
+function showItemLoader(){
+  startTime = Date.now();
+  itemBody.innerHTML = `
+    <tr>
+      <td colspan="4">
+        <div class="item-loader">
+          Loading items… <b><span id="pct">0%</span></b>
+          (<span id="sec">0</span>s)
+          <div class="item-bar"><span id="bar"></span></div>
+        </div>
+      </td>
+    </tr>`;
+  timerInt = setInterval(()=>{
+    const s = Math.floor((Date.now()-startTime)/1000);
+    const p = Math.min(95, s*12);
+    sec.innerText = s;
+    pct.innerText = p + "%";
+    bar.style.width = p + "%";
+  },300);
+}
+function hideItemLoader(){
+  clearInterval(timerInt);
 }
 
+/* RENDER ITEMS */
 function renderItems(items){
+  hideItemLoader();
   itemBody.innerHTML="";
   items.forEach((it,i)=>{
     const [t,c]=getStatus(it.given_status,it.adv_billing);
@@ -210,6 +237,26 @@ function renderItems(items){
       </tr>
     `);
   });
+}
+
+/* LOAD JOB CARD */
+async function loadJobcard(){
+  if(!chassisParam) return;
+  showItemLoader();
+
+  const r = await fetch(
+    API + "?mode=jobcard&chassis=" + encodeURIComponent(chassisParam),
+    { cache:"no-store" }
+  );
+  const d = await r.json();
+
+  cust.innerText    = d.customer  || "";
+  chassis.innerText = d.chassis   || "";
+  vehicle.innerText = d.vehicle   || "";
+  color.innerText   = d.color     || "";
+  exec.innerText    = d.executive || "";
+
+  renderItems(d.items || []);
 }
 
 loadJobcard();
