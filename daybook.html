@@ -138,6 +138,9 @@ tbody tr:hover{background:#1b1b1b}
   </div>
 </div>
 
+let firstLoad = true;
+  
+
 <script>
 const DATA_URL =
 "https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
@@ -212,21 +215,30 @@ function jobcardClick(row){
 /* ===== LOAD ===== */
 async function loadDaybook(){
   if(isFetching) return;
-  isFetching=true;
+  isFetching = true;
+
   try{
-    showLoader();
-    const r=await fetch(DATA_URL,{cache:"no-store"});
-    const d=await r.json();
-    allRows=d.rows||[];
+    // ✅ show loader ONLY first time
+    if(firstLoad) showLoader();
+
+    const r = await fetch(DATA_URL,{cache:"no-store"});
+    const d = await r.json();
+
+    allRows = d.rows || [];
     renderSummary(allRows);
     renderTable();
-    emptyState.style.display=allRows.length?"none":"flex";
-    tableWrapper.style.display=allRows.length?"block":"none";
-  }catch(e){
+
+    emptyState.style.display = allRows.length ? "none" : "flex";
+    tableWrapper.style.display = allRows.length ? "block" : "none";
+
+    firstLoad = false; // ✅ important
+  }
+  catch(e){
     console.error(e);
-  }finally{
+  }
+  finally{
     hideLoader();
-    isFetching=false;
+    isFetching = false;
   }
 }
 
@@ -235,3 +247,4 @@ setInterval(loadDaybook,30000);
 </script>
 </body>
 </html>
+
