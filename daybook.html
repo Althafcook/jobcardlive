@@ -46,9 +46,7 @@ tbody td{
   border-bottom:1px solid #222;text-align:center;
   white-space:nowrap
 }
-tbody tr{
-  cursor:pointer; /* ✅ FIX: hand cursor */
-}
+tbody tr{cursor:pointer}
 tbody tr:hover{background:#1b1b1b}
 
 .aic-arun{background:#d94a4a;color:#fff}
@@ -138,15 +136,13 @@ tbody tr:hover{background:#1b1b1b}
   </div>
 </div>
 
-let firstLoad = true;
-  
-
 <script>
 const DATA_URL =
 "https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
 
-let allRows=[],currentFilter="TOTAL";
+let allRows=[], currentFilter="TOTAL";
 let isFetching=false, timerInt=null;
+let firstLoad=true;
 
 currentDate.innerText =
 new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
@@ -206,8 +202,6 @@ function renderTable(){
 
 /* ===== CLICK ===== */
 function jobcardClick(row){
-  sessionStorage.removeItem("JOB_CARD_PAYLOAD");
-  sessionStorage.removeItem("JOB_CARD_ITEMS");
   sessionStorage.setItem("JOB_CARD_DATA",JSON.stringify(row));
   location.href=`jobcard.html?chassis=${encodeURIComponent(row.chassis)}`;
 }
@@ -215,30 +209,35 @@ function jobcardClick(row){
 /* ===== LOAD ===== */
 async function loadDaybook(){
   if(isFetching) return;
-  isFetching = true;
+  isFetching=true;
 
   try{
-    // ✅ show loader ONLY first time
     if(firstLoad) showLoader();
 
-    const r = await fetch(DATA_URL,{cache:"no-store"});
-    const d = await r.json();
+    const r=await fetch(DATA_URL,{cache:"no-store"});
+    const d=await r.json();
+    const rows=d.rows||[];
 
-    allRows = d.rows || [];
+    // ✅ SHOW LOADER ONLY IF DATA IS EMPTY
+    if(rows.length===0){
+      showLoader();
+    }else{
+      hideLoader();
+    }
+
+    allRows=rows;
     renderSummary(allRows);
     renderTable();
 
-    emptyState.style.display = allRows.length ? "none" : "flex";
-    tableWrapper.style.display = allRows.length ? "block" : "none";
+    emptyState.style.display=allRows.length?"none":"flex";
+    tableWrapper.style.display=allRows.length?"block":"none";
 
-    firstLoad = false; // ✅ important
-  }
-  catch(e){
+    firstLoad=false;
+
+  }catch(e){
     console.error(e);
-  }
-  finally{
-    hideLoader();
-    isFetching = false;
+  }finally{
+    isFetching=false;
   }
 }
 
@@ -247,4 +246,3 @@ setInterval(loadDaybook,30000);
 </script>
 </body>
 </html>
-
