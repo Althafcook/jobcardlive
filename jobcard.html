@@ -1,265 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Job Card</title>
-
+<title>Jobcard</title>
 <style>
-:root{
-  --bg:#0b0b0b;
-  --card:#121212;
-  --border:#3a3a3a;
-  --header:#1f4e79;
-  --yellow:#f2d23c;
-  --grey:#b5b5b5;
-  --pending:#f2d23c;
-  --billed:#35c46a;
-  --unbilled:#ff5c5c;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;
-  background:var(--bg);
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-  color:#fff;
-}
-.wrapper{padding:14px}
-.jobcard{
-  max-width:420px;
-  margin:auto;
-  background:linear-gradient(180deg,#141414,#0f0f0f);
-  border:1px solid var(--border);
-  border-radius:14px;
-  overflow:hidden;
-}
-
-/* TOP */
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px 14px;
-  border-bottom:1px solid var(--border);
-}
-.title{font-size:18px;font-weight:600}
-.status-pill{
-  background:#f4b400;
-  color:#000;
-  font-size:11px;
-  padding:6px 12px;
-  border-radius:20px;
-  font-weight:600;
-}
-
-/* INFO */
-.info{border-bottom:1px solid var(--border)}
-.row{display:grid;grid-template-columns:auto 1fr;border-bottom:1px solid var(--border)}
-.row.double{grid-template-columns:auto 1fr auto 1fr}
-.label{
-  padding:6px 10px;
-  font-size:11px;
-  color:#9aa0a6;
-  border-right:1px solid var(--border);
-}
-.value{
-  padding:6px 10px;
-  font-size:10px;
-  color:var(--yellow);
-  text-align:center;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.row.double .label:nth-child(3){
-  border-left:1px solid var(--border);
-}
-
-/* TABLE */
-.table{width:100%;border-collapse:collapse;table-layout:fixed}
-.table thead th{
-  background:var(--header);
-  color:#fff;
-  font-size:11px;
-  padding:6px;
-  border-right:1px solid var(--border);
-}
-.table tbody td{
-  padding:4px 6px;
-  border-bottom:1px solid #222;
-  border-right:1px solid var(--border);
-}
-.col-no{width:34px;text-align:center;color:var(--grey);font-size:10px}
-.col-item{
-  color:var(--grey);
-  font-size:clamp(9px,2.6vw,10px);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.col-status{width:86px;text-align:center;font-size:10px;font-weight:600}
-.col-note{width:60px}
-
-.st-billed{background:var(--billed);color:#fff}
-.st-pending{background:var(--pending);color:#000}
-.st-unbilled{background:none;color:var(--unbilled)}
-
-/* ITEM LOADER */
-.item-loader{
-  padding:10px;
-  font-size:11px;
-  text-align:center;
-  color:#aaa;
-}
-.item-bar{
-  height:6px;
-  background:#333;
-  border-radius:10px;
-  overflow:hidden;
-  margin-top:6px;
-}
-.item-bar span{
-  display:block;
-  height:100%;
-  width:0%;
-  background:#4caf50;
-  transition:width .3s linear;
-}
+body{margin:0;background:#111;color:#fff;font-family:Segoe UI}
+.table{width:100%;border-collapse:collapse}
+td,th{padding:6px;border-bottom:1px solid #222}
 </style>
 </head>
 
 <body>
-<div class="wrapper">
-<div class="jobcard">
 
-<div class="topbar">
-  <div class="title">JOB CARD</div>
-  <div class="status-pill">IN PROGRESS</div>
-</div>
-
-<div class="info">
-  <div class="row">
-    <div class="label">Customer Name</div>
-    <div class="value" id="cust"></div>
-  </div>
-  <div class="row double">
-    <div class="label">Chassis No</div>
-    <div class="value" id="chassis"></div>
-    <div class="label">Vehicle</div>
-    <div class="value" id="vehicle"></div>
-  </div>
-  <div class="row double">
-    <div class="label">Color</div>
-    <div class="value" id="color"></div>
-    <div class="label">Executive</div>
-    <div class="value" id="exec"></div>
-  </div>
-</div>
+<h3 id="cust"></h3>
+<div id="meta"></div>
 
 <table class="table">
-<thead>
-<tr>
-  <th class="col-no">No</th>
-  <th>Item</th>
-  <th class="col-status">Status</th>
-  <th class="col-note">Note</th>
-</tr>
-</thead>
-<tbody id="itemBody"></tbody>
+<thead><tr><th>No</th><th>Item</th><th>Status</th></tr></thead>
+<tbody id="items"></tbody>
 </table>
 
-</div>
-</div>
-
 <script>
-const API =
-"https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
+const API="https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
+const chassis=new URLSearchParams(location.search).get("chassis");
 
-const chassisParam = new URLSearchParams(location.search).get("chassis");
-
-/* STATUS */
-function getStatus(g,a){
-  g=Number(g); a=Number(a);
-  if(g===1 && a===0) return ["Pending","st-pending"];
-  if(g===0 && a===1) return ["Billed","st-billed"];
-  if(g===1 && a===1) return ["Billed & not given","st-billed"];
-  return ["Unbilled","st-unbilled"];
+/* instant top */
+const top=sessionStorage.getItem("JOB_CARD_DATA");
+if(top){
+  const r=JSON.parse(top);
+  cust.innerText=r.customer||"";
+  meta.innerText=`${r.vehicle} | ${r.chassis}`;
 }
 
-/* 🔥 INSTANT TOP FILL */
-const cachedRow = sessionStorage.getItem("JOB_CARD_DATA");
-if(cachedRow){
-  try{
-    const r = JSON.parse(cachedRow);
-    cust.innerText    = r.customer || "";
-    chassis.innerText = r.chassis  || "";
-    vehicle.innerText = r.vehicle  || "";
-    exec.innerText    = r.executive|| "";
-  }catch(e){}
+/* instant items if cached */
+const cached=sessionStorage.getItem("JOB_CARD_PAYLOAD");
+if(cached){
+  const d=JSON.parse(cached);
+  render(d.items||[]);
 }
 
-/* ITEM LOADER UI */
-let startTime=null, timerInt=null;
-function showItemLoader(){
-  startTime=Date.now();
-  itemBody.innerHTML=`
-    <tr><td colspan="4">
-      <div class="item-loader">
-        Loading items… <span id="itemPct">0%</span>
-        (<span id="itemSec">0</span>s)
-        <div class="item-bar"><span id="itemBar"></span></div>
-      </div>
-    </td></tr>`;
-  timerInt=setInterval(()=>{
-    const sec=Math.floor((Date.now()-startTime)/1000);
-    const pct=Math.min(95,sec*12);
-    itemPct.innerText=pct+"%";
-    itemBar.style.width=pct+"%";
-    itemSec.innerText=sec;
-  },300);
-}
-function hideItemLoader(){
-  clearInterval(timerInt);
-}
+/* background refresh */
+fetch(API+"?mode=jobcard&chassis="+encodeURIComponent(chassis))
+.then(r=>r.json())
+.then(d=>{
+  cust.innerText=d.customer||"";
+  meta.innerText=`${d.vehicle} | ${d.chassis}`;
+  render(d.items||[]);
+  sessionStorage.setItem("JOB_CARD_PAYLOAD",JSON.stringify(d));
+});
 
-/* RENDER ITEMS */
-function renderItems(items){
-  hideItemLoader();
-  itemBody.innerHTML="";
+function render(items){
+  itemsBody.innerHTML="";
   items.forEach((it,i)=>{
-    const [t,c]=getStatus(it.given_status,it.adv_billing);
-    itemBody.insertAdjacentHTML("beforeend",`
-      <tr>
-        <td class="col-no">${i+1}</td>
-        <td class="col-item">${it.item_partnumber||""}</td>
-        <td class="col-status ${c}">${t}</td>
-        <td></td>
-      </tr>
-    `);
+    itemsBody.insertAdjacentHTML("beforeend",
+      `<tr><td>${i+1}</td><td>${it.item_partnumber||""}</td><td>${it.given_status==1?"Pending":"Done"}</td></tr>`
+    );
   });
 }
-
-/* LOAD JOB CARD */
-async function loadJobcard(){
-  if(!chassisParam) return;
-  showItemLoader();
-
-  const r = await fetch(
-    API + "?mode=jobcard&chassis=" + encodeURIComponent(chassisParam),
-    { cache:"no-store" }
-  );
-  const d = await r.json();
-
-  cust.innerText    = d.customer  || "";
-  chassis.innerText = d.chassis   || "";
-  vehicle.innerText = d.vehicle   || "";
-  color.innerText   = d.color     || "";
-  exec.innerText    = d.executive || "";
-
-  renderItems(d.items||[]);
-}
-
-loadJobcard();
 </script>
 
 </body>
