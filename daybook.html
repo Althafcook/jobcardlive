@@ -137,7 +137,6 @@ tbody tr:hover{background:#1b1b1b}
 </div>
 
 <script>
-/* 🔥 JOB CARD SHEET ONLY */
 const DATA_URL =
 "https://script.google.com/macros/s/AKfycbz0v1ohNeufeJNvvbcuydkNAPgG_YL9YIGsf-1DRp4rd3mjcGd-NQocWfOgPqbknr8X/exec";
 
@@ -184,18 +183,23 @@ function setFilter(f){currentFilter=f;renderTable()}
 /* ===== TABLE ===== */
 function renderTable(){
   daybookBody.innerHTML="";
-  const rows=currentFilter==="TOTAL"?allRows:allRows.filter(r=>r.aic===currentFilter);
+  const rows=currentFilter==="TOTAL"
+    ? allRows
+    : allRows.filter(r=>r.aic===currentFilter);
+
   rows.forEach((r,i)=>{
     const tr=document.createElement("tr");
     tr.onclick=()=>jobcardClick(r);
     tr.innerHTML=`
-      <td>${i+1}</td><td>${r.date}</td><td>${r.time}</td>
+      <td>${i+1}</td>
+      <td>${r.date}</td>
+      <td>${r.time}</td>
       <td><b>${r.jobcard}</b></td>
       <td class="${aicClass(r.aic)}">${r.aic}</td>
-      <td>${r.customer_name}</td>
-      <td>${r.executive||""}</td>
+      <td>${r.customer}</td>
+      <td>${r.executive}</td>
       <td>${r.vehicle}</td>
-      <td>${r.chase_no.}</td>`;
+      <td>${r.chassis}</td>`;
     daybookBody.appendChild(tr);
   });
 }
@@ -216,23 +220,10 @@ async function loadDaybook(){
 
     const r=await fetch(DATA_URL,{cache:"no-store"});
     const d=await r.json();
+    const rows = Array.isArray(d.rows) ? d.rows : [];
 
-    /* 🔥 MAP jobcard_sheet columns safely */
-const src = Array.isArray(d.rows) ? d.rows : [];
-
-const rows = src.map(r => ({
-  date: r.date,
-  time: r.time,
-  jobcard: r.jobcard_no,
-  aic: r.aic,
-  customer: r["customer_name"],
-  executive: r.executive,
-  vehicle: r.vehicle,
-  chassis: r["chase_no"]
-}));
-
-    if(rows.length===0){ showLoader(); }
-    else{ hideLoader(); }
+    if(rows.length===0) showLoader();
+    else hideLoader();
 
     allRows=rows;
     renderSummary(allRows);
@@ -243,7 +234,7 @@ const rows = src.map(r => ({
 
     firstLoad=false;
   }catch(e){
-    console.error(e);
+    console.error("Daybook error:", e);
   }finally{
     isFetching=false;
   }
@@ -254,6 +245,7 @@ setInterval(loadDaybook,30000);
 </script>
 </body>
 </html>
+
 
 
 
