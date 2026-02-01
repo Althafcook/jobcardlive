@@ -38,7 +38,7 @@ canvas{
 .title{
   font-size:38px;
   letter-spacing:3px;
-  margin-bottom:50px;
+  margin-bottom:40px;
 }
 .title .job{color:#fff}
 .title .live{
@@ -55,35 +55,60 @@ canvas{
   position:relative;
   display:flex;
   flex-direction:column;
-  gap:18px;
+  gap:16px;
   align-items:center;
 }
 
-/* BUTTON */
-.btn{
-  width:220px;
-  padding:14px;
+/* SELECT AIC BUTTON */
+.select-btn{
+  width:240px;
+  padding:16px;
   text-align:center;
-  border-radius:18px;
-  font-size:16px;
-  color:#fff;
-  background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(8px);
-  border:1px solid rgba(255,255,255,0.25);
+  border-radius:22px;
+  font-size:17px;
+  font-weight:600;
+  color:#e8f2ff;
+  background:linear-gradient(135deg,#1e90ff,#0066ff);
+  border:1px solid rgba(30,144,255,.6);
   cursor:pointer;
+  position:relative;
+  box-shadow:0 0 18px rgba(30,144,255,.45);
   transition:.3s;
 }
-.btn:hover{
-  background:rgba(255,255,255,0.18);
-  box-shadow:0 0 20px rgba(255,255,255,0.25);
-  transform:scale(1.03);
+.select-btn:hover{
+  box-shadow:0 0 28px rgba(30,144,255,.8);
+  transform:scale(1.04);
+}
+
+/* DROPDOWN */
+.dropdown{
+  width:240px;
+  background:rgba(0,0,0,.7);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.25);
+  border-radius:18px;
+  overflow:hidden;
+  display:none;
+  animation:fadeDown .25s ease;
+}
+@keyframes fadeDown{
+  from{opacity:0;transform:translateY(-8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.dropdown div{
+  padding:14px;
+  text-align:center;
+  cursor:pointer;
+  font-size:15px;
+  transition:.25s;
 }
 
 /* AIC COLORS */
-.btn.arun:hover{background:#d94a4a}
-.btn.sajid:hover{background:#f2d23c;color:#000}
-.btn.siyad:hover{background:#8bc34a;color:#000}
-.btn.ashraf:hover{background:#eee;color:#000}
+.dropdown .arun:hover{background:#d94a4a}
+.dropdown .sajid:hover{background:#f2d23c;color:#000}
+.dropdown .siyad:hover{background:#8bc34a;color:#000}
+.dropdown .ashraf:hover{background:#eee;color:#000}
 
 /* ADMIN BUTTON */
 .admin-btn{
@@ -97,7 +122,7 @@ canvas{
   padding:8px 14px;
   font-size:13px;
   cursor:pointer;
-  opacity:0.9;
+  opacity:.9;
   z-index:5;
 }
 .admin-btn:hover{opacity:1}
@@ -105,7 +130,8 @@ canvas{
 /* MOBILE */
 @media(max-width:600px){
   .title{font-size:30px}
-  .btn{width:200px}
+  .select-btn{width:210px}
+  .dropdown{width:210px}
 }
 </style>
 </head>
@@ -121,31 +147,44 @@ canvas{
   </div>
 
   <div class="menu">
-    <div style="font-size:18px;opacity:.85;margin-bottom:10px">
-      Select AIC
-    </div>
+    <div class="select-btn" id="selectBtn">Select AIC ▾</div>
 
-    <div class="btn arun" onclick="location.href='index_sub_arun.html'">Arun</div>
-    <div class="btn sajid" onclick="location.href='index_sub_sajid.html'">Sajid</div>
-    <div class="btn siyad" onclick="location.href='index_sub_siyad.html'">Siyad</div>
-    <div class="btn ashraf" onclick="location.href='index_sub_ashraf.html.html'">Ashraf</div>
+    <div class="dropdown" id="aicMenu">
+      <div class="arun" onclick="go('daybook_arun.html')">Arun</div>
+      <div class="sajid" onclick="go('daybook_sajid.html')">Sajid</div>
+      <div class="siyad" onclick="go('daybook_siyad.html')">Siyad</div>
+      <div class="ashraf" onclick="go('daybook_ashraf.html')">Ashraf</div>
+    </div>
   </div>
 </div>
 
-<!-- ADMIN BUTTON -->
 <button class="admin-btn" id="adminBtn">Admin</button>
 
 <script>
 /* ADMIN LOGIN */
-document.getElementById("adminBtn").onclick = () => {
-  const u = prompt("Admin username:");
-  const p = prompt("Admin password:");
-  if (u === "althaf" && p === "9745990154") {
-    location.href = "admin.html";
-  } else {
+document.getElementById("adminBtn").onclick=()=>{
+  const u=prompt("Admin username:");
+  const p=prompt("Admin password:");
+  if(u==="althaf" && p==="9745990154"){
+    location.href="admin.html";
+  }else{
     alert("Access denied");
   }
 };
+
+/* DROPDOWN */
+const btn=document.getElementById("selectBtn");
+const menu=document.getElementById("aicMenu");
+
+btn.onclick=e=>{
+  e.stopPropagation();
+  menu.style.display=menu.style.display==="block"?"none":"block";
+};
+document.body.onclick=()=>menu.style.display="none";
+
+function go(url){
+  location.href=url;
+}
 
 /* THUNDER EFFECT */
 const canvas=document.getElementById("thunder");
@@ -159,7 +198,7 @@ resize();
 addEventListener("resize",resize);
 
 function lightning(x,y,a,l,d){
-  if(d<=0) return;
+  if(d<=0)return;
   const x2=x+Math.cos(a)*l;
   const y2=y+Math.sin(a)*l;
   ctx.beginPath();
