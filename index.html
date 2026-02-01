@@ -38,7 +38,7 @@ canvas{
 .title{
   font-size:38px;
   letter-spacing:3px;
-  margin-bottom:60px;
+  margin-bottom:50px;
 }
 .title .job{color:#fff}
 .title .live{
@@ -56,6 +56,7 @@ canvas{
   display:flex;
   flex-direction:column;
   gap:18px;
+  align-items:center;
 }
 
 /* BUTTON */
@@ -78,38 +79,11 @@ canvas{
   transform:scale(1.03);
 }
 
-/* WORKBOOK DROPDOWN */
-.dropdown{
-  position:absolute;
-  left:240px;
-  top:120px;
-  background:rgba(0,0,0,0.6);
-  backdrop-filter:blur(10px);
-  border:1px solid rgba(255,255,255,0.25);
-  border-radius:14px;
-  overflow:hidden;
-  opacity:0;
-  pointer-events:none;
-  transform:translateX(-10px);
-  transition:.3s;
-}
-.dropdown.show{
-  opacity:1;
-  pointer-events:auto;
-  transform:translateX(0);
-}
-.dropdown div{
-  padding:12px 20px;
-  cursor:pointer;
-  white-space:nowrap;
-  transition:.25s;
-}
-
 /* AIC COLORS */
-.dropdown .arun:hover{background:#d94a4a;color:#fff}
-.dropdown .siyad:hover{background:#8bc34a;color:#000}
-.dropdown .sajid:hover{background:#f2d23c;color:#000}
-.dropdown .ashraf:hover{background:#eee;color:#000}
+.btn.arun:hover{background:#d94a4a}
+.btn.sajid:hover{background:#f2d23c;color:#000}
+.btn.siyad:hover{background:#8bc34a;color:#000}
+.btn.ashraf:hover{background:#eee;color:#000}
 
 /* ADMIN BUTTON */
 .admin-btn{
@@ -124,7 +98,7 @@ canvas{
   font-size:13px;
   cursor:pointer;
   opacity:0.9;
-  z-index:5; /* 🔥 IMPORTANT FIX */
+  z-index:5;
 }
 .admin-btn:hover{opacity:1}
 
@@ -132,11 +106,6 @@ canvas{
 @media(max-width:600px){
   .title{font-size:30px}
   .btn{width:200px}
-  .dropdown{
-    left:0;
-    top:260px;
-    width:200px;
-  }
 }
 </style>
 </head>
@@ -152,20 +121,18 @@ canvas{
   </div>
 
   <div class="menu">
-    <div class="btn" onclick="location.href='daybook.html'">Daybook</div>
-    <div class="btn">Search</div>
-    <div class="btn" id="workbookBtn">Workbook</div>
-
-    <div class="dropdown" id="workbookMenu">
-      <div class="arun" onclick="openWorkbook('Arun')">Arun</div>
-      <div class="sajid" onclick="openWorkbook('Sajid')">Sajid</div>
-      <div class="siyad" onclick="openWorkbook('Siyad')">Siyad</div>
-      <div class="ashraf" onclick="openWorkbook('Ashraf')">Ashraf</div>
+    <div style="font-size:18px;opacity:.85;margin-bottom:10px">
+      Select AIC
     </div>
+
+    <div class="btn arun" onclick="location.href='daybook_arun.html'">Arun</div>
+    <div class="btn sajid" onclick="location.href='daybook_sajid.html'">Sajid</div>
+    <div class="btn siyad" onclick="location.href='daybook_siyad.html'">Siyad</div>
+    <div class="btn ashraf" onclick="location.href='daybook_ashraf.html'">Ashraf</div>
   </div>
 </div>
 
-<!-- ✅ ADMIN BUTTON (NOW VISIBLE) -->
+<!-- ADMIN BUTTON -->
 <button class="admin-btn" id="adminBtn">Admin</button>
 
 <script>
@@ -179,20 +146,6 @@ document.getElementById("adminBtn").onclick = () => {
     alert("Access denied");
   }
 };
-
-/* WORKBOOK DROPDOWN */
-const btn=document.getElementById("workbookBtn");
-const menu=document.getElementById("workbookMenu");
-
-btn.onclick=e=>{
-  e.stopPropagation();
-  menu.classList.toggle("show");
-};
-document.body.onclick=()=>menu.classList.remove("show");
-
-function openWorkbook(n){
-  alert("Workbook: "+n);
-}
 
 /* THUNDER EFFECT */
 const canvas=document.getElementById("thunder");
