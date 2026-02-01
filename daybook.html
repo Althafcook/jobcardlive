@@ -218,16 +218,18 @@ async function loadDaybook(){
     const d=await r.json();
 
     /* 🔥 MAP jobcard_sheet columns safely */
-    const rows=(d.rows||[]).map(r=>({
-      date:r.date,
-      time:r.time,
-      jobcard:r.jobcard_no,
-      aic:r.aic,
-      customer:r.customer_name,
-      executive:r.executive,
-      vehicle:r.vehicle,
-      chassis:r.chase_no
-    }));
+   const rows = d.rows
+  .filter(r => r.jobcard_no)   // 🔥 blank rows remove
+  .map(r => ({
+    date: r.date,              // 그대로 text (NO Date())
+    time: r.time,              // 그대로 text
+    jobcard: r.jobcard_no,
+    aic: r.aic,
+    customer: r["customer name"], // 🔥 FIX
+    executive: r.executive || "",
+    vehicle: r.vehicle,
+    chassis: r["chase no"]
+  }));
 
     if(rows.length===0){ showLoader(); }
     else{ hideLoader(); }
@@ -252,3 +254,4 @@ setInterval(loadDaybook,30000);
 </script>
 </body>
 </html>
+
