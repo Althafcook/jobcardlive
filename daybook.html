@@ -7,7 +7,12 @@
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
 <style>
-body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#111;color:#fff}
+body{
+  margin:0;
+  font-family:"Segoe UI",Arial,sans-serif;
+  background:#111;
+  color:#ddd;
+}
 
 /* HEADER */
 .header{
@@ -19,8 +24,12 @@ body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#111;color:#fff
   border-bottom:1px solid #333;
   gap:10px;
 }
-
-.header h1{margin:0;font-size:18px;font-weight:600}
+.header h1{
+  margin:0;
+  font-size:18px;
+  font-weight:600;
+  color:#fff;
+}
 
 /* HOME */
 .home-btn{
@@ -28,6 +37,7 @@ body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#111;color:#fff
   font-size:13px;
   opacity:.9;
   white-space:nowrap;
+  color:#ccc;
 }
 .home-btn:hover{opacity:1}
 
@@ -48,7 +58,7 @@ body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#111;color:#fff
   font-weight:600;
   cursor:pointer;
   white-space:nowrap;
-  opacity:.85
+  opacity:.85;
 }
 .summary span.active{outline:2px solid #fff;opacity:1}
 
@@ -58,7 +68,11 @@ body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#111;color:#fff
 .sum-ashraf{background:#eee;color:#000}
 .sum-total{background:#333;color:#fff}
 
-.date{font-size:12px;color:#aaa;white-space:nowrap}
+.date{
+  font-size:12px;
+  color:#aaa;
+  white-space:nowrap;
+}
 
 /* 📱 MOBILE HEADER FIX */
 @media(max-width:700px){
@@ -73,61 +87,109 @@ body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#111;color:#fff
 }
 
 /* TABLE */
-.table-wrapper{height:calc(100vh - 56px);overflow:auto}
-table{width:100%;min-width:980px;border-collapse:collapse}
+.table-wrapper{
+  height:calc(100vh - 56px);
+  overflow:auto;
+}
+table{
+  width:100%;
+  min-width:980px;
+  border-collapse:collapse;
+}
 thead th{
-  position:sticky;top:0;background:#000;color:red;
-  font-size:13px;padding:8px;border-bottom:1px solid #444;
+  position:sticky;
+  top:0;
+  background:#000;
+  color:#ff4d4d;
+  font-size:12px;
+  font-weight:600;
+  padding:8px;
+  border-bottom:1px solid #444;
 }
-tbody td{
-  font-size:13px;padding:4px 6px;height:24px;
-  border-bottom:1px solid #222;text-align:center;
-  white-space:nowrap
-}
-tbody tr{cursor:pointer}
-tbody tr:hover{background:#1b1b1b}
 
+/* 👇 PREMIUM TABLE DATA */
+tbody td{
+  font-size:12px;            /* smaller */
+  padding:4px 6px;
+  height:24px;
+  border-bottom:1px solid #222;
+  text-align:center;
+  white-space:nowrap;
+  color:#cfcfcf;             /* light grey */
+  font-weight:400;           /* no bold */
+  letter-spacing:0.2px;
+}
+
+tbody tr{cursor:pointer}
+tbody tr:hover{background:#1a1a1a}
+
+/* AIC COLORS */
 .aic-arun{background:#d94a4a;color:#fff}
 .aic-siyad{background:#8bc34a;color:#000}
 .aic-sajid{background:#f2d23c;color:#000}
 .aic-ashraf{background:#eee;color:#000}
 
-/* EMPTY */
+/* EMPTY STATE */
 .empty-state{
-  display:none;height:calc(100vh - 56px);
-  align-items:center;justify-content:center
+  display:none;
+  height:calc(100vh - 56px);
+  align-items:center;
+  justify-content:center;
 }
 .empty-card{
-  background:#1b1b1b;border:1px solid #333;
-  border-radius:14px;padding:24px 28px;
-  text-align:center;max-width:260px
+  background:#1b1b1b;
+  border:1px solid #333;
+  border-radius:16px;
+  padding:26px 30px;
+  text-align:center;
+  max-width:260px;
+  animation:fadeIn .6s ease;
+}
+@keyframes fadeIn{
+  from{opacity:0;transform:scale(.95)}
+  to{opacity:1;transform:scale(1)}
 }
 
 /* LOADER */
 .loader{
-  position:fixed;inset:0;background:#000c;
-  display:flex;align-items:center;justify-content:center;
-  z-index:999
+  position:fixed;
+  inset:0;
+  background:#000c;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
 }
 .hidden{display:none}
 .meter{
-  width:160px;height:160px;border-radius:50%;
-  border:8px solid #333;position:relative
+  width:160px;
+  height:160px;
+  border-radius:50%;
+  border:8px solid #333;
+  position:relative;
 }
 .needle{
-  width:4px;height:70px;background:red;
-  position:absolute;bottom:50%;left:50%;
+  width:4px;
+  height:70px;
+  background:red;
+  position:absolute;
+  bottom:50%;
+  left:50%;
   transform-origin:bottom;
-  animation:sweep 1.2s linear infinite
+  animation:sweep 1.2s linear infinite;
 }
 @keyframes sweep{
   from{transform:rotate(-90deg)}
   to{transform:rotate(90deg)}
 }
 .timer{
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  color:#ccc;
 }
 </style>
 </head>
@@ -147,7 +209,7 @@ tbody tr:hover{background:#1b1b1b}
       src="https://assets7.lottiefiles.com/packages/lf20_xlmz9xwm.json"
       background="transparent"
       speed="1"
-      style="width:160px;height:160px"
+      style="width:150px;height:150px"
       loop autoplay>
     </lottie-player>
     <p><b>Today no jobcard entered</b></p>
@@ -232,7 +294,7 @@ function renderTable(){
       <td>${i+1}</td>
       <td>${r.date}</td>
       <td>${r.time}</td>
-      <td><b>${r.jobcard}</b></td>
+      <td>${r.jobcard}</td>
       <td class="${aicClass(r.aic)}">${r.aic}</td>
       <td>${r.customer}</td>
       <td>${r.executive}</td>
@@ -259,8 +321,7 @@ async function loadDaybook(){
     const d=await r.json();
     const rows = Array.isArray(d.rows) ? d.rows : [];
 
-    if(rows.length===0) showLoader();
-    else hideLoader();
+    rows.length ? hideLoader() : showLoader();
 
     allRows=rows;
     renderSummary(allRows);
