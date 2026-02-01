@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jobcard Live</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  height:100vh;
+  background:radial-gradient(circle at top,#1a1a1a,#000);
+  font-family:"Segoe UI",Arial,sans-serif;
+  color:#fff;
+  overflow:hidden;
+}
+
+/* THUNDER CANVAS */
+canvas{
+  position:fixed;
+  inset:0;
+  z-index:0;
+}
+
+/* CONTAINER */
+.container{
+  position:relative;
+  z-index:2;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding-top:50px;
+}
+
+/* TITLE */
+.title{
+  font-size:38px;
+  letter-spacing:3px;
+  margin-bottom:60px;
+}
+.title .job{color:#fff}
+.title .live{
+  color:#ff3b3b;
+  animation:blink 1.2s infinite;
+}
+@keyframes blink{
+  0%,100%{opacity:1}
+  50%{opacity:.3}
+}
+
+/* MENU */
+.menu{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+/* BUTTON */
+.btn{
+  width:220px;
+  padding:14px;
+  text-align:center;
+  border-radius:18px;
+  font-size:16px;
+  color:#fff;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.25);
+  cursor:pointer;
+  transition:.3s;
+}
+.btn:hover{
+  background:rgba(255,255,255,0.18);
+  box-shadow:0 0 20px rgba(255,255,255,0.25);
+  transform:scale(1.03);
+}
+
+/* WORKBOOK DROPDOWN */
+.dropdown{
+  position:absolute;
+  left:240px;
+  top:120px;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.25);
+  border-radius:14px;
+  overflow:hidden;
+  opacity:0;
+  pointer-events:none;
+  transform:translateX(-10px);
+  transition:.3s;
+}
+.dropdown.show{
+  opacity:1;
+  pointer-events:auto;
+  transform:translateX(0);
+}
+.dropdown div{
+  padding:12px 20px;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:.25s;
+}
+
+/* AIC COLORS */
+.dropdown .arun:hover{background:#d94a4a;color:#fff}
+.dropdown .siyad:hover{background:#8bc34a;color:#000}
+.dropdown .sajid:hover{background:#f2d23c;color:#000}
+.dropdown .ashraf:hover{background:#eee;color:#000}
+
+/* ADMIN BUTTON */
+.admin-btn{
+  position:fixed;
+  bottom:16px;
+  right:16px;
+  background:#222;
+  color:#fff;
+  border:1px solid #444;
+  border-radius:8px;
+  padding:8px 14px;
+  font-size:13px;
+  cursor:pointer;
+  opacity:0.9;
+  z-index:5; /* 🔥 IMPORTANT FIX */
+}
+.admin-btn:hover{opacity:1}
+
+/* MOBILE */
+@media(max-width:600px){
+  .title{font-size:30px}
+  .btn{width:200px}
+  .dropdown{
+    left:0;
+    top:260px;
+    width:200px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="thunder"></canvas>
+
+<div class="container">
+  <div class="title">
+    <span class="job">JOBCARD</span>
+    <span class="live"> LIVE</span>
+  </div>
+
+  <div class="menu">
+    <div class="btn" onclick="location.href='daybook.html'">Daybook</div>
+    <div class="btn">Search</div>
+    <div class="btn" id="workbookBtn">Workbook</div>
+
+    <div class="dropdown" id="workbookMenu">
+      <div class="arun" onclick="openWorkbook('Arun')">Arun</div>
+      <div class="sajid" onclick="openWorkbook('Sajid')">Sajid</div>
+      <div class="siyad" onclick="openWorkbook('Siyad')">Siyad</div>
+      <div class="ashraf" onclick="openWorkbook('Ashraf')">Ashraf</div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ ADMIN BUTTON (NOW VISIBLE) -->
+<button class="admin-btn" id="adminBtn">Admin</button>
+
+<script>
+/* ADMIN LOGIN */
+document.getElementById("adminBtn").onclick = () => {
+  const u = prompt("Admin username:");
+  const p = prompt("Admin password:");
+  if (u === "althaf" && p === "9745990154") {
+    location.href = "admin.html";
+  } else {
+    alert("Access denied");
+  }
+};
+
+/* WORKBOOK DROPDOWN */
+const btn=document.getElementById("workbookBtn");
+const menu=document.getElementById("workbookMenu");
+
+btn.onclick=e=>{
+  e.stopPropagation();
+  menu.classList.toggle("show");
+};
+document.body.onclick=()=>menu.classList.remove("show");
+
+function openWorkbook(n){
+  alert("Workbook: "+n);
+}
+
+/* THUNDER EFFECT */
+const canvas=document.getElementById("thunder");
+const ctx=canvas.getContext("2d");
+
+function resize(){
+  canvas.width=innerWidth;
+  canvas.height=innerHeight;
+}
+resize();
+addEventListener("resize",resize);
+
+function lightning(x,y,a,l,d){
+  if(d<=0) return;
+  const x2=x+Math.cos(a)*l;
+  const y2=y+Math.sin(a)*l;
+  ctx.beginPath();
+  ctx.moveTo(x,y);
+  ctx.lineTo(x2,y2);
+  ctx.strokeStyle="rgba(255,255,255,.8)";
+  ctx.lineWidth=2;
+  ctx.stroke();
+  lightning(x2,y2,a+(Math.random()-.5),l*.7,d-1);
+  lightning(x2,y2,a-(Math.random()-.5),l*.7,d-1);
+}
+function spark(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  lightning(Math.random()*canvas.width,0,Math.PI/2,canvas.height/6,6);
+  setTimeout(()=>ctx.clearRect(0,0,canvas.width,canvas.height),120);
+}
+setInterval(spark,3000+Math.random()*3000);
+</script>
+
+</body>
+</html>
