@@ -137,9 +137,9 @@ tbody tr:hover{background:#1b1b1b}
 </div>
 
 <script>
-/* 🔥 JOB CARD SHEET API ONLY */
+/* 🔥 JOB CARD SHEET ONLY */
 const DATA_URL =
-"https://script.google.com/macros/s/AKfycbz0v1ohNeufeJNvvbcuydkNAPgG_YL9YIGsf-1DRp4rd3mjcGd-NQocWfOgPqbknr8X/exec"; // jobcard_sheet endpoint
+"https://script.google.com/macros/s/AKfycbz0v1ohNeufeJNvvbcuydkNAPgG_YL9YIGsf-1DRp4rd3mjcGd-NQocWfOgPqbknr8X/exec";
 
 let allRows=[], currentFilter="TOTAL";
 let isFetching=false, timerInt=null, firstLoad=true;
@@ -216,13 +216,21 @@ async function loadDaybook(){
 
     const r=await fetch(DATA_URL,{cache:"no-store"});
     const d=await r.json();
-    const rows=d.rows||[];
 
-    if(rows.length===0){
-      showLoader();
-    }else{
-      hideLoader();
-    }
+    /* 🔥 MAP jobcard_sheet columns safely */
+    const rows=(d.rows||[]).map(r=>({
+      date:r.date,
+      time:r.time,
+      jobcard:r.jobcard_no,
+      aic:r.aic,
+      customer:r.customer_name,
+      executive:r.executive,
+      vehicle:r.vehicle,
+      chassis:r.chase_no
+    }));
+
+    if(rows.length===0){ showLoader(); }
+    else{ hideLoader(); }
 
     allRows=rows;
     renderSummary(allRows);
@@ -244,4 +252,3 @@ setInterval(loadDaybook,30000);
 </script>
 </body>
 </html>
-
