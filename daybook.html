@@ -192,10 +192,10 @@ function renderTable(){
       <td>${i+1}</td><td>${r.date}</td><td>${r.time}</td>
       <td><b>${r.jobcard}</b></td>
       <td class="${aicClass(r.aic)}">${r.aic}</td>
-      <td>${r.customer}</td>
+      <td>${r.customer_name}</td>
       <td>${r.executive||""}</td>
       <td>${r.vehicle}</td>
-      <td>${r.chassis}</td>`;
+      <td>${r.chase_no.}</td>`;
     daybookBody.appendChild(tr);
   });
 }
@@ -227,10 +227,10 @@ const rows = (Array.isArray(d.rows) ? d.rows : [])
     time: r.time,           // ✅ text 그대로
     jobcard: r.jobcard,
     aic: r.aic,
-    customer: r.customer || "",
+    customer_name: r.customer_name || "",
     executive: r.executive || "",
     vehicle: r.vehicle || "",
-    chassis: r.chassis || ""
+    chase no.: r.chase_no || ""
   }));
 
     if(rows.length===0){ showLoader(); }
@@ -256,6 +256,7 @@ setInterval(loadDaybook,30000);
 </script>
 </body>
 </html>
+
 
 
 
