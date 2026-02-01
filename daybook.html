@@ -137,12 +137,12 @@ tbody tr:hover{background:#1b1b1b}
 </div>
 
 <script>
+/* 🔥 JOB CARD SHEET API ONLY */
 const DATA_URL =
-"https://script.google.com/macros/s/AKfycbw4dVdfgm3NkISHwE_v8CNSrMbOtx75SZI4DPs1dM2b6qm1gchMSRPL41JkN-Vn5RAwrg/exec";
+"https://script.google.com/macros/s/XXXXX/exec"; // jobcard_sheet endpoint
 
 let allRows=[], currentFilter="TOTAL";
-let isFetching=false, timerInt=null;
-let firstLoad=true;
+let isFetching=false, timerInt=null, firstLoad=true;
 
 currentDate.innerText =
 new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
@@ -203,13 +203,6 @@ function renderTable(){
 /* ===== CLICK ===== */
 function jobcardClick(row){
   sessionStorage.setItem("JOB_CARD_DATA",JSON.stringify(row));
-
-  /* 🔥 OPTION A: background cache build (NON BLOCKING) */
-  fetch(
-    DATA_URL + "?mode=build&chassis=" + encodeURIComponent(row.chassis),
-    { mode:"no-cors" }
-  );
-
   location.href=`jobcard.html?chassis=${encodeURIComponent(row.chassis)}`;
 }
 
@@ -225,7 +218,6 @@ async function loadDaybook(){
     const d=await r.json();
     const rows=d.rows||[];
 
-    // ✅ loader ONLY if sheet empty
     if(rows.length===0){
       showLoader();
     }else{
@@ -236,11 +228,10 @@ async function loadDaybook(){
     renderSummary(allRows);
     renderTable();
 
-    emptyState.style.display=allRows.length?"none":"flex";
-    tableWrapper.style.display=allRows.length?"block":"none";
+    emptyState.style.display=rows.length?"none":"flex";
+    tableWrapper.style.display=rows.length?"block":"none";
 
     firstLoad=false;
-
   }catch(e){
     console.error(e);
   }finally{
