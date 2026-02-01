@@ -11,18 +11,44 @@ body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#111;color:#fff
 
 /* HEADER */
 .header{
-  padding:8px 12px;background:#000;display:grid;
+  padding:8px 12px;
+  background:#000;
+  display:grid;
   grid-template-columns:auto 1fr auto auto;
-  align-items:center;border-bottom:1px solid #333;gap:10px;
+  align-items:center;
+  border-bottom:1px solid #333;
+  gap:10px;
 }
+
 .header h1{margin:0;font-size:18px;font-weight:600}
-.home-btn{cursor:pointer;font-size:18px;opacity:.85}
+
+/* HOME */
+.home-btn{
+  cursor:pointer;
+  font-size:13px;
+  opacity:.9;
+  white-space:nowrap;
+}
 .home-btn:hover{opacity:1}
 
-.summary{display:flex;gap:6px;justify-content:center;font-size:12px;overflow-x:auto}
+/* SUMMARY */
+.summary{
+  display:flex;
+  gap:6px;
+  justify-content:center;
+  font-size:12px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.summary::-webkit-scrollbar{display:none}
+
 .summary span{
-  padding:3px 8px;border-radius:4px;font-weight:600;
-  cursor:pointer;white-space:nowrap;opacity:.85
+  padding:3px 8px;
+  border-radius:4px;
+  font-weight:600;
+  cursor:pointer;
+  white-space:nowrap;
+  opacity:.85
 }
 .summary span.active{outline:2px solid #fff;opacity:1}
 
@@ -32,7 +58,19 @@ body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#111;color:#fff
 .sum-ashraf{background:#eee;color:#000}
 .sum-total{background:#333;color:#fff}
 
-.date{font-size:13px;color:#aaa}
+.date{font-size:12px;color:#aaa;white-space:nowrap}
+
+/* 📱 MOBILE HEADER FIX */
+@media(max-width:700px){
+  .header{
+    grid-template-columns:auto 1fr auto;
+    grid-template-rows:auto auto;
+  }
+  .summary{
+    grid-column:1 / -1;
+    justify-content:flex-start;
+  }
+}
 
 /* TABLE */
 .table-wrapper{height:calc(100vh - 56px);overflow:auto}
@@ -99,7 +137,7 @@ tbody tr:hover{background:#1b1b1b}
 <div class="header">
   <h1>Daybook</h1>
   <div class="summary" id="summary"></div>
-  <div class="home-btn" onclick="location.href='index.html'">🏠</div>
+  <div class="home-btn" onclick="location.href='index.html'">🏠 Home</div>
   <div class="date" id="currentDate"></div>
 </div>
 
@@ -217,7 +255,6 @@ async function loadDaybook(){
 
   try{
     if(firstLoad) showLoader();
-
     const r=await fetch(DATA_URL,{cache:"no-store"});
     const d=await r.json();
     const rows = Array.isArray(d.rows) ? d.rows : [];
@@ -245,11 +282,3 @@ setInterval(loadDaybook,30000);
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
