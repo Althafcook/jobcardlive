@@ -106,18 +106,15 @@ thead th{
   padding:8px;
   border-bottom:1px solid #444;
 }
-
-/* 👇 PREMIUM TABLE DATA */
 tbody td{
-  font-size:12px;            /* smaller */
+  font-size:12px;
   padding:4px 6px;
   height:24px;
   border-bottom:1px solid #222;
   text-align:center;
   white-space:nowrap;
-  color:#cfcfcf;             /* light grey */
-  font-weight:400;           /* no bold */
-  letter-spacing:0.2px;
+  color:#cfcfcf;
+  font-weight:400;
 }
 
 tbody tr{cursor:pointer}
@@ -317,22 +314,29 @@ async function loadDaybook(){
 
   try{
     if(firstLoad) showLoader();
+
     const r=await fetch(DATA_URL,{cache:"no-store"});
     const d=await r.json();
     const rows = Array.isArray(d.rows) ? d.rows : [];
 
-    rows.length ? hideLoader() : showLoader();
+    if(rows.length === 0){
+      hideLoader();                 // ✅ FIX
+      emptyState.style.display="flex";
+      tableWrapper.style.display="none";
+    }else{
+      hideLoader();
+      emptyState.style.display="none";
+      tableWrapper.style.display="block";
+    }
 
     allRows=rows;
     renderSummary(allRows);
     renderTable();
 
-    emptyState.style.display=rows.length?"none":"flex";
-    tableWrapper.style.display=rows.length?"block":"none";
-
     firstLoad=false;
   }catch(e){
     console.error("Daybook error:", e);
+    hideLoader();
   }finally{
     isFetching=false;
   }
