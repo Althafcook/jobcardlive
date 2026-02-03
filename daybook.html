@@ -302,10 +302,21 @@ function renderTable(){
 }
 
 /* ===== CLICK ===== */
+const JOBCARD_API =
+"https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec"; // jobcard_sheet_arun
+
 function jobcardClick(row){
-  sessionStorage.setItem("JOB_CARD_DATA",JSON.stringify(row));
-  location.href=`jobcard.html?chassis=${encodeURIComponent(row.chassis)}`;
+
+  // ✅ 1) write chase no to jobcard_sheet_arun A1
+  fetch(
+    JOBCARD_API + "?mode=setChase&chase=" + encodeURIComponent(row.chassis),
+    { mode:"no-cors" }
+  );
+
+  // ✅ 2) open jobcard page
+  location.href = "jobcard_arun.html";
 }
+
 
 /* ===== LOAD ===== */
 async function loadDaybook(){
@@ -347,3 +358,4 @@ setInterval(loadDaybook,30000);
 </script>
 </body>
 </html>
+
