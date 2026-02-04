@@ -98,7 +98,8 @@ const JOBCARD_API =
 
 let allRows=[], currentFilter="TOTAL";
 let isFetching=false, timerInt=null;
-let hydrated=false;   // 🔥 key flag
+let hydrated=false;
+let refreshTimer=null;
 
 currentDate.innerText =
 new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
@@ -107,7 +108,8 @@ new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric
 window.addEventListener("pageshow", e=>{
   if(e.persisted){
     hideLoader();
-    hydrated=true; // prevent reload
+    hydrated=true;
+    startAutoRefresh(); // 🔥 back വന്നാലും refresh തുടരും
   }
 });
 
@@ -180,9 +182,10 @@ function jobcardClick(row){
 
 /* ===== LOAD ===== */
 async function loadDaybook(){
-  if(isFetching || hydrated) return;
+  if(isFetching) return;
   isFetching=true;
-  showLoader();
+
+  if(!hydrated) showLoader();
 
   try{
     const r=await fetch(DATA_URL,{cache:"no-store"});
@@ -212,8 +215,14 @@ async function loadDaybook(){
   }
 }
 
+/* ===== AUTO REFRESH CONTROL ===== */
+function startAutoRefresh(){
+  if(refreshTimer) return;
+  refreshTimer=setInterval(loadDaybook,30000);
+}
+
 loadDaybook();
-setInterval(loadDaybook,30000);
+startAutoRefresh();
 </script>
 </body>
 </html>
