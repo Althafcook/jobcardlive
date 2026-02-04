@@ -98,19 +98,15 @@ const JOBCARD_API =
 
 let allRows=[], currentFilter="TOTAL";
 let isFetching=false, timerInt=null;
-let hydrated=false;
 let refreshTimer=null;
 
 currentDate.innerText =
 new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
 
-/* ===== BACK BUTTON FIX ===== */
-window.addEventListener("pageshow", e=>{
-  if(e.persisted){
-    hideLoader();
-    hydrated=true;
-    startAutoRefresh(); // 🔥 back വന്നാലും refresh തുടരും
-  }
+/* ===== BACK / BFCache FIX ===== */
+window.addEventListener("pageshow", () => {
+  hideLoader();
+  restartAutoRefresh();
 });
 
 /* ===== LOADER ===== */
@@ -184,8 +180,7 @@ function jobcardClick(row){
 async function loadDaybook(){
   if(isFetching) return;
   isFetching=true;
-
-  if(!hydrated) showLoader();
+  showLoader();
 
   try{
     const r=await fetch(DATA_URL,{cache:"no-store"});
@@ -205,7 +200,6 @@ async function loadDaybook(){
     allRows=rows;
     renderSummary(allRows);
     renderTable();
-    hydrated=true;
 
   }catch(e){
     hideLoader();
@@ -215,14 +209,14 @@ async function loadDaybook(){
   }
 }
 
-/* ===== AUTO REFRESH CONTROL ===== */
-function startAutoRefresh(){
-  if(refreshTimer) return;
+/* ===== AUTO REFRESH (SINGLE SOURCE OF TRUTH) ===== */
+function restartAutoRefresh(){
+  if(refreshTimer) clearInterval(refreshTimer);
   refreshTimer=setInterval(loadDaybook,30000);
 }
 
 loadDaybook();
-startAutoRefresh();
+restartAutoRefresh();
 </script>
 </body>
 </html>
