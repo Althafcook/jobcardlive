@@ -16,6 +16,7 @@
   --billed:#35c46a;
   --pending:#f2d23c;
   --unbilled:#ff5c5c;
+  --billed-ng:#1f3b73;
 }
 *{box-sizing:border-box}
 body{
@@ -33,6 +34,8 @@ body{
   border-radius:14px;
   overflow:hidden;
 }
+
+/* TOP */
 .topbar{
   display:flex;
   justify-content:space-between;
@@ -40,7 +43,7 @@ body{
   padding:12px 14px;
   border-bottom:1px solid var(--border);
 }
-.title{font-size:18px;font-weight:600}
+.title{font-size:18px;font-weight:700;letter-spacing:.5px}
 .status-pill{
   background:#f4b400;
   color:#000;
@@ -49,6 +52,8 @@ body{
   border-radius:20px;
   font-weight:600;
 }
+
+/* INFO */
 .info{border-bottom:1px solid var(--border)}
 .row{display:grid;grid-template-columns:auto 1fr;border-bottom:1px solid var(--border)}
 .row.double{grid-template-columns:auto 1fr auto 1fr}
@@ -68,7 +73,8 @@ body{
   text-overflow:ellipsis;
 }
 .row.double .label:nth-child(3){border-left:1px solid var(--border)}
-.items-section{margin-top:14px}
+
+/* TABLE */
 .table-wrap{max-height:320px;overflow-y:auto}
 .table{
   width:100%;
@@ -91,17 +97,15 @@ body{
   border-right:1px solid var(--border);
 }
 .col-no{width:34px;text-align:center;color:var(--grey);font-size:10px}
-.col-item{
-  color:var(--grey);
-  font-size:clamp(9px,2.6vw,10px);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.col-status{width:86px;text-align:center;font-size:10px;font-weight:600}
+.col-item{color:var(--grey);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.col-status{width:110px;text-align:center;font-size:10px;font-weight:700}
+.col-note{width:52px;font-size:9px;color:#aaa}
+
+/* STATUS COLORS */
 .st-billed{background:var(--billed);color:#fff}
 .st-pending{background:var(--pending);color:#000}
 .st-unbilled{color:var(--unbilled)}
+.st-billed-ng{background:var(--billed-ng);color:#fff}
 </style>
 </head>
 
@@ -110,7 +114,7 @@ body{
 <div class="jobcard">
 
 <div class="topbar">
-  <div class="title">JOB CARD</div>
+  <div class="title" id="aicTitle">JOBCARD</div>
   <div class="status-pill" id="workStatus">IN PROGRESS</div>
 </div>
 
@@ -135,52 +139,52 @@ body{
   </div>
 </div>
 
-<div class="items-section">
-  <div class="table-wrap">
-    <table class="table">
-      <thead>
-        <tr>
-          <th class="col-no">No</th>
-          <th>Item</th>
-          <th class="col-status">Status</th>
-          <th class="col-note">Note</th>
-        </tr>
-      </thead>
-      <tbody id="itemBody"></tbody>
-    </table>
-  </div>
+<div class="table-wrap">
+<table class="table">
+<thead>
+<tr>
+  <th class="col-no">No</th>
+  <th>Item</th>
+  <th class="col-status">Status</th>
+  <th class="col-note">Supervisor</th>
+</tr>
+</thead>
+<tbody id="itemBody"></tbody>
+</table>
 </div>
 
 </div>
 </div>
 
 <script>
-/* 🔗 JOB CARD SHEET API */
 const JOBCARD_API =
 "https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
 
-/* ⚡ FAST TOP FILL (from daybook) */
-const cachedRow=sessionStorage.getItem("JOB_CARD_DATA");
-if(cachedRow){
+/* FAST FILL */
+const cached=sessionStorage.getItem("JOB_CARD_DATA");
+let cachedChassis="";
+if(cached){
   try{
-    const r=JSON.parse(cachedRow);
+    const r=JSON.parse(cached);
     cust.innerText=r.customer||"";
     chassis.innerText=r.chassis||"";
     vehicle.innerText=r.vehicle||"";
     exec.innerText=r.executive||"";
+    cachedChassis=r.chassis||"";
   }catch(e){}
 }
 
-/* 🟡 STATUS STYLE */
+/* STATUS CLASS */
 function statusClass(s){
   if(!s) return "st-unbilled";
   s=s.toLowerCase();
+  if(s.includes("billed") && s.includes("not")) return "st-billed-ng";
   if(s.includes("bill")) return "st-billed";
   if(s.includes("pend")) return "st-pending";
   return "st-unbilled";
 }
 
-/* 📦 RENDER ITEMS */
+/* ITEMS */
 function renderItems(items){
   itemBody.innerHTML="";
   items.forEach((it,i)=>{
@@ -189,23 +193,29 @@ function renderItems(items){
         <td class="col-no">${i+1}</td>
         <td class="col-item">${it.item||""}</td>
         <td class="col-status ${statusClass(it.status)}">${it.status||""}</td>
-        <td></td>
+        <td class="col-note"></td>
       </tr>
     `);
   });
 }
 
-/* 🚀 LOAD FROM GOOGLE SHEET */
+/* LOAD FROM SHEET */
 async function loadJobcard(){
   const r=await fetch(JOBCARD_API,{cache:"no-store"});
   const d=await r.json();
-  if(!d.ready) return;
+  if(!d.ready){
+    if(cachedChassis){
+      fetch(JOBCARD_API+"?mode=setChase&chase="+encodeURIComponent(cachedChassis),{mode:"no-cors"});
+    }
+    return;
+  }
 
-  cust.innerText=d.customer_name||"";
-  chassis.innerText=d.chase_no||"";
-  vehicle.innerText=d.vehicle||"";
+  aicTitle.innerText=(d.aic||"JOBCARD").toUpperCase();
+  cust.innerText=d.customer_name||cust.innerText;
+  chassis.innerText=d.chase_no||chassis.innerText;
+  vehicle.innerText=d.vehicle||vehicle.innerText;
   color.innerText=d.color||"";
-  exec.innerText=d.executive||"";
+  exec.innerText=d.executive||exec.innerText;
   workStatus.innerText=d.work_status||"";
 
   renderItems(d.items||[]);
