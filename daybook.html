@@ -7,7 +7,7 @@
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
 <style>
-/* === SAME CSS AS YOU SENT – UNCHANGED === */
+/* ===== SAME CSS – UNCHANGED ===== */
 body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#111;color:#ddd}
 .header{padding:8px 12px;background:#000;display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;border-bottom:1px solid #333;gap:10px}
 .header h1{margin:0;font-size:18px;font-weight:600;color:#fff}
@@ -97,17 +97,17 @@ const JOBCARD_API =
 "https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
 
 let allRows=[], currentFilter="TOTAL";
-let isFetching=false, timerInt=null, firstLoad=true;
-let restoredFromBack=false;
+let isFetching=false, timerInt=null;
+let hydrated=false;   // 🔥 key flag
 
 currentDate.innerText =
 new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
 
-/* ===== BACK NAV FIX ===== */
+/* ===== BACK BUTTON FIX ===== */
 window.addEventListener("pageshow", e=>{
   if(e.persisted){
-    restoredFromBack=true;
     hideLoader();
+    hydrated=true; // prevent reload
   }
 });
 
@@ -180,34 +180,33 @@ function jobcardClick(row){
 
 /* ===== LOAD ===== */
 async function loadDaybook(){
-  if(isFetching || restoredFromBack) return;
+  if(isFetching || hydrated) return;
   isFetching=true;
+  showLoader();
 
   try{
-    if(firstLoad) showLoader();
-
     const r=await fetch(DATA_URL,{cache:"no-store"});
     const d=await r.json();
     const rows = Array.isArray(d.rows) ? d.rows : [];
 
     hideLoader();
 
-    if(rows.length===0){
-      emptyState.style.display="flex";
-      tableWrapper.style.display="none";
-    }else{
+    if(rows.length){
       emptyState.style.display="none";
       tableWrapper.style.display="block";
+    }else{
+      emptyState.style.display="flex";
+      tableWrapper.style.display="none";
     }
 
     allRows=rows;
     renderSummary(allRows);
     renderTable();
+    hydrated=true;
 
-    firstLoad=false;
   }catch(e){
-    console.error("Daybook error:", e);
     hideLoader();
+    console.error(e);
   }finally{
     isFetching=false;
   }
