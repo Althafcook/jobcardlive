@@ -17,55 +17,154 @@
   --unbilled:#ff5c5c;
   --billed-ng:#1f3b73;
 }
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
-.wrapper{padding:14px}
 
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  font-family:system-ui;
+  color:#fff;
+}
+
+.wrapper{padding:14px}
 .jobcard{
-  max-width:420px;margin:auto;
+  max-width:420px;
+  margin:5px auto 0; /* 🔥 pushed down 5px */
   background:linear-gradient(180deg,#141414,#0f0f0f);
   border:1px solid var(--border);
   border-radius:14px;
   overflow:hidden;
 }
 
+/* TOP */
 .topbar{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:12px 14px;border-bottom:1px solid var(--border)
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 14px;
+  border-bottom:1px solid var(--border);
 }
 .title{font-size:18px;font-weight:700}
 .status-pill{
-  background:#f4b400;color:#000;
-  font-size:11px;padding:6px 12px;border-radius:20px
+  background:#f4b400;
+  color:#000;
+  font-size:11px;
+  padding:6px 12px;
+  border-radius:20px;
+  font-weight:600;
 }
 
+/* INFO */
 .info{border-bottom:1px solid var(--border)}
 .row{display:grid;grid-template-columns:auto 1fr;border-bottom:1px solid var(--border)}
 .row.double{grid-template-columns:auto 1fr auto 1fr}
-.label{padding:6px 10px;font-size:11px;color:#9aa0a6;border-right:1px solid var(--border)}
-.value{padding:6px 10px;font-size:10px;color:var(--yellow);text-align:center}
+.label{
+  padding:6px 10px;
+  font-size:11px;
+  color:#9aa0a6;
+  border-right:1px solid var(--border);
+}
+.value{
+  padding:6px 10px;
+  font-size:10px;
+  color:var(--yellow);
+  text-align:center;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 
-.table{width:100%;border-collapse:collapse;table-layout:fixed}
+/* TABLE */
+.table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+}
 thead th{
-  background:var(--header);color:#fff;
-  font-size:11px;padding:6px;border-right:1px solid var(--border)
+  background:var(--header);
+  color:#fff;
+  font-size:11px;
+  padding:6px;
+  border-right:1px solid var(--border);
 }
 tbody td{
-  padding:4px 6px;border-bottom:1px solid #222;border-right:1px solid var(--border)
+  padding:4px 6px;
+  border-bottom:1px solid #222;
+  border-right:1px solid var(--border);
 }
+
+/* COL WIDTHS */
 .col-no{width:34px;text-align:center;font-size:10px;color:var(--grey)}
 .col-item{font-size:10px;color:var(--grey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.col-status{width:120px;text-align:center;font-size:10px;font-weight:700}
-.col-note{width:48px;font-size:9px;color:#aaa}
+.col-status{width:92px;text-align:center;font-size:10px;font-weight:700} /* 🔥 reduced */
+.col-note{width:70px;font-size:9px;color:#aaa} /* 🔥 increased */
 
+/* STATUS COLORS */
 .st-billed{background:var(--billed);color:#fff}
 .st-pending{background:var(--pending);color:#000}
-.st-unbilled{color:var(--unbilled)}
 .st-billed-ng{background:var(--billed-ng);color:#fff}
+
+/* 🔴 UNBILLED FIX */
+.st-unbilled{
+  background:none;
+  color:var(--unbilled);
+}
+
+/* PROCESS OVERLAY */
+.loader{
+  position:fixed;
+  inset:0;
+  background:#000c;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+.loader.hidden{display:none}
+.meter{
+  width:150px;height:150px;
+  border-radius:50%;
+  border:8px solid #333;
+  position:relative;
+}
+.needle{
+  width:4px;height:65px;
+  background:#f4b400;
+  position:absolute;
+  bottom:50%;left:50%;
+  transform-origin:bottom;
+  animation:sweep 1.2s linear infinite;
+}
+@keyframes sweep{
+  from{transform:rotate(-90deg)}
+  to{transform:rotate(90deg)}
+}
+.timer{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  color:#ccc;
+}
+.timer b{font-size:18px;color:#fff}
 </style>
 </head>
 
 <body>
+
+<div class="loader" id="loader">
+  <div class="meter">
+    <div class="needle"></div>
+    <div class="timer">
+      <b id="sec">0s</b>
+      <span id="perc">0%</span>
+    </div>
+  </div>
+</div>
+
 <div class="wrapper">
 <div class="jobcard">
 
@@ -113,6 +212,9 @@ tbody td{
 <script>
 const API="https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
 
+let loading=true, timerInt=null, startTime=0;
+
+/* STATUS CLASS */
 function statusClass(s){
   if(!s) return "st-unbilled";
   s=s.toLowerCase();
@@ -122,6 +224,7 @@ function statusClass(s){
   return "st-unbilled";
 }
 
+/* ITEMS */
 function renderItems(items){
   itemBody.innerHTML="";
   items.forEach((it,i)=>{
@@ -136,10 +239,30 @@ function renderItems(items){
   });
 }
 
+/* LOADER */
+function showLoader(){
+  loader.classList.remove("hidden");
+  startTime=Date.now();
+  timerInt=setInterval(()=>{
+    const s=Math.floor((Date.now()-startTime)/1000);
+    sec.innerText=s+"s";
+    perc.innerText=Math.min(95, s*10)+"%";
+  },500);
+}
+function hideLoader(){
+  clearInterval(timerInt);
+  loader.classList.add("hidden");
+}
+
+/* LOAD */
 async function loadJobcard(){
+  if(loading) showLoader();
   const r=await fetch(API,{cache:"no-store"});
   const d=await r.json();
   if(!d.ready) return;
+
+  hideLoader();
+  loading=false;
 
   aicTitle.innerText=(d.aic||"JOBCARD").toUpperCase();
   cust.innerText=d.customer_name||"";
@@ -151,7 +274,10 @@ async function loadJobcard(){
 
   renderItems(d.items||[]);
 }
+
 loadJobcard();
+setInterval(loadJobcard,30000); /* 🔥 silent auto refresh */
 </script>
+
 </body>
 </html>
