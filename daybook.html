@@ -103,12 +103,6 @@ let refreshTimer=null;
 currentDate.innerText =
 new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
 
-/* ===== BACK / BFCache FIX ===== */
-window.addEventListener("pageshow", () => {
-  hideLoader();
-  restartAutoRefresh();
-});
-
 /* ===== LOADER ===== */
 function showLoader(){
   if(timerInt) return;
@@ -177,10 +171,11 @@ function jobcardClick(row){
 }
 
 /* ===== LOAD ===== */
-async function loadDaybook(){
+async function loadDaybook(showSpin=true){
   if(isFetching) return;
   isFetching=true;
-  showLoader();
+
+  if(showSpin) showLoader();
 
   try{
     const r=await fetch(DATA_URL,{cache:"no-store"});
@@ -209,14 +204,22 @@ async function loadDaybook(){
   }
 }
 
-/* ===== AUTO REFRESH (SINGLE SOURCE OF TRUTH) ===== */
-function restartAutoRefresh(){
-  if(refreshTimer) clearInterval(refreshTimer);
-  refreshTimer=setInterval(loadDaybook,30000);
+/* ===== AUTO REFRESH ===== */
+function startAutoRefresh(){
+  if(refreshTimer) return;
+  refreshTimer=setInterval(()=>loadDaybook(false),30000);
 }
 
-loadDaybook();
-restartAutoRefresh();
+/* ===== BACK BUTTON (STABLE) ===== */
+window.addEventListener("pageshow", e=>{
+  hideLoader();
+  loadDaybook(false);   // always rehydrate once
+  startAutoRefresh();   // ensure refresh always running
+});
+
+/* INIT */
+loadDaybook(true);
+startAutoRefresh();
 </script>
 </body>
 </html>
