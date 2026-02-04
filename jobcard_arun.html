@@ -27,9 +27,10 @@ body{
 }
 
 .wrapper{padding:14px}
+
 .jobcard{
   max-width:420px;
-  margin:5px auto 0; /* 🔥 pushed down 5px */
+  margin:5px auto 0; /* pushed down */
   background:linear-gradient(180deg,#141414,#0f0f0f);
   border:1px solid var(--border);
   border-radius:14px;
@@ -93,75 +94,54 @@ tbody td{
   border-right:1px solid var(--border);
 }
 
-/* COL WIDTHS */
+/* COLUMN WIDTHS */
 .col-no{width:34px;text-align:center;font-size:10px;color:var(--grey)}
 .col-item{font-size:10px;color:var(--grey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.col-status{width:92px;text-align:center;font-size:10px;font-weight:700} /* 🔥 reduced */
-.col-note{width:70px;font-size:9px;color:#aaa} /* 🔥 increased */
+.col-status{width:88px;text-align:center;font-size:10px;font-weight:700}
+.col-note{width:76px;font-size:9px;color:#aaa}
 
 /* STATUS COLORS */
 .st-billed{background:var(--billed);color:#fff}
 .st-pending{background:var(--pending);color:#000}
 .st-billed-ng{background:var(--billed-ng);color:#fff}
+.st-unbilled{background:none;color:var(--unbilled)}
 
-/* 🔴 UNBILLED FIX */
-.st-unbilled{
-  background:none;
-  color:var(--unbilled);
-}
-
-/* PROCESS OVERLAY */
+/* LOADER */
 .loader{
   position:fixed;
   inset:0;
-  background:#000c;
+  background:#000d;
   display:flex;
   align-items:center;
   justify-content:center;
   z-index:999;
 }
 .loader.hidden{display:none}
-.meter{
-  width:150px;height:150px;
-  border-radius:50%;
-  border:8px solid #333;
-  position:relative;
+.loader-box{
+  background:#141414;
+  border:1px solid #333;
+  border-radius:14px;
+  padding:26px 32px;
+  text-align:center;
 }
-.needle{
-  width:4px;height:65px;
-  background:#f4b400;
-  position:absolute;
-  bottom:50%;left:50%;
-  transform-origin:bottom;
-  animation:sweep 1.2s linear infinite;
+.loader-box b{
+  display:block;
+  font-size:22px;
+  color:#fff;
 }
-@keyframes sweep{
-  from{transform:rotate(-90deg)}
-  to{transform:rotate(90deg)}
+.loader-box span{
+  font-size:13px;
+  color:#aaa;
 }
-.timer{
-  position:absolute;
-  inset:0;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  font-size:14px;
-  color:#ccc;
-}
-.timer b{font-size:18px;color:#fff}
 </style>
 </head>
 
 <body>
 
 <div class="loader" id="loader">
-  <div class="meter">
-    <div class="needle"></div>
-    <div class="timer">
-      <b id="sec">0s</b>
-      <span id="perc">0%</span>
-    </div>
+  <div class="loader-box">
+    <b id="perc">0%</b>
+    <span id="sec">0s</span>
   </div>
 </div>
 
@@ -212,7 +192,7 @@ tbody td{
 <script>
 const API="https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
 
-let loading=true, timerInt=null, startTime=0;
+let firstLoad=true, start=0, tInt=null;
 
 /* STATUS CLASS */
 function statusClass(s){
@@ -242,27 +222,30 @@ function renderItems(items){
 /* LOADER */
 function showLoader(){
   loader.classList.remove("hidden");
-  startTime=Date.now();
-  timerInt=setInterval(()=>{
-    const s=Math.floor((Date.now()-startTime)/1000);
+  start=Date.now();
+  tInt=setInterval(()=>{
+    const s=Math.floor((Date.now()-start)/1000);
     sec.innerText=s+"s";
-    perc.innerText=Math.min(95, s*10)+"%";
-  },500);
+    perc.innerText=Math.min(95,s*12)+"%";
+  },400);
 }
 function hideLoader(){
-  clearInterval(timerInt);
+  clearInterval(tInt);
   loader.classList.add("hidden");
 }
 
 /* LOAD */
 async function loadJobcard(){
-  if(loading) showLoader();
+  if(firstLoad) showLoader();
+
   const r=await fetch(API,{cache:"no-store"});
   const d=await r.json();
   if(!d.ready) return;
 
-  hideLoader();
-  loading=false;
+  if(firstLoad){
+    hideLoader();
+    firstLoad=false;
+  }
 
   aicTitle.innerText=(d.aic||"JOBCARD").toUpperCase();
   cust.innerText=d.customer_name||"";
@@ -276,7 +259,7 @@ async function loadJobcard(){
 }
 
 loadJobcard();
-setInterval(loadJobcard,30000); /* 🔥 silent auto refresh */
+setInterval(loadJobcard,30000);
 </script>
 
 </body>
