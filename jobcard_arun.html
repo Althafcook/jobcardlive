@@ -17,6 +17,7 @@
   --unbilled:#ff5c5c;
   --billed-ng:#1f3b73;
 }
+
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
 
@@ -50,8 +51,14 @@ body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
 
 /* INFO */
 .info{border-bottom:1px solid var(--border)}
-.row{display:grid;grid-template-columns:auto 1fr;border-bottom:1px solid var(--border)}
-.row.double{grid-template-columns:auto 1fr auto 1fr}
+.row{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  border-bottom:1px solid var(--border)
+}
+.row.double{
+  grid-template-columns:auto 1fr auto 1fr
+}
 .label{
   padding:6px 10px;
   font-size:11px;
@@ -66,6 +73,12 @@ body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+}
+
+/* 🔥 CRITICAL FIX: proper separation */
+.row.double .label:nth-child(3),
+.row.double .value:nth-child(4){
+  border-left:1px solid var(--border);
 }
 
 /* TABLE */
@@ -95,7 +108,7 @@ tbody td{
   text-align:center;
   font-size:10px;
   font-weight:700;
-  white-space:nowrap; /* mobile wrap fix */
+  white-space:nowrap;
 }
 .col-note{width:70px;font-size:9px;color:#aaa}
 
@@ -103,16 +116,39 @@ tbody td{
 .st-billed{background:var(--billed);color:#fff}
 .st-pending{background:var(--pending);color:#000}
 .st-billed-ng{background:var(--billed-ng);color:#fff}
+.st-unbilled{background:none;color:var(--unbilled)}
 
-/* UNBILLED */
-.st-unbilled{
-  background:none;
-  color:var(--unbilled);
+/* LOADER */
+.loader{
+  position:fixed;
+  inset:0;
+  background:#000c;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
 }
+.loader.hidden{display:none}
+.load-card{
+  padding:24px 30px;
+  border-radius:14px;
+  background:#111;
+  border:1px solid #333;
+  text-align:center;
+}
+.load-card b{font-size:22px}
+.load-card span{font-size:12px;color:#aaa}
 </style>
 </head>
 
 <body>
+
+<div class="loader" id="loader">
+  <div class="load-card">
+    <b id="perc">0%</b><br>
+    <span id="sec">0s loading…</span>
+  </div>
+</div>
 
 <div class="wrapper">
 <div class="jobcard">
@@ -161,17 +197,29 @@ tbody td{
 <script>
 const API="https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
 
-/* STATUS CLASS */
+let t0=Date.now(), tInt;
+
+function showLoader(){
+  tInt=setInterval(()=>{
+    const s=Math.floor((Date.now()-t0)/1000);
+    sec.innerText=s+"s loading…";
+    perc.innerText=Math.min(99,s*12)+"%";
+  },500);
+}
+function hideLoader(){
+  clearInterval(tInt);
+  loader.classList.add("hidden");
+}
+
 function statusClass(s){
   if(!s) return "st-unbilled";
   s=s.toLowerCase();
   if(s.includes("billed") && s.includes("not")) return "st-billed-ng";
-  if(s === "billed") return "st-billed";
+  if(s==="billed") return "st-billed";
   if(s.includes("pend")) return "st-pending";
   return "st-unbilled";
 }
 
-/* ITEMS */
 function renderItems(items){
   itemBody.innerHTML="";
   items.forEach((it,i)=>{
@@ -186,33 +234,27 @@ function renderItems(items){
   });
 }
 
-/* LOAD */
 async function loadJobcard(){
+  showLoader();
   const r=await fetch(API,{cache:"no-store"});
   const d=await r.json();
   if(!d.ready) return;
+
+  hideLoader();
 
   aicTitle.innerText=(d.aic||"JOBCARD").toUpperCase();
   cust.innerText=d.customer_name||"";
   chassis.innerText=d.chase_no||"";
   vehicle.innerText=d.vehicle||"";
   color.innerText=d.color||"";
-
-  /* ✅ EXECUTIVE HARD FIX */
-  exec.innerText =
-    d.executive ||
-    d.exec ||
-    d.Executive ||
-    d.EXECUTIVE ||
-    "";
-
+  exec.innerText=d.executive||"";
   workStatus.innerText=d.work_status||"";
 
   renderItems(d.items||[]);
 }
 
 loadJobcard();
-setInterval(loadJobcard,30000); // silent auto refresh
+setInterval(loadJobcard,30000);
 </script>
 
 </body>
