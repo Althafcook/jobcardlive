@@ -17,13 +17,20 @@
   --unbilled:#ff5c5c;
   --billed-ng:#1f3b73;
 }
+
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
+body{
+  margin:0;
+  background:var(--bg);
+  font-family:system-ui;
+  color:#fff;
+}
 
 .wrapper{padding:14px}
+
 .jobcard{
   max-width:420px;
-  margin:5px auto 0;
+  margin:5px auto 0; /* pushed down */
   background:linear-gradient(180deg,#141414,#0f0f0f);
   border:1px solid var(--border);
   border-radius:14px;
@@ -87,32 +94,56 @@ tbody td{
   border-right:1px solid var(--border);
 }
 
-/* COLS */
+/* COLUMN WIDTHS */
 .col-no{width:34px;text-align:center;font-size:10px;color:var(--grey)}
 .col-item{font-size:10px;color:var(--grey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.col-status{
-  width:92px;
-  text-align:center;
-  font-size:10px;
-  font-weight:700;
-  white-space:nowrap;      /* 🔥 mobile wrap fix */
-}
-.col-note{width:70px;font-size:9px;color:#aaa}
+.col-status{width:88px;text-align:center;font-size:10px;font-weight:700}
+.col-note{width:76px;font-size:9px;color:#aaa}
 
-/* STATUS */
+/* STATUS COLORS */
 .st-billed{background:var(--billed);color:#fff}
 .st-pending{background:var(--pending);color:#000}
 .st-billed-ng{background:var(--billed-ng);color:#fff}
+.st-unbilled{background:none;color:var(--unbilled)}
 
-/* 🔴 UNBILLED FIX */
-.st-unbilled{
-  background:none;
-  color:var(--unbilled);
+/* LOADER */
+.loader{
+  position:fixed;
+  inset:0;
+  background:#000d;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+.loader.hidden{display:none}
+.loader-box{
+  background:#141414;
+  border:1px solid #333;
+  border-radius:14px;
+  padding:26px 32px;
+  text-align:center;
+}
+.loader-box b{
+  display:block;
+  font-size:22px;
+  color:#fff;
+}
+.loader-box span{
+  font-size:13px;
+  color:#aaa;
 }
 </style>
 </head>
 
 <body>
+
+<div class="loader" id="loader">
+  <div class="loader-box">
+    <b id="perc">0%</b>
+    <span id="sec">0s</span>
+  </div>
+</div>
 
 <div class="wrapper">
 <div class="jobcard">
@@ -161,6 +192,8 @@ tbody td{
 <script>
 const API="https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
 
+let firstLoad=true, start=0, tInt=null;
+
 /* STATUS CLASS */
 function statusClass(s){
   if(!s) return "st-unbilled";
@@ -186,21 +219,40 @@ function renderItems(items){
   });
 }
 
+/* LOADER */
+function showLoader(){
+  loader.classList.remove("hidden");
+  start=Date.now();
+  tInt=setInterval(()=>{
+    const s=Math.floor((Date.now()-start)/1000);
+    sec.innerText=s+"s";
+    perc.innerText=Math.min(95,s*12)+"%";
+  },400);
+}
+function hideLoader(){
+  clearInterval(tInt);
+  loader.classList.add("hidden");
+}
+
 /* LOAD */
 async function loadJobcard(){
+  if(firstLoad) showLoader();
+
   const r=await fetch(API,{cache:"no-store"});
   const d=await r.json();
   if(!d.ready) return;
+
+  if(firstLoad){
+    hideLoader();
+    firstLoad=false;
+  }
 
   aicTitle.innerText=(d.aic||"JOBCARD").toUpperCase();
   cust.innerText=d.customer_name||"";
   chassis.innerText=d.chase_no||"";
   vehicle.innerText=d.vehicle||"";
   color.innerText=d.color||"";
-
-  /* 🔥 EXECUTIVE FIX */
-  exec.innerText = d.executive || d.exec || d.Executive || "";
-
+  exec.innerText=d.executive||"";
   workStatus.innerText=d.work_status||"";
 
   renderItems(d.items||[]);
