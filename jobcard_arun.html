@@ -10,7 +10,6 @@
   --bg:#0b0b0b;
   --border:#3a3a3a;
   --header:#1f4e79;
-  --white:#ffffff;
   --lite:#9aa0a6;
   --grey:#b5b5b5;
   --billed:#35c46a;
@@ -52,10 +51,7 @@ body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
 .load-card span{font-size:12px;color:#aaa}
 
 /* TOP */
-.topbar{
-  padding:10px 14px;
-  border-bottom:1px solid var(--border);
-}
+.topbar{padding:10px 14px;border-bottom:1px solid var(--border)}
 .top-dates{
   display:flex;
   gap:10px;
@@ -80,14 +76,8 @@ body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
 
 /* INFO */
 .info{border-bottom:1px solid var(--border)}
-.row{
-  display:grid;
-  grid-template-columns:auto 1fr;
-  border-bottom:1px solid var(--border);
-}
-.row.double{
-  grid-template-columns:auto 1fr auto 1fr;
-}
+.row{display:grid;grid-template-columns:auto 1fr;border-bottom:1px solid var(--border)}
+.row.double{grid-template-columns:auto 1fr auto 1fr}
 .label{
   padding:6px 10px;
   font-size:11px;
@@ -97,25 +87,19 @@ body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
 .value{
   padding:6px 10px;
   font-size:10px;
-  color:var(--yellow);
+  color:#f2d23c;
   text-align:center;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
-
-/* 🔥 correct separation */
 .row.double .label:nth-child(3),
 .row.double .value:nth-child(4){
   border-left:1px solid var(--border);
 }
 
 /* TABLE */
-.table{
-  width:100%;
-  border-collapse:collapse;
-  table-layout:fixed;
-}
+.table{width:100%;border-collapse:collapse;table-layout:fixed}
 thead th{
   background:var(--header);
   color:#fff;
@@ -132,13 +116,7 @@ tbody td{
 /* COLS */
 .col-no{width:34px;text-align:center;font-size:10px;color:var(--grey)}
 .col-item{font-size:10px;color:var(--grey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.col-status{
-  width:92px;
-  text-align:center;
-  font-size:10px;
-  font-weight:700;
-  white-space:nowrap;
-}
+.col-status{width:92px;text-align:center;font-size:10px;font-weight:700;white-space:nowrap}
 .col-note{width:70px;font-size:9px;color:#aaa}
 
 /* STATUS */
@@ -178,14 +156,12 @@ tbody td{
     <div class="label">Customer Name</div>
     <div class="value" id="cust"></div>
   </div>
-
   <div class="row double">
     <div class="label">Chassis No</div>
     <div class="value" id="chassis"></div>
     <div class="label">Vehicle</div>
     <div class="value" id="vehicle"></div>
   </div>
-
   <div class="row double">
     <div class="label">Color</div>
     <div class="value" id="color"></div>
@@ -212,8 +188,10 @@ tbody td{
 <script>
 const API="https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
 
-let t0=Date.now(), tInt;
+let isFirstLoad = true;
+let t0 = Date.now(), tInt;
 
+/* ---------- LOADER ---------- */
 function showLoader(){
   loader.classList.remove("hidden");
   tInt=setInterval(()=>{
@@ -227,6 +205,22 @@ function hideLoader(){
   loader.classList.add("hidden");
 }
 
+/* ---------- RESET UI (🔥 FIX OLD DATA) ---------- */
+function resetUI(){
+  recDate.innerText="";
+  workDate.innerText="";
+  age.innerText="";
+  aicTitle.innerText="JOBCARD";
+  cust.innerText="";
+  chassis.innerText="";
+  vehicle.innerText="";
+  color.innerText="";
+  exec.innerText="";
+  workStatus.innerText="";
+  itemBody.innerHTML="";
+}
+
+/* ---------- STATUS ---------- */
 function statusClass(s){
   if(!s) return "st-unbilled";
   s=s.toLowerCase();
@@ -250,13 +244,22 @@ function renderItems(items){
   });
 }
 
+/* ---------- LOAD ---------- */
 async function loadJobcard(){
-  showLoader();
+  if(isFirstLoad) showLoader();
+
   const r=await fetch(API,{cache:"no-store"});
   const d=await r.json();
-  if(!d.ready) return;
 
-  hideLoader();
+  if(!d.ready){
+    resetUI();           // 🔥 prevent old data flash
+    return;
+  }
+
+  if(isFirstLoad){
+    hideLoader();
+    isFirstLoad=false;   // 🔥 next refresh silent
+  }
 
   recDate.innerText="Rec: "+(d.jobcard_rec_date||"");
   workDate.innerText="Work: "+(d.work_provided_date||"");
@@ -274,7 +277,7 @@ async function loadJobcard(){
 }
 
 loadJobcard();
-setInterval(loadJobcard,30000); // silent refresh
+setInterval(loadJobcard,30000); // ✅ silent auto refresh
 </script>
 
 </body>
