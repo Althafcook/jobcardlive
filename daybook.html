@@ -301,15 +301,11 @@ const JOBCARD_API =
 "https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
 
 function jobcardClick(row){
-  // remember expected chase
-  sessionStorage.setItem("EXPECTED_CHASE", row.chassis);
-
   fetch(
     JOBCARD_API + "?mode=setChase&chase=" + encodeURIComponent(row.chassis),
     { mode:"no-cors" }
   );
-
-  location.href = "jobcard_arun.html";
+  location.href="jobcard_arun.html";
 }
 
 /* ================= STATE SAVE / RESTORE ================= */
@@ -382,4 +378,5 @@ setInterval(loadDaybook,30000);
 </script>
 </body>
 </html>
+
 
