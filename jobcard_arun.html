@@ -186,38 +186,30 @@ tbody td{
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
+const API =
+"https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
 
-let isFirstLoad = true;
-let t0 = Date.now(), tInt;
+const expectedChase = sessionStorage.getItem("EXPECTED_CHASE") || "";
+let firstLoad = true;
+let polling = false;
+let pollTimer = null;
 
 /* ---------- LOADER ---------- */
+let t0 = Date.now(), tInt;
+
 function showLoader(){
   loader.classList.remove("hidden");
-  tInt=setInterval(()=>{
-    const s=Math.floor((Date.now()-t0)/1000);
-    sec.innerText=s+"s loading…";
-    perc.innerText=Math.min(99,s*12)+"%";
+  t0 = Date.now();
+  tInt = setInterval(()=>{
+    const s = Math.floor((Date.now()-t0)/1000);
+    sec.innerText = s + "s loading…";
+    perc.innerText = Math.min(99, s*12) + "%";
   },500);
 }
+
 function hideLoader(){
   clearInterval(tInt);
   loader.classList.add("hidden");
-}
-
-/* ---------- RESET UI (🔥 FIX OLD DATA) ---------- */
-function resetUI(){
-  recDate.innerText="";
-  workDate.innerText="";
-  age.innerText="";
-  aicTitle.innerText="JOBCARD";
-  cust.innerText="";
-  chassis.innerText="";
-  vehicle.innerText="";
-  color.innerText="";
-  exec.innerText="";
-  workStatus.innerText="";
-  itemBody.innerHTML="";
 }
 
 /* ---------- STATUS ---------- */
@@ -230,6 +222,7 @@ function statusClass(s){
   return "st-unbilled";
 }
 
+/* ---------- ITEMS ---------- */
 function renderItems(items){
   itemBody.innerHTML="";
   items.forEach((it,i)=>{
@@ -244,40 +237,70 @@ function renderItems(items){
   });
 }
 
-/* ---------- LOAD ---------- */
-async function loadJobcard(){
-  if(isFirstLoad) showLoader();
+/* ---------- APPLY DATA ---------- */
+function applyJobcard(d){
+  recDate.innerText  = "Rec: "  + (d.jobcard_rec_date||"");
+  workDate.innerText = "Work: " + (d.work_provided_date||"");
+  age.innerText      = "Age: "  + (d.jobcard_age||"");
 
-  const r=await fetch(API,{cache:"no-store"});
-  const d=await r.json();
-
-  if(!d.ready){
-    resetUI();           // 🔥 prevent old data flash
-    return;
-  }
-
-  if(isFirstLoad){
-    hideLoader();
-    isFirstLoad=false;   // 🔥 next refresh silent
-  }
-
-  recDate.innerText="Rec: "+(d.jobcard_rec_date||"");
-  workDate.innerText="Work: "+(d.work_provided_date||"");
-  age.innerText="Age: "+(d.jobcard_age||"");
-
-  aicTitle.innerText=(d.aic||"JOBCARD").toUpperCase();
-  cust.innerText=d.customer_name||"";
-  chassis.innerText=d.chase_no||"";
-  vehicle.innerText=d.vehicle||"";
-  color.innerText=d.color||"";
-  exec.innerText=d.executive||"";
-  workStatus.innerText=d.work_status||"";
+  aicTitle.innerText = (d.aic||"JOBCARD").toUpperCase();
+  cust.innerText     = d.customer_name||"";
+  chassis.innerText  = d.chase_no||"";
+  vehicle.innerText  = d.vehicle||"";
+  color.innerText    = d.color||"";
+  exec.innerText     = d.executive||"";
+  workStatus.innerText = d.work_status||"";
 
   renderItems(d.items||[]);
 }
 
-loadJobcard();
-setInterval(loadJobcard,30000); // ✅ silent auto refresh
+/* ---------- POLLING LOGIC ---------- */
+async function pollUntilMatch(){
+  if(polling) return;
+  polling = true;
+
+  if(firstLoad) showLoader();
+
+  pollTimer = setInterval(async ()=>{
+    const r = await fetch(API,{cache:"no-store"});
+    const d = await r.json();
+
+    if(!d.ready) return;
+
+    // 🔥 KEY FIX: wait until chase matches
+    if(expectedChase && d.chase_no !== expectedChase){
+      return; // still old data → wait
+    }
+
+    clearInterval(pollTimer);
+    polling = false;
+
+    if(firstLoad){
+      hideLoader();
+      firstLoad = false;
+    }
+
+    applyJobcard(d);
+
+  }, 700); // smooth polling
+}
+
+/* ---------- SILENT REFRESH ---------- */
+async function silentRefresh(){
+  if(polling) return;
+
+  const r = await fetch(API,{cache:"no-store"});
+  const d = await r.json();
+  if(!d.ready) return;
+
+  if(expectedChase && d.chase_no !== expectedChase) return;
+
+  applyJobcard(d);
+}
+
+/* ---------- INIT ---------- */
+pollUntilMatch();
+setInterval(silentRefresh, 30000);
 </script>
 
 </body>
