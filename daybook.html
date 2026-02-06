@@ -91,19 +91,25 @@ tbody tr:hover{background:#1a1a1a}
 </div>
 
 <script>
+/* ================= CONFIG ================= */
 const DATA_URL =
 "https://script.google.com/macros/s/AKfycbz0v1ohNeufeJNvvbcuydkNAPgG_YL9YIGsf-1DRp4rd3mjcGd-NQocWfOgPqbknr8X/exec";
 
 const STATE_KEY = "DAYBOOK_STATE";
 const forceFresh = new URLSearchParams(location.search).has("ts");
 
-let allRows=[], currentFilter="TOTAL";
-let isFetching=false, timerInt=null, firstLoad=true;
+/* ================= STATE ================= */
+let allRows=[];
+let currentFilter="TOTAL";
+let isFetching=false;
+let firstLoad=true;
+let timerInt=null;
 
+/* DATE */
 currentDate.innerText =
 new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
 
-/* LOADER */
+/* ================= LOADER ================= */
 function showLoader(){
   if(timerInt) return;
   let start=Date.now();
@@ -118,7 +124,7 @@ function hideLoader(){
   loader.classList.add("hidden");
 }
 
-/* SUMMARY */
+/* ================= SUMMARY ================= */
 const aicClass=n=>({Arun:"aic-arun",Siyad:"aic-siyad",Sajid:"aic-sajid",Ashraf:"aic-ashraf"}[n]||"");
 
 function renderSummary(rows){
@@ -137,7 +143,7 @@ function setFilter(f){
   renderTable();
 }
 
-/* TABLE */
+/* ================= TABLE ================= */
 function renderTable(){
   daybookBody.innerHTML="";
   const rows=currentFilter==="TOTAL"?allRows:allRows.filter(r=>r.aic===currentFilter);
@@ -158,14 +164,17 @@ function renderTable(){
   });
 }
 
-/* CLICK */
+/* ================= CLICK ================= */
 function jobcardClick(row){
   sessionStorage.setItem("EXPECTED_CHASE", row.chassis);
-  fetch("https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec?mode=setChase&chase="+encodeURIComponent(row.chassis),{mode:"no-cors"});
+  fetch(
+    "https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec?mode=setChase&chase="+encodeURIComponent(row.chassis),
+    {mode:"no-cors"}
+  );
   location.href="jobcard_arun.html";
 }
 
-/* STATE */
+/* ================= STATE ================= */
 function saveState(){
   sessionStorage.setItem(STATE_KEY, JSON.stringify({rows:allRows,filter:currentFilter}));
 }
@@ -178,17 +187,22 @@ function restoreState(){
     currentFilter=s.filter||"TOTAL";
     renderSummary(allRows);
     renderTable();
-    hideLoader();           // 🔥 FIX: force hide
+    hideLoader();        // ✅ NEVER show loader on back
     firstLoad=false;
     return true;
   }catch(e){return false}
 }
 
-/* LOAD */
+/* ================= LOAD ================= */
 async function loadDaybook(){
   if(isFetching) return;
   isFetching=true;
-  showLoader();
+
+  // 🔥 show loader ONLY if no data yet
+  if(firstLoad && allRows.length===0){
+    showLoader();
+  }
+
   try{
     const r=await fetch(DATA_URL,{cache:"no-store"});
     const d=await r.json();
@@ -206,22 +220,23 @@ async function loadDaybook(){
   }
 }
 
-/* BFCache */
+/* ================= BFCache ================= */
 window.addEventListener("pageshow",e=>{
   if(e.persisted && !forceFresh){
     restoreState();
   }
 });
 
-/* INIT */
+/* ================= INIT ================= */
 if(forceFresh){
   sessionStorage.removeItem(STATE_KEY);
-  loadDaybook();            // 🔥 ALWAYS fresh
+  loadDaybook();
 }else if(!restoreState()){
   loadDaybook();
 }
 
 setInterval(loadDaybook,30000);
 </script>
+
 </body>
 </html>
