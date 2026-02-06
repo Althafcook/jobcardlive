@@ -210,23 +210,36 @@ tbody td{
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
+const API =
+"https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
 
-let t0=Date.now(), tInt;
+const expectedChase = sessionStorage.getItem("EXPECTED_CHASE") || "";
+
+let firstLoad = true;
+let polling = false;
+let pollTimer = null;
+let pollStart = 0;
+
+/* ---------- LOADER ---------- */
+let t0 = 0, tInt = null;
 
 function showLoader(){
   loader.classList.remove("hidden");
-  tInt=setInterval(()=>{
-    const s=Math.floor((Date.now()-t0)/1000);
-    sec.innerText=s+"s loading…";
-    perc.innerText=Math.min(99,s*12)+"%";
+  t0 = Date.now();
+  tInt = setInterval(()=>{
+    const s = Math.floor((Date.now()-t0)/1000);
+    sec.innerText = s + "s loading…";
+    perc.innerText = Math.min(99, s*12) + "%";
   },500);
 }
+
 function hideLoader(){
   clearInterval(tInt);
+  tInt = null;
   loader.classList.add("hidden");
 }
 
+/* ---------- STATUS ---------- */
 function statusClass(s){
   if(!s) return "st-unbilled";
   s=s.toLowerCase();
@@ -236,6 +249,7 @@ function statusClass(s){
   return "st-unbilled";
 }
 
+/* ---------- ITEMS ---------- */
 function renderItems(items){
   itemBody.innerHTML="";
   items.forEach((it,i)=>{
@@ -250,31 +264,80 @@ function renderItems(items){
   });
 }
 
-async function loadJobcard(){
-  showLoader();
-  const r=await fetch(API,{cache:"no-store"});
-  const d=await r.json();
-  if(!d.ready) return;
+/* ---------- APPLY DATA ---------- */
+function applyJobcard(d){
+  recDate.innerText  = "Rec: "  + (d.jobcard_rec_date||"");
+  workDate.innerText = "Work: " + (d.work_provided_date||"");
+  age.innerText      = "Age: "  + (d.jobcard_age||"");
 
-  hideLoader();
-
-  recDate.innerText="Rec: "+(d.jobcard_rec_date||"");
-  workDate.innerText="Work: "+(d.work_provided_date||"");
-  age.innerText="Age: "+(d.jobcard_age||"");
-
-  aicTitle.innerText=(d.aic||"JOBCARD").toUpperCase();
-  cust.innerText=d.customer_name||"";
-  chassis.innerText=d.chase_no||"";
-  vehicle.innerText=d.vehicle||"";
-  color.innerText=d.color||"";
-  exec.innerText=d.executive||"";
-  workStatus.innerText=d.work_status||"";
+  aicTitle.innerText = (d.aic||"JOBCARD").toUpperCase();
+  cust.innerText     = d.customer_name||"";
+  chassis.innerText  = d.chase_no||"";
+  vehicle.innerText  = d.vehicle||"";
+  color.innerText    = d.color||"";
+  exec.innerText     = d.executive||"";
+  workStatus.innerText = d.work_status||"";
 
   renderItems(d.items||[]);
 }
 
-loadJobcard();
-setInterval(loadJobcard,30000); // silent refresh
+/* ---------- POLL UNTIL CORRECT CHASE ---------- */
+async function pollUntilMatch(){
+  if(polling) return;
+  polling = true;
+  pollStart = Date.now();
+
+  if(firstLoad) showLoader();
+
+  pollTimer = setInterval(async ()=>{
+    const r = await fetch(API,{cache:"no-store"});
+    const d = await r.json();
+
+    if(!d.ready) return;
+
+    // ✅ wait until correct chase arrives
+    if(expectedChase && d.chase_no !== expectedChase){
+      // ⛑️ safety timeout (8s)
+      if(Date.now() - pollStart > 8000){
+        console.warn("Chase delay timeout → force load");
+        finishLoad(d);
+      }
+      return;
+    }
+
+    finishLoad(d);
+
+  }, 600);
+}
+
+function finishLoad(d){
+  clearInterval(pollTimer);
+  polling = false;
+
+  if(firstLoad){
+    hideLoader();
+    firstLoad = false;
+  }
+
+  applyJobcard(d);
+}
+
+/* ---------- SILENT AUTO REFRESH ---------- */
+async function silentRefresh(){
+  if(polling) return;
+
+  const r = await fetch(API,{cache:"no-store"});
+  const d = await r.json();
+  if(!d.ready) return;
+
+  if(expectedChase && d.chase_no !== expectedChase) return;
+
+  applyJobcard(d);
+}
+
+/* ---------- INIT ---------- */
+pollUntilMatch();
+setInterval(silentRefresh, 30000);
 </script>
 
 </body>
