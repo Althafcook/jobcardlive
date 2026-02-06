@@ -52,10 +52,9 @@ canvas{
 
 /* MENU */
 .menu{
-  position:relative;
   display:flex;
   flex-direction:column;
-  gap:18px;
+  gap:18px;   /* ✅ gap restored */
 }
 
 /* BUTTON */
@@ -113,7 +112,9 @@ canvas{
     <span class="live"> LIVE</span>
   </div>
 
-  <div class="btn" onclick="location.href='daybook.html?ts=' + Date.now()">Daybook</div>
+  <!-- ✅ MENU FIX -->
+  <div class="menu">
+    <div class="btn" onclick="openDaybook()">Daybook</div>
     <div class="btn">Search</div>
     <div class="btn">Workbook</div>
   </div>
@@ -123,6 +124,12 @@ canvas{
 <button class="admin-btn" id="adminBtn">Admin</button>
 
 <script>
+/* DAYBOOK OPEN – FORCE FRESH */
+function openDaybook(){
+  sessionStorage.removeItem("EXPECTED_CHASE"); // ✅ clear old state
+  location.href = "daybook.html?ts=" + Date.now(); // ✅ force reload
+}
+
 /* ADMIN LOGIN */
 document.getElementById("adminBtn").onclick = () => {
   const u = prompt("Admin username:");
