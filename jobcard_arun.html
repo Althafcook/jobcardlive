@@ -10,6 +10,7 @@
   --bg:#0b0b0b;
   --border:#3a3a3a;
   --header:#1f4e79;
+  --white:#ffffff;
   --lite:#9aa0a6;
   --grey:#b5b5b5;
   --billed:#35c46a;
@@ -51,7 +52,10 @@ body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
 .load-card span{font-size:12px;color:#aaa}
 
 /* TOP */
-.topbar{padding:10px 14px;border-bottom:1px solid var(--border)}
+.topbar{
+  padding:10px 14px;
+  border-bottom:1px solid var(--border);
+}
 .top-dates{
   display:flex;
   gap:10px;
@@ -76,8 +80,14 @@ body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
 
 /* INFO */
 .info{border-bottom:1px solid var(--border)}
-.row{display:grid;grid-template-columns:auto 1fr;border-bottom:1px solid var(--border)}
-.row.double{grid-template-columns:auto 1fr auto 1fr}
+.row{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  border-bottom:1px solid var(--border);
+}
+.row.double{
+  grid-template-columns:auto 1fr auto 1fr;
+}
 .label{
   padding:6px 10px;
   font-size:11px;
@@ -87,19 +97,25 @@ body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
 .value{
   padding:6px 10px;
   font-size:10px;
-  color:#f2d23c;
+  color:var(--yellow);
   text-align:center;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
+
+/* 🔥 correct separation */
 .row.double .label:nth-child(3),
 .row.double .value:nth-child(4){
   border-left:1px solid var(--border);
 }
 
 /* TABLE */
-.table{width:100%;border-collapse:collapse;table-layout:fixed}
+.table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+}
 thead th{
   background:var(--header);
   color:#fff;
@@ -116,7 +132,13 @@ tbody td{
 /* COLS */
 .col-no{width:34px;text-align:center;font-size:10px;color:var(--grey)}
 .col-item{font-size:10px;color:var(--grey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.col-status{width:92px;text-align:center;font-size:10px;font-weight:700;white-space:nowrap}
+.col-status{
+  width:92px;
+  text-align:center;
+  font-size:10px;
+  font-weight:700;
+  white-space:nowrap;
+}
 .col-note{width:70px;font-size:9px;color:#aaa}
 
 /* STATUS */
@@ -156,12 +178,14 @@ tbody td{
     <div class="label">Customer Name</div>
     <div class="value" id="cust"></div>
   </div>
+
   <div class="row double">
     <div class="label">Chassis No</div>
     <div class="value" id="chassis"></div>
     <div class="label">Vehicle</div>
     <div class="value" id="vehicle"></div>
   </div>
+
   <div class="row double">
     <div class="label">Color</div>
     <div class="value" id="color"></div>
@@ -186,33 +210,23 @@ tbody td{
 </div>
 
 <script>
-const API =
-"https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
+const API="https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
 
-const expectedChase = sessionStorage.getItem("EXPECTED_CHASE") || "";
-let firstLoad = true;
-let polling = false;
-let pollTimer = null;
-
-/* ---------- LOADER ---------- */
-let t0 = Date.now(), tInt;
+let t0=Date.now(), tInt;
 
 function showLoader(){
   loader.classList.remove("hidden");
-  t0 = Date.now();
-  tInt = setInterval(()=>{
-    const s = Math.floor((Date.now()-t0)/1000);
-    sec.innerText = s + "s loading…";
-    perc.innerText = Math.min(99, s*12) + "%";
+  tInt=setInterval(()=>{
+    const s=Math.floor((Date.now()-t0)/1000);
+    sec.innerText=s+"s loading…";
+    perc.innerText=Math.min(99,s*12)+"%";
   },500);
 }
-
 function hideLoader(){
   clearInterval(tInt);
   loader.classList.add("hidden");
 }
 
-/* ---------- STATUS ---------- */
 function statusClass(s){
   if(!s) return "st-unbilled";
   s=s.toLowerCase();
@@ -222,7 +236,6 @@ function statusClass(s){
   return "st-unbilled";
 }
 
-/* ---------- ITEMS ---------- */
 function renderItems(items){
   itemBody.innerHTML="";
   items.forEach((it,i)=>{
@@ -237,70 +250,31 @@ function renderItems(items){
   });
 }
 
-/* ---------- APPLY DATA ---------- */
-function applyJobcard(d){
-  recDate.innerText  = "Rec: "  + (d.jobcard_rec_date||"");
-  workDate.innerText = "Work: " + (d.work_provided_date||"");
-  age.innerText      = "Age: "  + (d.jobcard_age||"");
+async function loadJobcard(){
+  showLoader();
+  const r=await fetch(API,{cache:"no-store"});
+  const d=await r.json();
+  if(!d.ready) return;
 
-  aicTitle.innerText = (d.aic||"JOBCARD").toUpperCase();
-  cust.innerText     = d.customer_name||"";
-  chassis.innerText  = d.chase_no||"";
-  vehicle.innerText  = d.vehicle||"";
-  color.innerText    = d.color||"";
-  exec.innerText     = d.executive||"";
-  workStatus.innerText = d.work_status||"";
+  hideLoader();
+
+  recDate.innerText="Rec: "+(d.jobcard_rec_date||"");
+  workDate.innerText="Work: "+(d.work_provided_date||"");
+  age.innerText="Age: "+(d.jobcard_age||"");
+
+  aicTitle.innerText=(d.aic||"JOBCARD").toUpperCase();
+  cust.innerText=d.customer_name||"";
+  chassis.innerText=d.chase_no||"";
+  vehicle.innerText=d.vehicle||"";
+  color.innerText=d.color||"";
+  exec.innerText=d.executive||"";
+  workStatus.innerText=d.work_status||"";
 
   renderItems(d.items||[]);
 }
 
-/* ---------- POLLING LOGIC ---------- */
-async function pollUntilMatch(){
-  if(polling) return;
-  polling = true;
-
-  if(firstLoad) showLoader();
-
-  pollTimer = setInterval(async ()=>{
-    const r = await fetch(API,{cache:"no-store"});
-    const d = await r.json();
-
-    if(!d.ready) return;
-
-    // 🔥 KEY FIX: wait until chase matches
-    if(expectedChase && d.chase_no !== expectedChase){
-      return; // still old data → wait
-    }
-
-    clearInterval(pollTimer);
-    polling = false;
-
-    if(firstLoad){
-      hideLoader();
-      firstLoad = false;
-    }
-
-    applyJobcard(d);
-
-  }, 700); // smooth polling
-}
-
-/* ---------- SILENT REFRESH ---------- */
-async function silentRefresh(){
-  if(polling) return;
-
-  const r = await fetch(API,{cache:"no-store"});
-  const d = await r.json();
-  if(!d.ready) return;
-
-  if(expectedChase && d.chase_no !== expectedChase) return;
-
-  applyJobcard(d);
-}
-
-/* ---------- INIT ---------- */
-pollUntilMatch();
-setInterval(silentRefresh, 30000);
+loadJobcard();
+setInterval(loadJobcard,30000); // silent refresh
 </script>
 
 </body>
