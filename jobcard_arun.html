@@ -11,13 +11,13 @@
   --border:#3a3a3a;
   --header:#1f4e79;
   --yellow:#f2d23c;
+  --lite:#9aa0a6;
   --grey:#b5b5b5;
   --billed:#35c46a;
   --pending:#f2d23c;
   --unbilled:#ff5c5c;
   --billed-ng:#1f3b73;
 }
-
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
 
@@ -31,13 +31,42 @@ body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
   overflow:hidden;
 }
 
+/* LOADER */
+.loader{
+  position:fixed; inset:0;
+  background:#000c;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+.loader.hidden{display:none}
+.load-card{
+  padding:24px 30px;
+  border-radius:14px;
+  background:#111;
+  border:1px solid #333;
+  text-align:center;
+}
+.load-card b{font-size:22px}
+.load-card span{font-size:12px;color:#aaa}
+
 /* TOP */
 .topbar{
+  padding:10px 14px;
+  border-bottom:1px solid var(--border);
+}
+.top-dates{
+  display:flex;
+  gap:10px;
+  font-size:10px;
+  color:#888;
+  margin-bottom:6px;
+}
+.top-main{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:12px 14px;
-  border-bottom:1px solid var(--border);
 }
 .title{font-size:18px;font-weight:700}
 .status-pill{
@@ -54,15 +83,15 @@ body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
 .row{
   display:grid;
   grid-template-columns:auto 1fr;
-  border-bottom:1px solid var(--border)
+  border-bottom:1px solid var(--border);
 }
 .row.double{
-  grid-template-columns:auto 1fr auto 1fr
+  grid-template-columns:auto 1fr auto 1fr;
 }
 .label{
   padding:6px 10px;
   font-size:11px;
-  color:#9aa0a6;
+  color:var(--lite);
   border-right:1px solid var(--border);
 }
 .value{
@@ -75,7 +104,7 @@ body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
   text-overflow:ellipsis;
 }
 
-/* 🔥 CRITICAL FIX: proper separation */
+/* 🔥 correct separation */
 .row.double .label:nth-child(3),
 .row.double .value:nth-child(4){
   border-left:1px solid var(--border);
@@ -117,27 +146,6 @@ tbody td{
 .st-pending{background:var(--pending);color:#000}
 .st-billed-ng{background:var(--billed-ng);color:#fff}
 .st-unbilled{background:none;color:var(--unbilled)}
-
-/* LOADER */
-.loader{
-  position:fixed;
-  inset:0;
-  background:#000c;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:999;
-}
-.loader.hidden{display:none}
-.load-card{
-  padding:24px 30px;
-  border-radius:14px;
-  background:#111;
-  border:1px solid #333;
-  text-align:center;
-}
-.load-card b{font-size:22px}
-.load-card span{font-size:12px;color:#aaa}
 </style>
 </head>
 
@@ -154,8 +162,15 @@ tbody td{
 <div class="jobcard">
 
 <div class="topbar">
-  <div class="title" id="aicTitle">JOBCARD</div>
-  <div class="status-pill" id="workStatus">IN PROGRESS</div>
+  <div class="top-dates">
+    <div id="recDate"></div>
+    <div id="workDate"></div>
+    <div id="age"></div>
+  </div>
+  <div class="top-main">
+    <div class="title" id="aicTitle">JOBCARD</div>
+    <div class="status-pill" id="workStatus">IN PROGRESS</div>
+  </div>
 </div>
 
 <div class="info">
@@ -200,6 +215,7 @@ const API="https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3
 let t0=Date.now(), tInt;
 
 function showLoader(){
+  loader.classList.remove("hidden");
   tInt=setInterval(()=>{
     const s=Math.floor((Date.now()-t0)/1000);
     sec.innerText=s+"s loading…";
@@ -242,6 +258,10 @@ async function loadJobcard(){
 
   hideLoader();
 
+  recDate.innerText="Rec: "+(d.jobcard_rec_date||"");
+  workDate.innerText="Work: "+(d.work_provided_date||"");
+  age.innerText="Age: "+(d.jobcard_age||"");
+
   aicTitle.innerText=(d.aic||"JOBCARD").toUpperCase();
   cust.innerText=d.customer_name||"";
   chassis.innerText=d.chase_no||"";
@@ -254,7 +274,7 @@ async function loadJobcard(){
 }
 
 loadJobcard();
-setInterval(loadJobcard,30000);
+setInterval(loadJobcard,30000); // silent refresh
 </script>
 
 </body>
