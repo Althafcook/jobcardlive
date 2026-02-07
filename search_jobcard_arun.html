@@ -23,25 +23,27 @@ body{
   width:100%;
   max-width:520px;
   padding:20px;
+  transform:translateY(-20px); /* 🔥 move whole block slightly up */
 }
 
 /* GIF HOLDER */
 .gif-box{
   text-align:center;
-  margin-bottom:20px;
+  margin-bottom:12px; /* 🔥 tighter gap */
 }
 .gif-box img{
-  max-width:100%;
-  height:auto;          /* 🔥 auto adjust by gif size */
+  width:120px;        /* 🔥 smaller size */
+  max-width:60%;
+  height:auto;
 }
 
 /* LOGO / TITLE */
 .logo{
   text-align:center;
-  font-size:28px;
+  font-size:26px;
   font-weight:600;
   letter-spacing:2px;
-  margin-bottom:30px;
+  margin-bottom:26px;
 }
 .logo span{color:#ff3b3b}
 
@@ -52,7 +54,7 @@ body{
 
 .search-input{
   width:100%;
-  padding:14px 48px 14px 18px;
+  padding:16px 48px 16px 18px;
   border-radius:30px;
   border:1px solid #333;
   background:#111;
@@ -183,10 +185,6 @@ searchInput.addEventListener("input", ()=>{
 function selectResult(r){
   searchInput.value = r.customer + " (" + r.chase + ")";
   dropdown.style.display="none";
-
-  // 🔥 NEXT STEP:
-  // send r.chase to jobcard_sheet_arun A1
-  // then open jobcard page
   console.log("Selected chase:", r.chase);
 }
 
