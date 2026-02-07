@@ -9,7 +9,7 @@
 *{box-sizing:border-box}
 body{
   margin:0;
-  min-height:100vh;
+  height:100vh;
   background:#000;
   font-family:"Segoe UI",Arial,sans-serif;
   color:#fff;
@@ -18,79 +18,84 @@ body{
   justify-content:center;
 }
 
-/* CONTAINER */
-.search-wrap{
-  width:100%;
-  max-width:520px;
-  padding:20px;
-}
-
-/* LOGO / TITLE */
-.logo{
-  text-align:center;
-  font-size:28px;
-  font-weight:600;
-  letter-spacing:2px;
-  margin-bottom:30px;
-}
-.logo span{color:#ff3b3b}
-
-/* SEARCH BOX */
-.search-box{
-  position:relative;
-}
-
-.search-input{
-  width:100%;
-  padding:14px 48px 14px 18px;
-  border-radius:30px;
+/* MAIN CARD */
+.search-card{
+  width:340px;
+  padding:28px 22px 34px;
+  background:linear-gradient(180deg,#111,#070707);
   border:1px solid #333;
-  background:#111;
-  color:#fff;
-  font-size:16px;
-  outline:none;
-}
-.search-input::placeholder{color:#777}
-.search-input:focus{
-  border-color:#555;
+  border-radius:20px;
+  text-align:center;
+  box-shadow:0 0 40px rgba(255,255,255,0.05);
 }
 
-/* SEARCH ICON */
-.search-icon{
-  position:absolute;
-  right:14px;
-  top:50%;
-  transform:translateY(-50%);
-  font-size:20px;
-  color:#aaa;
-  cursor:pointer;
-}
-
-/* DROPDOWN */
-.dropdown{
-  position:absolute;
-  top:110%;
-  left:0;
-  right:0;
-  background:#111;
+/* SEARCH BAR */
+.search-box{
+  margin-top:18px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:#0e0e0e;
   border:1px solid #333;
   border-radius:14px;
-  overflow:hidden;
-  display:none;
-  z-index:10;
+  padding:10px 14px;
+}
+.search-box input{
+  flex:1;
+  background:none;
+  border:none;
+  outline:none;
+  color:#fff;
+  font-size:14px;
+}
+.search-box .icon{
+  font-size:18px;
+  opacity:.8;
 }
 
-.dropdown-item{
-  padding:10px 16px;
-  font-size:14px;
-  cursor:pointer;
-  border-bottom:1px solid #222;
+/* DOG AREA */
+.dog-wrap{
+  position:relative;
+  height:150px;
+  margin-bottom:12px;
+  overflow:hidden;
 }
-.dropdown-item:last-child{border-bottom:none}
-.dropdown-item:hover{
-  background:#1a1a1a;
+
+/* DOG SVG */
+.dog{
+  position:absolute;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:120px;
+  animation:sniffWalk 4s ease-in-out infinite;
 }
-.small{
+
+/* EYE BLINK */
+.eye{
+  transform-origin:center;
+  animation:blink 6s infinite;
+}
+
+/* SNIFF WALK */
+@keyframes sniffWalk{
+  0%{transform:translateX(-60%) rotate(0deg)}
+  25%{transform:translateX(-20%) rotate(-2deg)}
+  50%{transform:translateX(20%) rotate(2deg)}
+  75%{transform:translateX(-10%) rotate(-1deg)}
+  100%{transform:translateX(-60%) rotate(0deg)}
+}
+
+/* BLINK */
+@keyframes blink{
+  0%,95%,100%{transform:scaleY(1)}
+  96%{transform:scaleY(0.1)}
+  97%{transform:scaleY(1)}
+}
+
+/* SMALL TEXT */
+.hint{
+  margin-top:14px;
   font-size:11px;
   color:#888;
 }
@@ -99,89 +104,44 @@ body{
 
 <body>
 
-<div class="search-wrap">
+<div class="search-card">
 
-  <div class="logo">
-    JOBCARD <span>SEARCH</span>
+  <!-- DOG ANIMATION -->
+  <div class="dog-wrap">
+    <svg class="dog" viewBox="0 0 200 200">
+      <!-- HEAD -->
+      <circle cx="100" cy="90" r="45" fill="#cfa16a"/>
+      
+      <!-- EARS -->
+      <ellipse cx="60" cy="80" rx="20" ry="30" fill="#b38455"/>
+      <ellipse cx="140" cy="80" rx="20" ry="30" fill="#b38455"/>
+
+      <!-- EYES -->
+      <ellipse class="eye" cx="85" cy="90" rx="5" ry="7" fill="#000"/>
+      <ellipse class="eye" cx="115" cy="90" rx="5" ry="7" fill="#000"/>
+
+      <!-- NOSE -->
+      <ellipse cx="100" cy="105" rx="6" ry="4" fill="#000"/>
+
+      <!-- MOUTH -->
+      <path d="M90 115 Q100 120 110 115" stroke="#000" stroke-width="2" fill="none"/>
+
+      <!-- BODY -->
+      <ellipse cx="100" cy="150" rx="45" ry="30" fill="#d6a86f"/>
+    </svg>
   </div>
 
+  <!-- SEARCH -->
   <div class="search-box">
-    <input
-      type="text"
-      id="searchInput"
-      class="search-input"
-      placeholder="Search customer name or chase number…"
-      autocomplete="off"
-    >
-    <div class="search-icon" onclick="triggerSearch()">🔍</div>
+    <input type="text" placeholder="Search by customer or chase no…">
+    <div class="icon">🔍</div>
+  </div>
 
-    <div class="dropdown" id="dropdown"></div>
+  <div class="hint">
+    dog is sniffing for jobcards 🐾
   </div>
 
 </div>
-
-<script>
-const searchInput = document.getElementById("searchInput");
-const dropdown = document.getElementById("dropdown");
-
-/* 🔹 DEMO DATA (replace with API later) */
-const demoData = [
-  {customer:"Ramesh Kumar", chase:"CHS12345"},
-  {customer:"Afsal", chase:"CHS67890"},
-  {customer:"Suhail Motors", chase:"CHS45678"},
-];
-
-/* INPUT SEARCH */
-searchInput.addEventListener("input", ()=>{
-  const q = searchInput.value.trim().toLowerCase();
-  dropdown.innerHTML="";
-  if(!q){
-    dropdown.style.display="none";
-    return;
-  }
-
-  const results = demoData.filter(d =>
-    d.customer.toLowerCase().includes(q) ||
-    d.chase.toLowerCase().includes(q)
-  );
-
-  if(!results.length){
-    dropdown.style.display="none";
-    return;
-  }
-
-  results.forEach(r=>{
-    const div=document.createElement("div");
-    div.className="dropdown-item";
-    div.innerHTML=`
-      <div>${r.customer}</div>
-      <div class="small">${r.chase}</div>
-    `;
-    div.onclick=()=>selectResult(r);
-    dropdown.appendChild(div);
-  });
-
-  dropdown.style.display="block";
-});
-
-/* SELECT RESULT */
-function selectResult(r){
-  searchInput.value = r.customer + " (" + r.chase + ")";
-  dropdown.style.display="none";
-
-  // 🔥 NEXT STEP:
-  // send r.chase to jobcard_sheet_arun A1
-  // then open jobcard page
-  console.log("Selected chase:", r.chase);
-}
-
-/* ICON CLICK */
-function triggerSearch(){
-  if(searchInput.value.trim()){
-    console.log("Manual search:", searchInput.value);
-  }
-}
-</script>
 
 </body>
 </html>
