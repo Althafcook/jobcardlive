@@ -54,7 +54,7 @@ canvas{
 .menu{
   display:flex;
   flex-direction:column;
-  gap:18px;   /* ✅ gap restored */
+  gap:18px;
 }
 
 /* BUTTON */
@@ -112,25 +112,29 @@ canvas{
     <span class="live"> LIVE</span>
   </div>
 
-  <!-- ✅ MENU FIX -->
   <div class="menu">
     <div class="btn" onclick="openDaybook()">Daybook</div>
-    <div class="btn">Search</div>
+    <div class="btn" onclick="openSearch()">Search</div>
     <div class="btn">Workbook</div>
   </div>
 </div>
 
-<!-- ADMIN BUTTON -->
 <button class="admin-btn" id="adminBtn">Admin</button>
 
 <script>
-/* DAYBOOK OPEN – FORCE FRESH */
+/* DAYBOOK */
 function openDaybook(){
-  sessionStorage.removeItem("EXPECTED_CHASE"); // ✅ clear old state
-  location.href = "daybook.html?ts=" + Date.now(); // ✅ force reload
+  sessionStorage.removeItem("EXPECTED_CHASE");
+  location.href = "daybook.html?ts=" + Date.now();
 }
 
-/* ADMIN LOGIN */
+/* 🔍 JOB CARD SEARCH */
+function openSearch(){
+  location.href =
+  "https://script.google.com/macros/s/AKfycbxJwBtlekWkbFp_N4HqMsD6kaUI42BpGxUkQaAfSgmwRLqOcFXua8j2C5g37jMLTrUPNA/exec";
+}
+
+/* ADMIN */
 document.getElementById("adminBtn").onclick = () => {
   const u = prompt("Admin username:");
   const p = prompt("Admin password:");
