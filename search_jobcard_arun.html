@@ -147,24 +147,33 @@ const dropdown = document.getElementById("dropdown");
 let searchData = [];
 
 /* LOAD SEARCH INDEX */
-fetch(API + "?mode=searchIndex")
+fetch(API + "?mode=searchIndex", { cache: "no-store" })
   .then(r => r.json())
-  .then(d => searchData = d);
+  .then(d => {
+    if (!Array.isArray(d)) {
+      console.error("Invalid search index response", d);
+      return;
+    }
+    searchData = d;
+  })
+  .catch(err => console.error("Search index fetch failed", err));
 
 /* INPUT SEARCH */
 searchInput.addEventListener("input", () => {
   const q = searchInput.value.trim().toLowerCase();
   dropdown.innerHTML = "";
 
-  if (!q) {
+  if (!q || !searchData.length) {
     dropdown.style.display = "none";
     return;
   }
 
-  const results = searchData.filter(d =>
-    d.customer.toLowerCase().includes(q) ||
-    d.chase.toLowerCase().includes(q)
-  ).slice(0, 10); // limit like Google
+  const results = searchData
+    .filter(d =>
+      d.customer.toLowerCase().includes(q) ||
+      d.chase.toLowerCase().includes(q)
+    )
+    .slice(0, 10);
 
   if (!results.length) {
     dropdown.style.display = "none";
