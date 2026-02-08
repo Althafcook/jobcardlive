@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 
-<!-- ✅ MOBILE FIX -->
+<!-- MOBILE FIX -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Jobcard Search</title>
@@ -18,27 +18,37 @@ body{
   font-family:"Segoe UI",Arial,sans-serif;
   color:#fff;
   display:flex;
-  align-items:center;
+  align-items:flex-start;        /* 🔥 move content top */
   justify-content:center;
-  padding:16px;
+  padding:12px;
 }
 
 .search-wrap{
   width:100%;
   max-width:420px;
+  margin-top:10px;              /* 🔥 whole block up */
 }
 
-.gif-box{text-align:center;margin-bottom:14px}
-.gif-box img{width:140px;max-width:60vw}
+/* GIF */
+.gif-box{
+  text-align:center;
+  margin-bottom:6px;            /* 🔥 tighter */
+}
+.gif-box img{
+  width:120px;
+  max-width:55vw;
+}
 
+/* TITLE */
 .logo{
   text-align:center;
-  font-size:22px;
+  font-size:20px;
   letter-spacing:2px;
-  margin-bottom:22px;
+  margin-bottom:14px;           /* 🔥 reduced */
 }
 .logo span{color:#ff3b3b}
 
+/* SEARCH */
 .search-box{position:relative}
 
 .search-input{
@@ -58,8 +68,17 @@ body{
   transform:translateY(-50%);
   font-size:20px;
   cursor:pointer;
+  opacity:.4;                   /* 🔥 disabled look */
+  pointer-events:none;
 }
 
+/* ENABLE ICON */
+.search-icon.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+/* DROPDOWN */
 .dropdown{
   position:absolute;
   top:110%;
@@ -86,6 +105,7 @@ body{
 
 <div class="search-wrap">
 
+  <!-- GIF -->
   <div class="gif-box">
     <img src="assets/images/bee1.gif" alt="search">
   </div>
@@ -95,9 +115,13 @@ body{
   </div>
 
   <div class="search-box">
-    <input id="searchInput" class="search-input"
-      placeholder="Search customer name or chase number">
-    <div class="search-icon" onclick="triggerSearch()">🔍</div>
+    <input
+      id="searchInput"
+      class="search-input"
+      placeholder="Search customer name or chase number"
+      autocomplete="off"
+    >
+    <div class="search-icon" id="searchBtn">🔍</div>
     <div class="dropdown" id="dropdown"></div>
   </div>
 
@@ -108,8 +132,11 @@ const API =
 "https://script.google.com/macros/s/AKfycby8snhU3T4iVYVQSM5PxrTSqMZHTITSHM9BIQRiH-Zi7eiXXD1ob0ErL9vzWfDDKykV_Q/exec";
 
 let searchData=[];
+let selectedChase=null;          // 🔥 STRICT CONTROL
+
 const input=document.getElementById("searchInput");
 const dropdown=document.getElementById("dropdown");
+const searchBtn=document.getElementById("searchBtn");
 
 /* LOAD SEARCH DATA */
 fetch(API+"?mode=searchIndex")
@@ -120,19 +147,31 @@ fetch(API+"?mode=searchIndex")
 input.addEventListener("input",()=>{
   const q=input.value.toLowerCase().trim();
   dropdown.innerHTML="";
-  if(!q){dropdown.style.display="none";return;}
+  selectedChase=null;            // 🔥 reset selection
+  searchBtn.classList.remove("active");
+
+  if(!q){
+    dropdown.style.display="none";
+    return;
+  }
 
   const res=searchData.filter(r =>
     r.customer.toLowerCase().includes(q) ||
     r.chase.toLowerCase().includes(q)
   ).slice(0,8);
 
-  if(!res.length){dropdown.style.display="none";return;}
+  if(!res.length){
+    dropdown.style.display="none";
+    return;
+  }
 
   res.forEach(r=>{
     const d=document.createElement("div");
     d.className="dropdown-item";
-    d.innerHTML=`<div>${r.customer}</div><div class="small">${r.chase}</div>`;
+    d.innerHTML=`
+      <div>${r.customer}</div>
+      <div class="small">${r.chase}</div>
+    `;
     d.onclick=()=>selectResult(r);
     dropdown.appendChild(d);
   });
@@ -140,15 +179,21 @@ input.addEventListener("input",()=>{
   dropdown.style.display="block";
 });
 
-function triggerSearch(){
-  if(dropdown.firstChild) dropdown.firstChild.click();
+/* SELECT FROM DROPDOWN */
+function selectResult(r){
+  input.value = r.customer+" ("+r.chase+")";
+  selectedChase = r.chase;        // 🔥 VALID SELECTION
+  dropdown.style.display="none";
+  searchBtn.classList.add("active");
 }
 
-/* SELECT */
-function selectResult(r){
-  fetch(API+"?mode=setChase&chase="+encodeURIComponent(r.chase));
+/* SEARCH ICON CLICK */
+searchBtn.onclick = ()=>{
+  if(!selectedChase) return;      // 🔥 HARD BLOCK
+
+  fetch(API+"?mode=setChase&chase="+encodeURIComponent(selectedChase));
   location.href="jobcard_arun.html";
-}
+};
 </script>
 
 </body>
