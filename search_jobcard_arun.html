@@ -139,7 +139,7 @@ const dropdown=document.getElementById("dropdown");
 const searchBtn=document.getElementById("searchBtn");
 
 /* LOAD SEARCH DATA */
-fetch(API+"?mode=searchIndex")
+fetch(API+"?mode=searchIndex",{cache:"no-store"})
   .then(r=>r.json())
   .then(d=>searchData=d||[]);
 
@@ -179,7 +179,7 @@ input.addEventListener("input",()=>{
   dropdown.style.display="block";
 });
 
-/* SELECT FROM DROPDOWN */
+/* SELECT */
 function selectResult(r){
   input.value = r.customer+" ("+r.chase+")";
   selectedChase = r.chase;
@@ -187,25 +187,19 @@ function selectResult(r){
   searchBtn.classList.add("active");
 }
 
-/* 🔥 SEARCH ICON CLICK (FIXED) */
-searchBtn.onclick = async ()=>{
+/* SEARCH ICON CLICK — EXACT DAYBOOK STYLE */
+searchBtn.onclick = ()=>{
   if(!selectedChase) return;
 
-  try{
-    await fetch(
-      API + "?mode=setChase&chase=" + encodeURIComponent(selectedChase),
-      {
-        method: "GET",
-        mode: "no-cors",
-        keepalive: true   // 🔥 CRITICAL
-      }
-    );
-  }catch(e){}
+  fetch(
+    API + "?mode=setChase&chase=" + encodeURIComponent(selectedChase),
+    { mode:"no-cors" }
+  );
 
-  // 🔥 allow Apps Script to write A1
+  // 🔥 give browser time to send request
   setTimeout(()=>{
     location.href="jobcard_arun.html";
-  },120);
+  },150);
 };
 </script>
 
