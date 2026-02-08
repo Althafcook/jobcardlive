@@ -2,11 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+
+<!-- ✅ MOBILE FIX -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Search Jobcard</title>
+
+<title>Jobcard Search</title>
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
   min-height:100vh;
@@ -16,57 +20,65 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
+  padding:16px;
 }
+
 .search-wrap{
   width:100%;
-  max-width:520px;
-  padding:20px;
-  transform:translateY(-20px);
+  max-width:420px;
 }
-.gif-box{text-align:center;margin-bottom:12px;}
-.gif-box img{width:120px;max-width:60%;height:auto;}
-.logo{text-align:center;font-size:20px;font-weight:600;letter-spacing:2px;margin-bottom:26px;}
+
+.gif-box{text-align:center;margin-bottom:14px}
+.gif-box img{width:140px;max-width:60vw}
+
+.logo{
+  text-align:center;
+  font-size:22px;
+  letter-spacing:2px;
+  margin-bottom:22px;
+}
 .logo span{color:#ff3b3b}
-.search-box{position:relative;}
+
+.search-box{position:relative}
+
 .search-input{
   width:100%;
-  padding:16px 48px 16px 18px;
+  padding:18px 56px 18px 22px;
   border-radius:30px;
   border:1px solid #333;
   background:#000;
   color:#fff;
-  font-size:16px;
-  outline:none;
+  font-size:17px;
 }
+
 .search-icon{
   position:absolute;
-  right:14px;
+  right:18px;
   top:50%;
   transform:translateY(-50%);
   font-size:20px;
-  color:#aaa;
   cursor:pointer;
 }
+
 .dropdown{
   position:absolute;
   top:110%;
   left:0;
   right:0;
   background:#111;
-  border:1px solid #333;
   border-radius:14px;
-  overflow:hidden;
   display:none;
-  z-index:9999;
+  overflow:hidden;
+  z-index:10;
 }
+
 .dropdown-item{
-  padding:10px 16px;
-  font-size:14px;
-  cursor:pointer;
+  padding:14px 18px;
   border-bottom:1px solid #222;
+  cursor:pointer;
 }
 .dropdown-item:hover{background:#1a1a1a}
-.small{font-size:11px;color:#888}
+.small{font-size:12px;color:#888}
 </style>
 </head>
 
@@ -75,7 +87,7 @@ body{
 <div class="search-wrap">
 
   <div class="gif-box">
-    <img src="/jobcardlive/assets/images/bee1.gif">
+    <img src="assets/bee1.gif" alt="search">
   </div>
 
   <div class="logo">
@@ -84,8 +96,8 @@ body{
 
   <div class="search-box">
     <input id="searchInput" class="search-input"
-      placeholder="Search customer name or chase number…" autocomplete="off">
-    <div class="search-icon">🔍</div>
+      placeholder="Search customer name or chase number">
+    <div class="search-icon" onclick="triggerSearch()">🔍</div>
     <div class="dropdown" id="dropdown"></div>
   </div>
 
@@ -93,74 +105,49 @@ body{
 
 <script>
 const API =
-"https://script.google.com/macros/s/AKfycbz5cOYUQ1DqmFkHgW15dBmDEN7nSx4FpHW5594F0RP7ITKKqxcHPD0dCJLP2hVQxM89/exec";
+"https://script.google.com/macros/s/AKfycbxJwBtlekWkbFp_N4HqMsD6kaUI42BpGxUkQaAfSgmwRLqOcFXua8j2C5g37jMLTrUPNA/exec";
 
+let searchData=[];
+const input=document.getElementById("searchInput");
+const dropdown=document.getElementById("dropdown");
 
-const searchInput = document.getElementById("searchInput");
-const dropdown = document.getElementById("dropdown");
+/* LOAD SEARCH DATA */
+fetch(API+"?mode=searchIndex")
+  .then(r=>r.json())
+  .then(d=>searchData=d||[]);
 
-let searchData = [];
+/* INPUT */
+input.addEventListener("input",()=>{
+  const q=input.value.toLowerCase().trim();
+  dropdown.innerHTML="";
+  if(!q){dropdown.style.display="none";return;}
 
-/* ================= JSONP LOAD ================= */
-function loadSearchIndex() {
-  const s = document.createElement("script");
-  s.src = API + "?mode=searchIndex&callback=onSearchIndex";
-  document.body.appendChild(s);
-}
+  const res=searchData.filter(r =>
+    r.customer.toLowerCase().includes(q) ||
+    r.chase.toLowerCase().includes(q)
+  ).slice(0,8);
 
-function onSearchIndex(data) {
-  if (!Array.isArray(data)) {
-    console.error("Invalid search index", data);
-    return;
-  }
-  searchData = data;
-}
+  if(!res.length){dropdown.style.display="none";return;}
 
-/* load on start */
-loadSearchIndex();
-
-/* ================= SEARCH ================= */
-searchInput.addEventListener("input", () => {
-  const q = searchInput.value.trim().toLowerCase();
-  dropdown.innerHTML = "";
-
-  if (!q || !searchData.length) {
-    dropdown.style.display = "none";
-    return;
-  }
-
-  const results = searchData
-    .filter(d =>
-      d.customer.toLowerCase().includes(q) ||
-      d.chase.toLowerCase().includes(q)
-    )
-    .slice(0, 10);
-
-  if (!results.length) {
-    dropdown.style.display = "none";
-    return;
-  }
-
-  results.forEach(r => {
-    const div = document.createElement("div");
-    div.className = "dropdown-item";
-    div.innerHTML = `
-      <div>${r.customer}</div>
-      <div class="small">${r.chase}</div>
-    `;
-    div.onclick = () => selectResult(r);
-    dropdown.appendChild(div);
+  res.forEach(r=>{
+    const d=document.createElement("div");
+    d.className="dropdown-item";
+    d.innerHTML=`<div>${r.customer}</div><div class="small">${r.chase}</div>`;
+    d.onclick=()=>selectResult(r);
+    dropdown.appendChild(d);
   });
 
-  dropdown.style.display = "block";
+  dropdown.style.display="block";
 });
 
-/* ================= SELECT ================= */
-function selectResult(r) {
-  dropdown.style.display = "none";
-  searchInput.value = r.customer + " (" + r.chase + ")";
+function triggerSearch(){
+  if(dropdown.firstChild) dropdown.firstChild.click();
+}
 
-  location.href = "jobcard_arun.html";
+/* SELECT */
+function selectResult(r){
+  fetch(API+"?mode=setChase&chase="+encodeURIComponent(r.chase));
+  location.href="jobcard_arun.html";
 }
 </script>
 
