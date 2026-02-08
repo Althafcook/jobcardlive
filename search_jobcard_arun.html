@@ -132,7 +132,7 @@ const API =
 "https://script.google.com/macros/s/AKfycby8snhU3T4iVYVQSM5PxrTSqMZHTITSHM9BIQRiH-Zi7eiXXD1ob0ErL9vzWfDDKykV_Q/exec";
 
 let searchData=[];
-let selectedChase=null;          // 🔥 STRICT CONTROL
+let selectedChase=null;
 
 const input=document.getElementById("searchInput");
 const dropdown=document.getElementById("dropdown");
@@ -147,7 +147,7 @@ fetch(API+"?mode=searchIndex")
 input.addEventListener("input",()=>{
   const q=input.value.toLowerCase().trim();
   dropdown.innerHTML="";
-  selectedChase=null;            // 🔥 reset selection
+  selectedChase=null;
   searchBtn.classList.remove("active");
 
   if(!q){
@@ -182,17 +182,30 @@ input.addEventListener("input",()=>{
 /* SELECT FROM DROPDOWN */
 function selectResult(r){
   input.value = r.customer+" ("+r.chase+")";
-  selectedChase = r.chase;        // 🔥 VALID SELECTION
+  selectedChase = r.chase;
   dropdown.style.display="none";
   searchBtn.classList.add("active");
 }
 
-/* SEARCH ICON CLICK */
-searchBtn.onclick = ()=>{
-  if(!selectedChase) return;      // 🔥 HARD BLOCK
+/* 🔥 SEARCH ICON CLICK (FIXED) */
+searchBtn.onclick = async ()=>{
+  if(!selectedChase) return;
 
-  fetch(API+"?mode=setChase&chase="+encodeURIComponent(selectedChase));
-  location.href="jobcard_arun.html";
+  try{
+    await fetch(
+      API + "?mode=setChase&chase=" + encodeURIComponent(selectedChase),
+      {
+        method: "GET",
+        mode: "no-cors",
+        keepalive: true   // 🔥 CRITICAL
+      }
+    );
+  }catch(e){}
+
+  // 🔥 allow Apps Script to write A1
+  setTimeout(()=>{
+    location.href="jobcard_arun.html";
+  },120);
 };
 </script>
 
