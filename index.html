@@ -31,14 +31,14 @@ canvas{
   display:flex;
   flex-direction:column;
   align-items:center;
-  padding-top:90px;
+  padding-top:60px;   /* 🔥 was 90px */
 }
 
 /* TITLE */
 .title{
   font-size:38px;
   letter-spacing:3px;
-  margin-bottom:30px;
+  margin-bottom:20px;
 }
 .title .job{color:#fff}
 .title .live{
@@ -56,12 +56,12 @@ canvas{
   display:flex;
   flex-direction:column;
   align-items:center;
-  margin-top:60px; /* 🔥 pushed menu down */
+  margin-top:-20px;   /* 🔥 pull menu upward */
 }
 
-/* WALL-E */
+/* WALL-E / DOG */
 .walle-box{
-  margin-bottom:-10px; /* 🔥 makes him stand on button */
+  margin-bottom:-12px;
   pointer-events:none;
 }
 .walle-box img{
@@ -158,9 +158,9 @@ canvas{
 
   <div class="menu">
 
-    <!-- 🔥 WALL-E -->
+    <!-- WALL-E / DOG -->
     <div class="walle-box">
-      <img src="assets/images/dog1.gif" alt="Wall-E">
+      <img src="assets/images/dog1.gif" alt="Dog">
     </div>
 
     <!-- SELECT AIC -->
