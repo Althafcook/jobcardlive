@@ -17,41 +17,17 @@ body{
   align-items:center;
   justify-content:center;
 }
-
-/* CONTAINER */
 .search-wrap{
   width:100%;
   max-width:520px;
   padding:20px;
-  transform:translateY(-20px); /* 🔥 move whole block slightly up */
+  transform:translateY(-20px);
 }
-
-/* GIF HOLDER */
-.gif-box{
-  text-align:center;
-  margin-bottom:12px; /* 🔥 tighter gap */
-}
-.gif-box img{
-  width:120px;        /* 🔥 smaller size */
-  max-width:60%;
-  height:auto;
-}
-
-/* LOGO / TITLE */
-.logo{
-  text-align:center;
-  font-size:20px;
-  font-weight:600;
-  letter-spacing:2px;
-  margin-bottom:26px;
-}
+.gif-box{text-align:center;margin-bottom:12px;}
+.gif-box img{width:120px;max-width:60%;height:auto;}
+.logo{text-align:center;font-size:20px;font-weight:600;letter-spacing:2px;margin-bottom:26px;}
 .logo span{color:#ff3b3b}
-
-/* SEARCH BOX */
-.search-box{
-  position:relative;
-}
-
+.search-box{position:relative;}
 .search-input{
   width:100%;
   padding:16px 48px 16px 18px;
@@ -62,12 +38,6 @@ body{
   font-size:16px;
   outline:none;
 }
-.search-input::placeholder{color:#777}
-.search-input:focus{
-  border-color:#555;
-}
-
-/* SEARCH ICON */
 .search-icon{
   position:absolute;
   right:14px;
@@ -77,8 +47,6 @@ body{
   color:#aaa;
   cursor:pointer;
 }
-
-/* DROPDOWN */
 .dropdown{
   position:absolute;
   top:110%;
@@ -89,23 +57,16 @@ body{
   border-radius:14px;
   overflow:hidden;
   display:none;
-  z-index:10;
+  z-index:9999;
 }
-
 .dropdown-item{
   padding:10px 16px;
   font-size:14px;
   cursor:pointer;
   border-bottom:1px solid #222;
 }
-.dropdown-item:last-child{border-bottom:none}
-.dropdown-item:hover{
-  background:#1a1a1a;
-}
-.small{
-  font-size:11px;
-  color:#888;
-}
+.dropdown-item:hover{background:#1a1a1a}
+.small{font-size:11px;color:#888}
 </style>
 </head>
 
@@ -113,9 +74,8 @@ body{
 
 <div class="search-wrap">
 
-  <!-- 🔍 GIF -->
   <div class="gif-box">
-    <img src="/jobcardlive/assets/images/bee1.gif" alt="Search animation">
+    <img src="/jobcardlive/assets/images/bee1.gif">
   </div>
 
   <div class="logo">
@@ -123,15 +83,9 @@ body{
   </div>
 
   <div class="search-box">
-    <input
-      type="text"
-      id="searchInput"
-      class="search-input"
-      placeholder="Search customer name or chase number…"
-      autocomplete="off"
-    >
-    <div class="search-icon" onclick="triggerSearch()">🔍</div>
-
+    <input id="searchInput" class="search-input"
+      placeholder="Search customer name or chase number…" autocomplete="off">
+    <div class="search-icon">🔍</div>
     <div class="dropdown" id="dropdown"></div>
   </div>
 
@@ -141,39 +95,42 @@ body{
 const API =
 "https://script.google.com/macros/s/AKfycbxiZ-jgnWM0C4U5vOsMZT5PuQU68F_c0sBcJ1wn1foLm-EsFDoZptmDTu0k3IewfB-cTQ/exec";
 
-const searchInput = document.getElementById("searchInput");
+const input = document.getElementById("searchInput");
 const dropdown = document.getElementById("dropdown");
 
 let searchData = [];
+let ready = false;
 
-/* LOAD SEARCH INDEX */
-fetch(API + "?mode=searchIndex", { cache: "no-store" })
+/* 🔥 LOAD INDEX */
+fetch(API + "?mode=searchIndex")
   .then(r => r.json())
   .then(d => {
     if (!Array.isArray(d)) {
-      console.error("Invalid search index response", d);
+      console.error("Invalid API response", d);
       return;
     }
     searchData = d;
+    ready = true;
+    console.log("Search index loaded:", searchData.length);
   })
-  .catch(err => console.error("Search index fetch failed", err));
+  .catch(err => console.error("Fetch error:", err));
 
-/* INPUT SEARCH */
-searchInput.addEventListener("input", () => {
-  const q = searchInput.value.trim().toLowerCase();
+/* 🔍 SEARCH */
+input.addEventListener("input", () => {
+  if (!ready) return;
+
+  const q = input.value.trim().toLowerCase();
   dropdown.innerHTML = "";
 
-  if (!q || !searchData.length) {
+  if (!q) {
     dropdown.style.display = "none";
     return;
   }
 
-  const results = searchData
-    .filter(d =>
-      d.customer.toLowerCase().includes(q) ||
-      d.chase.toLowerCase().includes(q)
-    )
-    .slice(0, 10);
+  const results = searchData.filter(r =>
+    r.customer.toLowerCase().includes(q) ||
+    r.chase.toLowerCase().includes(q)
+  ).slice(0,10);
 
   if (!results.length) {
     dropdown.style.display = "none";
@@ -194,15 +151,14 @@ searchInput.addEventListener("input", () => {
   dropdown.style.display = "block";
 });
 
-/* SELECT RESULT */
-function selectResult(r) {
+/* ✅ SELECT */
+function selectResult(r){
+  input.value = r.customer + " (" + r.chase + ")";
   dropdown.style.display = "none";
-  searchInput.value = r.customer + " (" + r.chase + ")";
 
-  fetch(
-    API + "?mode=setChase&chase=" + encodeURIComponent(r.chase),
-    { mode: "no-cors" }
-  );
+  fetch(API + "?mode=setChase&chase=" + encodeURIComponent(r.chase), {
+    mode:"no-cors"
+  });
 
   location.href = "jobcard_arun.html";
 }
