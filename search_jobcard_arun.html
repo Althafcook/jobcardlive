@@ -128,8 +128,13 @@ body{
 </div>
 
 <script>
-const API =
+/* 🔹 SEARCH INDEX API (READ ONLY) */
+const SEARCH_API =
 "https://script.google.com/macros/s/AKfycby8snhU3T4iVYVQSM5PxrTSqMZHTITSHM9BIQRiH-Zi7eiXXD1ob0ErL9vzWfDDKykV_Q/exec";
+
+/* 🔹 JOBCARD API (WRITE A1) – SAME AS DAYBOOK */
+const JOBCARD_API =
+"https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
 
 let searchData=[];
 let selectedChase=null;
@@ -139,7 +144,7 @@ const dropdown=document.getElementById("dropdown");
 const searchBtn=document.getElementById("searchBtn");
 
 /* LOAD SEARCH DATA */
-fetch(API+"?mode=searchIndex",{cache:"no-store"})
+fetch(SEARCH_API+"?mode=searchIndex",{cache:"no-store"})
   .then(r=>r.json())
   .then(d=>searchData=d||[]);
 
@@ -179,7 +184,7 @@ input.addEventListener("input",()=>{
   dropdown.style.display="block";
 });
 
-/* SELECT */
+/* SELECT FROM DROPDOWN */
 function selectResult(r){
   input.value = r.customer+" ("+r.chase+")";
   selectedChase = r.chase;
@@ -187,16 +192,15 @@ function selectResult(r){
   searchBtn.classList.add("active");
 }
 
-/* SEARCH ICON CLICK — EXACT DAYBOOK STYLE */
+/* 🔥 SEARCH ICON CLICK – EXACT DAYBOOK FLOW */
 searchBtn.onclick = ()=>{
   if(!selectedChase) return;
 
   fetch(
-    API + "?mode=setChase&chase=" + encodeURIComponent(selectedChase),
+    JOBCARD_API + "?mode=setChase&chase=" + encodeURIComponent(selectedChase),
     { mode:"no-cors" }
   );
 
-  // 🔥 give browser time to send request
   setTimeout(()=>{
     location.href="jobcard_arun.html";
   },150);
