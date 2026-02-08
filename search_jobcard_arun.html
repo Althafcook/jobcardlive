@@ -95,42 +95,45 @@ body{
 const API =
 "https://script.google.com/macros/s/AKfycbxiZ-jgnWM0C4U5vOsMZT5PuQU68F_c0sBcJ1wn1foLm-EsFDoZptmDTu0k3IewfB-cTQ/exec";
 
-const input = document.getElementById("searchInput");
+const searchInput = document.getElementById("searchInput");
 const dropdown = document.getElementById("dropdown");
 
 let searchData = [];
-let ready = false;
 
-/* 🔥 LOAD INDEX */
-fetch(API + "?mode=searchIndex")
-  .then(r => r.json())
-  .then(d => {
-    if (!Array.isArray(d)) {
-      console.error("Invalid API response", d);
-      return;
-    }
-    searchData = d;
-    ready = true;
-    console.log("Search index loaded:", searchData.length);
-  })
-  .catch(err => console.error("Fetch error:", err));
+/* ================= JSONP LOAD ================= */
+function loadSearchIndex() {
+  const s = document.createElement("script");
+  s.src = API + "?mode=searchIndex&callback=onSearchIndex";
+  document.body.appendChild(s);
+}
 
-/* 🔍 SEARCH */
-input.addEventListener("input", () => {
-  if (!ready) return;
+function onSearchIndex(data) {
+  if (!Array.isArray(data)) {
+    console.error("Invalid search index", data);
+    return;
+  }
+  searchData = data;
+}
 
-  const q = input.value.trim().toLowerCase();
+/* load on start */
+loadSearchIndex();
+
+/* ================= SEARCH ================= */
+searchInput.addEventListener("input", () => {
+  const q = searchInput.value.trim().toLowerCase();
   dropdown.innerHTML = "";
 
-  if (!q) {
+  if (!q || !searchData.length) {
     dropdown.style.display = "none";
     return;
   }
 
-  const results = searchData.filter(r =>
-    r.customer.toLowerCase().includes(q) ||
-    r.chase.toLowerCase().includes(q)
-  ).slice(0,10);
+  const results = searchData
+    .filter(d =>
+      d.customer.toLowerCase().includes(q) ||
+      d.chase.toLowerCase().includes(q)
+    )
+    .slice(0, 10);
 
   if (!results.length) {
     dropdown.style.display = "none";
@@ -151,14 +154,10 @@ input.addEventListener("input", () => {
   dropdown.style.display = "block";
 });
 
-/* ✅ SELECT */
-function selectResult(r){
-  input.value = r.customer + " (" + r.chase + ")";
+/* ================= SELECT ================= */
+function selectResult(r) {
   dropdown.style.display = "none";
-
-  fetch(API + "?mode=setChase&chase=" + encodeURIComponent(r.chase), {
-    mode:"no-cors"
-  });
+  searchInput.value = r.customer + " (" + r.chase + ")";
 
   location.href = "jobcard_arun.html";
 }
