@@ -12,30 +12,32 @@
 
 body{
   margin:0;
-  height:100vh;
+  min-height:100vh;
   background:#000;
   font-family:"Segoe UI",Arial,sans-serif;
   color:#fff;
   display:flex;
   align-items:center;
   justify-content:center;
+  padding:20px;
 }
 
 /* MAIN LAYOUT */
 .wrapper{
-  width:90%;
-  max-width:1100px;
+  width:95%;
+  max-width:1000px;
   display:flex;
-  justify-content:space-between;
+  justify-content:center;     /* 🔥 more center */
   align-items:center;
+  gap:80px;                   /* spacing balanced */
 }
 
 /* LEFT MENU */
 .menu{
   display:flex;
   flex-direction:column;
-  gap:28px;
-  font-size:18px;
+  gap:22px;
+  font-size:16px;             /* 🔥 reduced */
 }
 
 .menu-item{
@@ -49,30 +51,34 @@ body{
 }
 
 .menu-item:hover{
-  transform:translateX(8px);
+  transform:translateX(6px);
   color:#fff;
 }
 
 /* RIGHT ANIMATION */
 .animation-box{
-  width:380px;
-  height:380px;
+  width:320px;                /* 🔥 slightly smaller */
+  height:320px;
+  margin-left:-40px;          /* 🔥 moved little left */
 }
 
 /* MOBILE */
 @media(max-width:900px){
   .wrapper{
     flex-direction:column;
-    gap:40px;
-  }
-  .animation-box{
-    width:260px;
-    height:260px;
-  }
-  .menu{
-    font-size:16px;
-    gap:20px;
+    gap:30px;
     text-align:center;
+  }
+
+  .menu{
+    font-size:15px;
+    gap:18px;
+  }
+
+  .animation-box{
+    width:220px;
+    height:220px;
+    margin-left:0;
   }
 }
 </style>
