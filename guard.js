@@ -1,16 +1,16 @@
-/***** REFRESH-PROOF IDLE REDIRECT *****/
+/***** MOBILE-SAFE IDLE REDIRECT *****/
 
 const IDLE_LIMIT = 15 * 60 * 1000; // 15 minutes
-const STORAGE_KEY = "lastActivityTime";
+const KEY = "lastActivity";
 
-// update activity timestamp
+// save activity time
 function recordActivity() {
-  localStorage.setItem(STORAGE_KEY, Date.now());
+  localStorage.setItem(KEY, Date.now());
 }
 
 // check inactivity
 function checkIdle() {
-  const last = parseInt(localStorage.getItem(STORAGE_KEY) || "0");
+  const last = parseInt(localStorage.getItem(KEY) || "0");
   const now = Date.now();
 
   if (now - last > IDLE_LIMIT) {
@@ -20,13 +20,17 @@ function checkIdle() {
   }
 }
 
-// activity listeners
-["click","touchstart","mousemove","keydown","scroll"]
-.forEach(evt =>
-  window.addEventListener(evt, recordActivity, { passive:true })
-);
+// record user actions
+["click","touchstart","keydown","scroll"]
+.forEach(e => window.addEventListener(e, recordActivity, {passive:true}));
 
-// run checks
-recordActivity();     // first load
-checkIdle();          // check immediately
-setInterval(checkIdle, 5000); // repeat check
+// 🔥 IMPORTANT — run checks when page becomes active
+window.addEventListener("focus", checkIdle);
+window.addEventListener("pageshow", checkIdle);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) checkIdle();
+});
+
+// initial run
+checkIdle();
+recordActivity();
