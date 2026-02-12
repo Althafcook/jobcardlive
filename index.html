@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jobcard Live</title>
 
-<!-- LOTTIE -->
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
 <style>
@@ -19,14 +18,12 @@ body{
   overflow:hidden;
 }
 
-/* THUNDER CANVAS */
 canvas{
   position:fixed;
   inset:0;
   z-index:0;
 }
 
-/* CONTAINER */
 .container{
   position:relative;
   z-index:2;
@@ -37,7 +34,6 @@ canvas{
   padding-top:60px;
 }
 
-/* TITLE */
 .title{
   font-size:38px;
   letter-spacing:3px;
@@ -53,7 +49,6 @@ canvas{
   50%{opacity:.3}
 }
 
-/* MENU */
 .menu{
   position:relative;
   display:flex;
@@ -62,7 +57,7 @@ canvas{
   margin-top:-20px;
 }
 
-/* ROBOT ANIMATION */
+/* ANIMATION */
 .walle-box{
   margin-bottom:-12px;
   pointer-events:none;
@@ -72,7 +67,6 @@ canvas{
   max-width:80vw;
 }
 
-/* SELECT AIC BUTTON */
 .select-btn{
   width:220px;
   padding:8px 10px;
@@ -91,7 +85,6 @@ canvas{
   box-shadow:inset 0 0 18px rgba(120,180,255,.6);
 }
 
-/* DROPDOWN */
 .dropdown{
   width:220px;
   margin-top:8px;
@@ -116,13 +109,11 @@ canvas{
   transition:.25s;
 }
 
-/* AIC COLORS */
 .dropdown .arun:hover{background:#d94a4a}
 .dropdown .sajid:hover{background:#f2d23c;color:#000}
 .dropdown .siyad:hover{background:#8bc34a;color:#000}
 .dropdown .ashraf:hover{background:#eee;color:#000}
 
-/* ADMIN BUTTON */
 .admin-btn{
   position:fixed;
   bottom:16px;
@@ -139,12 +130,15 @@ canvas{
 }
 .admin-btn:hover{opacity:1}
 
-/* MOBILE */
+/* ✅ MOBILE FIX */
 @media(max-width:600px){
   .title{font-size:30px}
   .select-btn{width:200px}
   .dropdown{width:200px}
-  .walle-box lottie-player{width:100px}
+  .walle-box lottie-player{
+    width:55vw;
+    max-width:260px;
+  }
 }
 </style>
 </head>
@@ -161,7 +155,6 @@ canvas{
 
   <div class="menu">
 
-    <!-- ROBOT ANIMATION -->
     <div class="walle-box">
       <lottie-player
         src="assets/images/Robot.json"
@@ -172,7 +165,6 @@ canvas{
       </lottie-player>
     </div>
 
-    <!-- SELECT AIC -->
     <div class="select-btn" id="selectBtn">Select AIC</div>
 
     <div class="dropdown" id="aicMenu">
@@ -188,6 +180,7 @@ canvas{
 <button class="admin-btn" id="adminBtn">Admin</button>
 
 <script>
+// same JS — unchanged
 document.getElementById("adminBtn").onclick=()=>{
   const u=prompt("Admin username:");
   const p=prompt("Admin password:");
@@ -207,9 +200,7 @@ btn.onclick=e=>{
 };
 document.body.onclick=()=>menu.style.display="none";
 
-function go(url){
-  location.href=url;
-}
+function go(url){ location.href=url; }
 
 const canvas=document.getElementById("thunder");
 const ctx=canvas.getContext("2d");
