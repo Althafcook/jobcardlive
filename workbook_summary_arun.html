@@ -22,22 +22,20 @@ body{
   padding:20px;
 }
 
-/* MAIN LAYOUT */
 .wrapper{
   width:95%;
   max-width:1000px;
   display:flex;
-  justify-content:center;     /* 🔥 more center */
+  justify-content:center;
   align-items:center;
-  gap:80px;                   /* spacing balanced */
+  gap:80px;
 }
 
-/* LEFT MENU */
 .menu{
   display:flex;
   flex-direction:column;
   gap:22px;
-  font-size:16px;             /* 🔥 reduced */
+  font-size:16px;
 }
 
 .menu-item{
@@ -55,14 +53,12 @@ body{
   color:#fff;
 }
 
-/* RIGHT ANIMATION */
 .animation-box{
-  width:320px;                /* 🔥 slightly smaller */
+  width:320px;
   height:320px;
-  margin-left:-40px;          /* 🔥 moved little left */
+  margin-left:-40px;
 }
 
-/* MOBILE */
 @media(max-width:900px){
   .wrapper{
     flex-direction:column;
@@ -88,27 +84,39 @@ body{
 
 <div class="wrapper">
 
-  <!-- LEFT SIDE -->
   <div class="menu">
-    <div class="menu-item">Inbox <span>(27)</span></div>
+    <div class="menu-item">
+      Inbox <span id="inboxCount">(…)</span>
+    </div>
     <div class="menu-item">Outbox <span>(15)</span></div>
     <div class="menu-item">Clip <span>(98)</span></div>
     <div class="menu-item">Pending items <span>(10)</span></div>
     <div class="menu-item">FSE wise pending <span>(10)</span></div>
   </div>
 
-  <!-- RIGHT SIDE ANIMATION -->
   <div class="animation-box" id="robotAnimation"></div>
 
 </div>
 
 <script>
+/* LOTTIE */
 lottie.loadAnimation({
   container: document.getElementById("robotAnimation"),
   renderer: "svg",
   loop: true,
   autoplay: true,
   path: "assets/images/cat.json"
+});
+
+/* FETCH GOOGLE SHEET VALUE */
+fetch("https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec")
+.then(res => res.json())
+.then(data => {
+  document.getElementById("inboxCount").textContent =
+    "(" + data.inbox + ")";
+})
+.catch(err => {
+  console.log("Sheet fetch error:", err);
 });
 </script>
 
