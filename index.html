@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jobcard Live</title>
 
+<!-- LOTTIE -->
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
 <style>
 *{box-sizing:border-box}
 body{
@@ -31,7 +34,7 @@ canvas{
   display:flex;
   flex-direction:column;
   align-items:center;
-  padding-top:60px;   /* 🔥 was 90px */
+  padding-top:60px;
 }
 
 /* TITLE */
@@ -56,15 +59,15 @@ canvas{
   display:flex;
   flex-direction:column;
   align-items:center;
-  margin-top:-20px;   /* 🔥 pull menu upward */
+  margin-top:-20px;
 }
 
-/* WALL-E / DOG */
+/* ROBOT ANIMATION */
 .walle-box{
   margin-bottom:-12px;
   pointer-events:none;
 }
-.walle-box img{
+.walle-box lottie-player{
   width:120px;
   max-width:60vw;
 }
@@ -141,7 +144,7 @@ canvas{
   .title{font-size:30px}
   .select-btn{width:200px}
   .dropdown{width:200px}
-  .walle-box img{width:100px}
+  .walle-box lottie-player{width:100px}
 }
 </style>
 </head>
@@ -158,9 +161,15 @@ canvas{
 
   <div class="menu">
 
-    <!-- WALL-E / DOG -->
+    <!-- ROBOT ANIMATION -->
     <div class="walle-box">
-      <img src="assets/images/dog1.gif" alt="Dog">
+      <lottie-player
+        src="assets/Robot.json"
+        background="transparent"
+        speed="1"
+        loop
+        autoplay>
+      </lottie-player>
     </div>
 
     <!-- SELECT AIC -->
@@ -179,7 +188,6 @@ canvas{
 <button class="admin-btn" id="adminBtn">Admin</button>
 
 <script>
-/* ADMIN LOGIN */
 document.getElementById("adminBtn").onclick=()=>{
   const u=prompt("Admin username:");
   const p=prompt("Admin password:");
@@ -190,7 +198,6 @@ document.getElementById("adminBtn").onclick=()=>{
   }
 };
 
-/* DROPDOWN */
 const btn=document.getElementById("selectBtn");
 const menu=document.getElementById("aicMenu");
 
@@ -204,7 +211,6 @@ function go(url){
   location.href=url;
 }
 
-/* THUNDER EFFECT */
 const canvas=document.getElementById("thunder");
 const ctx=canvas.getContext("2d");
 
