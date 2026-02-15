@@ -10,10 +10,18 @@ function recordActivity() {
 
 // check inactivity
 function checkIdle() {
-  const last = parseInt(localStorage.getItem(KEY) || "0");
-  const now = Date.now();
+  const last = localStorage.getItem(KEY);
 
-  if (now - last > IDLE_LIMIT) {
+  // 🟢 FIRST VISIT FIX
+  if (!last) {
+    recordActivity();
+    return;
+  }
+
+  const now = Date.now();
+  const lastTime = parseInt(last);
+
+  if (now - lastTime > IDLE_LIMIT) {
     if (!location.pathname.includes("index.html")) {
       location.replace("index.html");
     }
