@@ -57,6 +57,7 @@ canvas{
   margin-top:-20px;
 }
 
+/* ANIMATION */
 .walle-box{
   margin-bottom:-12px;
   pointer-events:none;
@@ -95,7 +96,6 @@ canvas{
   display:none;
   animation:fadeDown .25s ease;
 }
-
 @keyframes fadeDown{
   from{opacity:0;transform:translateY(-8px)}
   to{opacity:1;transform:translateY(0)}
@@ -130,32 +130,7 @@ canvas{
 }
 .admin-btn:hover{opacity:1}
 
-/* 🟢 ONLINE INDICATOR */
-#onlineBox{
-  position:fixed;
-  top:12px;
-  right:16px;
-  display:flex;
-  align-items:center;
-  gap:6px;
-  background:rgba(0,0,0,.6);
-  padding:6px 12px;
-  border-radius:20px;
-  font-size:13px;
-  z-index:10;
-}
-.dot{
-  width:10px;
-  height:10px;
-  background:#00ff00;
-  border-radius:50%;
-  animation:blinkGreen 1s infinite;
-}
-@keyframes blinkGreen{
-  0%,100%{opacity:1}
-  50%{opacity:.3}
-}
-
+/* ✅ MOBILE FIX */
 @media(max-width:600px){
   .title{font-size:30px}
   .select-btn{width:200px}
@@ -172,11 +147,6 @@ canvas{
 
 <canvas id="thunder"></canvas>
 
-<div id="onlineBox">
-  <span class="dot"></span>
-  <span id="userCount">0</span>
-</div>
-
 <div class="container">
   <div class="title">
     <span class="job">JOBCARD</span>
@@ -184,6 +154,7 @@ canvas{
   </div>
 
   <div class="menu">
+
     <div class="walle-box">
       <lottie-player
         src="assets/images/Robot.json"
@@ -202,13 +173,14 @@ canvas{
       <div class="siyad" onclick="go('index_sub_siyad.html')">Siyad</div>
       <div class="ashraf" onclick="go('index_sub_ashraf.html')">Ashraf</div>
     </div>
+
   </div>
 </div>
 
 <button class="admin-btn" id="adminBtn">Admin</button>
 
 <script>
-// EXISTING JS unchanged
+// same JS — unchanged
 document.getElementById("adminBtn").onclick=()=>{
   const u=prompt("Admin username:");
   const p=prompt("Admin password:");
@@ -259,40 +231,6 @@ function spark(){
   setTimeout(()=>ctx.clearRect(0,0,canvas.width,canvas.height),120);
 }
 setInterval(spark,3000+Math.random()*3000);
-</script>
-
-<!-- 🔥 FIREBASE ONLINE SYSTEM -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, onDisconnect, onValue } 
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-// ✅ FIXED USER ID (no dot issue)
-const userId = Date.now() + "_" + Math.floor(Math.random()*1000000);
-
-const userRef = ref(db, "onlineUsers/" + userId);
-
-set(userRef, true);
-onDisconnect(userRef).remove();
-
-const onlineRef = ref(db, "onlineUsers");
-
-onValue(onlineRef, (snapshot)=>{
-  const count = snapshot.exists() ? 
-  Object.keys(snapshot.val()).length : 0;
-
-  document.getElementById("userCount").innerText = count;
-});
 </script>
 
 </body>
