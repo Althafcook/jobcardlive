@@ -156,7 +156,6 @@ canvas{
   50%{opacity:.3}
 }
 
-/* MOBILE */
 @media(max-width:600px){
   .title{font-size:30px}
   .select-btn{width:200px}
@@ -173,7 +172,6 @@ canvas{
 
 <canvas id="thunder"></canvas>
 
-<!-- 🟢 ONLINE USERS -->
 <div id="onlineBox">
   <span class="dot"></span>
   <span id="userCount">0</span>
@@ -210,7 +208,7 @@ canvas{
 <button class="admin-btn" id="adminBtn">Admin</button>
 
 <script>
-// EXISTING JS (unchanged)
+// EXISTING JS unchanged
 document.getElementById("adminBtn").onclick=()=>{
   const u=prompt("Admin username:");
   const p=prompt("Admin password:");
@@ -279,7 +277,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const userId = Date.now() + "_" + Math.random();
+// ✅ FIXED USER ID (no dot issue)
+const userId = Date.now() + "_" + Math.floor(Math.random()*1000000);
+
 const userRef = ref(db, "onlineUsers/" + userId);
 
 set(userRef, true);
