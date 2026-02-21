@@ -220,15 +220,17 @@ function restoreState(){
 const COUNT_API =
 "https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=count_workin_arun";
 
-function loadCount(){
-  fetch(COUNT_API,{cache:"no-store"})
-  .then(r=>r.json())
-  .then(d=>{
-    if(d.inbox !== undefined){
+async function loadCount(){
+  try{
+    const r = await fetch(COUNT_API,{cache:"no-store"});
+    const d = await r.json();
+
+    if(d && d.inbox !== undefined){
       document.getElementById("inboxCount").textContent = d.inbox;
     }
-  })
-  .catch(()=>{});
+  }catch(e){
+    console.log("Count error:",e);
+  }
 }
 
 /* ================= TABLE RENDER ================= */
