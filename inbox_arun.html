@@ -14,7 +14,7 @@ body{
   margin:0;
   background:#000;
   font-family:Segoe UI,Arial;
-  padding:12px;
+  padding:14px;
   color:#cfcfcf;
 }
 
@@ -27,7 +27,7 @@ body{
 
 .badge{
   background:red;
-  padding:5px 12px;
+  padding:6px 14px;
   border-radius:20px;
   font-size:13px;
   color:#fff;
@@ -40,9 +40,9 @@ h3{
 
 /* CAT */
 #catAnim{
-  width:90px;
-  height:90px;
-  margin:10px auto;
+  width:130px;
+  height:130px;
+  margin:15px auto 5px auto;
 }
 
 /* TABLE */
@@ -68,7 +68,6 @@ th{
   color:#fff;
   position:sticky;
   top:0;
-  text-align:left;
 }
 
 /* AGE RED */
@@ -77,14 +76,14 @@ th{
   color:#fff;
 }
 
-/* AIC ARUN CENTER PINK */
+/* AIC ARUN */
 .aic-arun{
   background:#ff2e88;
   color:#fff;
   text-align:center;
 }
 
-/* ROW CLICK */
+/* ROW */
 tbody tr{
   cursor:pointer;
   transition:0.2s;
@@ -105,9 +104,15 @@ tbody tr:hover{
   z-index:999;
 }
 
-.loader-text{
+.loader-percent{
+  font-size:22px;
+  color:#ff2e88;
   margin-top:15px;
-  font-size:14px;
+}
+
+.loader-sub{
+  font-size:13px;
+  margin-top:5px;
   letter-spacing:1px;
 }
 </style>
@@ -117,8 +122,9 @@ tbody tr:hover{
 
 <!-- LOADER -->
 <div id="loader">
-  <div style="font-size:22px;color:#fff;">Loading...</div>
-  <div class="loader-text">Please wait...</div>
+  <div style="font-size:26px;color:#fff;">Loading</div>
+  <div class="loader-percent" id="percentText">0%</div>
+  <div class="loader-sub">Please wait...</div>
 </div>
 
 <!-- HEADER -->
@@ -127,7 +133,7 @@ tbody tr:hover{
   <h3>Inbox - Arun (Work not done)</h3>
 </div>
 
-<!-- CAT BELOW TITLE -->
+<!-- CAT BELOW HEADING -->
 <div id="catAnim"></div>
 
 <div class="table-wrap">
@@ -150,11 +156,11 @@ tbody tr:hover{
 
 <script>
 
-const DATA_API =
-"https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=inbox_arun";
-
-const COUNT_API =
+const WEB_APP =
 "https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec";
+
+const DATA_API = WEB_APP + "?mode=inbox_arun";
+const COUNT_API = WEB_APP;
 
 /* CAT ANIMATION */
 lottie.loadAnimation({
@@ -164,6 +170,20 @@ lottie.loadAnimation({
   autoplay: true,
   path: 'assets/images/cat.json'
 });
+
+/* LOADER PERCENT */
+function animateLoader(){
+  let percent = 0;
+  const el = document.getElementById("percentText");
+
+  const interval = setInterval(()=>{
+    percent += 3;
+    if(percent > 90) percent = 90; 
+    el.textContent = percent + "%";
+  },60);
+
+  return interval;
+}
 
 /* LOAD COUNT */
 function loadCount(){
@@ -178,6 +198,8 @@ function loadCount(){
 
 /* LOAD DATA */
 function loadData(){
+  const loaderInterval = animateLoader();
+
   fetch(DATA_API,{cache:"no-store"})
   .then(r=>r.json())
   .then(data=>{
@@ -196,18 +218,18 @@ function loadData(){
 
       const tr=document.createElement("tr");
 
-      // CLICK HANDLER
       const chaseNumber = row[6];
 
-      tr.onclick = ()=>{
-        fetch(
-          COUNT_API + "?mode=setChase&chase=" + encodeURIComponent(chaseNumber),
-          {mode:"no-cors"}
-        );
-
-        setTimeout(()=>{
+      tr.onclick = async ()=>{
+        try{
+          await fetch(
+            WEB_APP + "?mode=setChase&chase=" + encodeURIComponent(chaseNumber),
+            {method:"GET"}
+          );
           location.href="jobcard_arun.html";
-        },150);
+        }catch(e){
+          alert("Unable to open jobcard.");
+        }
       };
 
       // NO COLUMN
@@ -219,7 +241,6 @@ function loadData(){
         const td=document.createElement("td");
         td.textContent=cell;
 
-        // AGE COLUMN
         if(index===1){
           const age=parseInt(cell);
           if(!isNaN(age) && age>60){
@@ -227,7 +248,6 @@ function loadData(){
           }
         }
 
-        // AIC COLUMN
         if(index===2 && cell==="Arun"){
           td.classList.add("aic-arun");
         }
@@ -238,8 +258,11 @@ function loadData(){
       tbody.appendChild(tr);
     });
 
-    // HIDE LOADER AFTER DATA FILLS
-    document.getElementById("loader").style.display="none";
+    clearInterval(loaderInterval);
+    document.getElementById("percentText").textContent = "100%";
+    setTimeout(()=>{
+      document.getElementById("loader").style.display="none";
+    },300);
 
   })
   .catch(()=>{
