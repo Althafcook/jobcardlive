@@ -156,11 +156,15 @@ tbody tr:hover{
 
 <script>
 
-const WEB_APP =
+const DATA_API =
+"https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=inbox_arun";
+
+const COUNT_API =
 "https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec";
 
-const DATA_API = WEB_APP + "?mode=inbox_arun";
-const COUNT_API = WEB_APP;
+/* 🔥 USE SAME API AS DAYBOOK */
+const JOBCARD_API =
+"https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
 
 /* CAT ANIMATION */
 lottie.loadAnimation({
@@ -178,7 +182,7 @@ function animateLoader(){
 
   const interval = setInterval(()=>{
     percent += 3;
-    if(percent > 90) percent = 90; 
+    if(percent > 90) percent = 90;
     el.textContent = percent + "%";
   },60);
 
@@ -220,19 +224,15 @@ function loadData(){
 
       const chaseNumber = row[6];
 
-      tr.onclick = async ()=>{
-        try{
-          await fetch(
-            WEB_APP + "?mode=setChase&chase=" + encodeURIComponent(chaseNumber),
-            {method:"GET"}
-          );
-          location.href="jobcard_arun.html";
-        }catch(e){
-          alert("Unable to open jobcard.");
-        }
+      /* 🔥 EXACT SAME LOGIC AS DAYBOOK */
+      tr.onclick = ()=>{
+        fetch(
+          JOBCARD_API + "?mode=setChase&chase=" + encodeURIComponent(chaseNumber),
+          { mode:"no-cors" }
+        );
+        location.href="jobcard_arun.html";
       };
 
-      // NO COLUMN
       const noTd=document.createElement("td");
       noTd.textContent = displayIndex++;
       tr.appendChild(noTd);
@@ -259,7 +259,8 @@ function loadData(){
     });
 
     clearInterval(loaderInterval);
-    document.getElementById("percentText").textContent = "100%";
+    document.getElementById("percentText").textContent="100%";
+
     setTimeout(()=>{
       document.getElementById("loader").style.display="none";
     },300);
