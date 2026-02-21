@@ -6,6 +6,8 @@
 <title>Inbox Arun</title>
 
 <style>
+*{box-sizing:border-box}
+
 body{
   margin:0;
   background:#000;
@@ -14,25 +16,42 @@ body{
   padding:10px;
 }
 
+h3{
+  margin:5px 0 10px;
+  font-weight:500;
+}
+
+/* MOBILE SCROLL WRAPPER */
+.table-wrap{
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
 table{
   width:100%;
+  min-width:700px;
   border-collapse:collapse;
 }
 
 th,td{
   padding:8px;
   border-bottom:1px solid #222;
-  font-size:14px;
+  font-size:13px;
+  white-space:nowrap;
 }
 
 th{
   background:#111;
   text-align:left;
+  position:sticky;
+  top:0;
+  z-index:2;
 }
 
 .red-age{
   background:#8b0000;
   color:#fff;
+  font-weight:bold;
 }
 </style>
 </head>
@@ -41,6 +60,7 @@ th{
 
 <h3>Inbox - Arun</h3>
 
+<div class="table-wrap">
 <table id="dataTable">
   <thead>
     <tr>
@@ -55,10 +75,11 @@ th{
   </thead>
   <tbody></tbody>
 </table>
+</div>
 
 <script>
 const API =
-"https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?mode=inbox_arun";
+"https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec";
 
 function loadData(){
   fetch(API,{cache:"no-store"})
@@ -66,6 +87,8 @@ function loadData(){
   .then(data=>{
     const tbody=document.querySelector("#dataTable tbody");
     tbody.innerHTML="";
+
+    if(!Array.isArray(data)) return;
 
     data.forEach(row=>{
       const tr=document.createElement("tr");
@@ -87,6 +110,9 @@ function loadData(){
 
       tbody.appendChild(tr);
     });
+  })
+  .catch(err=>{
+    console.log("Error:",err);
   });
 }
 
