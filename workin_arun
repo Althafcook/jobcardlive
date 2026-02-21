@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inbox Arun</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:#000;
+  font-family:Segoe UI,Arial;
+  padding:14px;
+  color:#cfcfcf;
+}
+
+/* HEADER */
+.header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.badge{
+  background:red;
+  padding:6px 14px;
+  border-radius:20px;
+  font-size:13px;
+  color:#fff;
+}
+
+/* TITLE + CAT INLINE */
+.title-wrap{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+#catAnim{
+  width:90px;
+  height:90px;
+}
+
+/* TABLE */
+.table-wrap{
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  min-width:900px;
+  border-collapse:collapse;
+}
+
+th,td{
+  padding:10px;
+  border-bottom:1px solid #222;
+  font-size:13px;
+  white-space:nowrap;
+}
+
+th{
+  background:#111;
+  color:#fff;
+  position:sticky;
+  top:0;
+}
+
+.red-age{
+  background:#8b0000;
+  color:#fff;
+}
+
+.aic-arun{
+  background:#ff2e88;
+  color:#fff;
+  text-align:center;
+}
+
+tbody tr{
+  cursor:pointer;
+  transition:0.2s;
+}
+tbody tr:hover{
+  background:#111;
+}
+
+/* LOADER */
+#loader{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+
+.loader-percent{
+  font-size:22px;
+  color:#ff2e88;
+  margin-top:15px;
+}
+
+.loader-sub{
+  font-size:13px;
+  margin-top:5px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div style="font-size:26px;color:#fff;">Loading</div>
+  <div class="loader-percent" id="percentText">0%</div>
+  <div class="loader-sub">Please wait...</div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="badge" id="inboxCount">0</div>
+
+  <div class="title-wrap">
+    <h3 style="margin:0;font-weight:500">
+      Inbox - Arun (Work not done)
+    </h3>
+    <div id="catAnim"></div>
+  </div>
+</div>
+
+<div class="table-wrap">
+<table id="dataTable">
+  <thead>
+    <tr>
+      <th>No.</th>
+      <th>Jobcard rec.date</th>
+      <th>Jobcard age</th>
+      <th>AIC</th>
+      <th>Customer name</th>
+      <th>Vehicle</th>
+      <th>Executive</th>
+      <th>Chassis no.</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+</div>
+
+<script>
+
+/* ================= CONFIG ================= */
+const DATA_API =
+"https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=inbox_arun";
+
+const COUNT_API =
+"https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec";
+
+const JOBCARD_API =
+"https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
+
+const STATE_KEY = "INBOX_ARUN_STATE";
+
+/* ================= STATE ================= */
+let cachedRows = [];
+let firstLoad = true;
+let loaderInterval = null;
+
+/* ================= CAT ================= */
+lottie.loadAnimation({
+  container: document.getElementById('catAnim'),
+  renderer: 'svg',
+  loop: true,
+  autoplay: true,
+  path: 'assets/images/cat.json'
+});
+
+/* ================= LOADER ================= */
+function showLoader(){
+  let percent = 0;
+  loaderInterval = setInterval(()=>{
+    percent+=3;
+    if(percent>90) percent=90;
+    percentText.textContent = percent + "%";
+  },60);
+}
+
+function hideLoader(){
+  clearInterval(loaderInterval);
+  percentText.textContent="100%";
+  setTimeout(()=>loader.style.display="none",300);
+}
+
+/* ================= SAVE / RESTORE ================= */
+function saveState(){
+  sessionStorage.setItem(STATE_KEY, JSON.stringify(cachedRows));
+}
+
+function restoreState(){
+  const raw = sessionStorage.getItem(STATE_KEY);
+  if(!raw) return false;
+
+  try{
+    cachedRows = JSON.parse(raw);
+    renderTable(cachedRows);
+    loader.style.display="none";
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+/* ================= COUNT ================= */
+function loadCount(){
+  fetch(COUNT_API,{cache:"no-store"})
+  .then(r=>r.json())
+  .then(d=>{
+    if(d.inbox!==undefined)
+      inboxCount.textContent=d.inbox;
+  });
+}
+
+/* ================= TABLE RENDER ================= */
+function renderTable(data){
+  const tbody=document.querySelector("#dataTable tbody");
+  tbody.innerHTML="";
+  let i=1;
+
+  data.forEach(row=>{
+    if(row.every(c=>c===""||c===null)) return;
+
+    const tr=document.createElement("tr");
+
+    tr.onclick=()=>{
+      fetch(
+        JOBCARD_API + "?mode=setChase&chase=" + encodeURIComponent(row[6]),
+        {mode:"no-cors"}
+      );
+      location.href="jobcard_arun.html";
+    };
+
+    const no=document.createElement("td");
+    no.textContent=i++;
+    tr.appendChild(no);
+
+    row.forEach((cell,index)=>{
+      const td=document.createElement("td");
+      td.textContent=cell;
+
+      if(index===1){
+        const age=parseInt(cell);
+        if(!isNaN(age)&&age>60)
+          td.classList.add("red-age");
+      }
+
+      if(index===2&&cell==="Arun")
+        td.classList.add("aic-arun");
+
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+/* ================= LOAD ================= */
+async function loadData(){
+  if(firstLoad) showLoader();
+
+  try{
+    const r=await fetch(DATA_API,{cache:"no-store"});
+    const d=await r.json();
+
+    if(Array.isArray(d)){
+      cachedRows=d;
+      renderTable(d);
+      saveState();
+    }
+
+    hideLoader();
+    firstLoad=false;
+  }catch(e){
+    hideLoader();
+  }
+}
+
+/* ================= BACK FIX ================= */
+window.addEventListener("pageshow",e=>{
+  if(e.persisted){
+    restoreState();
+    firstLoad=false;
+  }
+});
+
+/* INIT */
+if(!restoreState()){
+  loadData();
+}
+loadCount();
+setInterval(loadData,30000);
+setInterval(loadCount,30000);
+
+</script>
+</body>
+</html>
