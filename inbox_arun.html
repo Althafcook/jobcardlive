@@ -217,6 +217,8 @@ function restoreState(){
 }
 
 /* ================= COUNT ================= */
+
+const COUNT_API = ".../exec?mode=count_inbox_arun";
 function loadCount(){
   fetch(COUNT_API,{cache:"no-store"})
   .then(r=>r.json())
