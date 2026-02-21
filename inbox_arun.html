@@ -33,16 +33,16 @@ body{
   color:#fff;
 }
 
-h3{
-  margin:0;
-  font-weight:500;
+/* TITLE + CAT INLINE */
+.title-wrap{
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
 
-/* CAT */
 #catAnim{
-  width:130px;
-  height:130px;
-  margin:15px auto 5px auto;
+  width:60px;
+  height:60px;
 }
 
 /* TABLE */
@@ -70,20 +70,17 @@ th{
   top:0;
 }
 
-/* AGE RED */
 .red-age{
   background:#8b0000;
   color:#fff;
 }
 
-/* AIC ARUN */
 .aic-arun{
   background:#ff2e88;
   color:#fff;
   text-align:center;
 }
 
-/* ROW */
 tbody tr{
   cursor:pointer;
   transition:0.2s;
@@ -113,7 +110,6 @@ tbody tr:hover{
 .loader-sub{
   font-size:13px;
   margin-top:5px;
-  letter-spacing:1px;
 }
 </style>
 </head>
@@ -130,11 +126,14 @@ tbody tr:hover{
 <!-- HEADER -->
 <div class="header">
   <div class="badge" id="inboxCount">0</div>
-  <h3>Inbox - Arun (Work not done)</h3>
-</div>
 
-<!-- CAT BELOW HEADING -->
-<div id="catAnim"></div>
+  <div class="title-wrap">
+    <h3 style="margin:0;font-weight:500">
+      Inbox - Arun (Work not done)
+    </h3>
+    <div id="catAnim"></div>
+  </div>
+</div>
 
 <div class="table-wrap">
 <table id="dataTable">
@@ -156,17 +155,24 @@ tbody tr:hover{
 
 <script>
 
+/* ================= CONFIG ================= */
 const DATA_API =
 "https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=inbox_arun";
 
 const COUNT_API =
 "https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec";
 
-/* 🔥 USE SAME API AS DAYBOOK */
 const JOBCARD_API =
 "https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
 
-/* CAT ANIMATION */
+const STATE_KEY = "INBOX_ARUN_STATE";
+
+/* ================= STATE ================= */
+let cachedRows = [];
+let firstLoad = true;
+let loaderInterval = null;
+
+/* ================= CAT ================= */
 lottie.loadAnimation({
   container: document.getElementById('catAnim'),
   renderer: 'svg',
@@ -175,113 +181,131 @@ lottie.loadAnimation({
   path: 'assets/images/cat.json'
 });
 
-/* LOADER PERCENT */
-function animateLoader(){
+/* ================= LOADER ================= */
+function showLoader(){
   let percent = 0;
-  const el = document.getElementById("percentText");
-
-  const interval = setInterval(()=>{
-    percent += 3;
-    if(percent > 90) percent = 90;
-    el.textContent = percent + "%";
+  loaderInterval = setInterval(()=>{
+    percent+=3;
+    if(percent>90) percent=90;
+    percentText.textContent = percent + "%";
   },60);
-
-  return interval;
 }
 
-/* LOAD COUNT */
+function hideLoader(){
+  clearInterval(loaderInterval);
+  percentText.textContent="100%";
+  setTimeout(()=>loader.style.display="none",300);
+}
+
+/* ================= SAVE / RESTORE ================= */
+function saveState(){
+  sessionStorage.setItem(STATE_KEY, JSON.stringify(cachedRows));
+}
+
+function restoreState(){
+  const raw = sessionStorage.getItem(STATE_KEY);
+  if(!raw) return false;
+
+  try{
+    cachedRows = JSON.parse(raw);
+    renderTable(cachedRows);
+    loader.style.display="none";
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+/* ================= COUNT ================= */
 function loadCount(){
   fetch(COUNT_API,{cache:"no-store"})
   .then(r=>r.json())
   .then(d=>{
-    if(d.inbox !== undefined){
-      document.getElementById("inboxCount").textContent = d.inbox;
-    }
+    if(d.inbox!==undefined)
+      inboxCount.textContent=d.inbox;
   });
 }
 
-/* LOAD DATA */
-function loadData(){
-  const loaderInterval = animateLoader();
+/* ================= TABLE RENDER ================= */
+function renderTable(data){
+  const tbody=document.querySelector("#dataTable tbody");
+  tbody.innerHTML="";
+  let i=1;
 
-  fetch(DATA_API,{cache:"no-store"})
-  .then(r=>r.json())
-  .then(data=>{
-    const tbody=document.querySelector("#dataTable tbody");
-    tbody.innerHTML="";
+  data.forEach(row=>{
+    if(row.every(c=>c===""||c===null)) return;
 
-    if(!Array.isArray(data)){
-      document.getElementById("loader").style.display="none";
-      return;
-    }
+    const tr=document.createElement("tr");
 
-    let displayIndex=1;
+    tr.onclick=()=>{
+      fetch(
+        JOBCARD_API + "?mode=setChase&chase=" + encodeURIComponent(row[6]),
+        {mode:"no-cors"}
+      );
+      location.href="jobcard_arun.html";
+    };
 
-    data.forEach((row)=>{
-      if(row.every(cell=>cell==="" || cell===null)) return;
+    const no=document.createElement("td");
+    no.textContent=i++;
+    tr.appendChild(no);
 
-      const tr=document.createElement("tr");
+    row.forEach((cell,index)=>{
+      const td=document.createElement("td");
+      td.textContent=cell;
 
-      const chaseNumber = row[6];
+      if(index===1){
+        const age=parseInt(cell);
+        if(!isNaN(age)&&age>60)
+          td.classList.add("red-age");
+      }
 
-      /* 🔥 EXACT SAME LOGIC AS DAYBOOK */
-      tr.onclick = ()=>{
-        fetch(
-          JOBCARD_API + "?mode=setChase&chase=" + encodeURIComponent(chaseNumber),
-          { mode:"no-cors" }
-        );
-        location.href="jobcard_arun.html";
-      };
+      if(index===2&&cell==="Arun")
+        td.classList.add("aic-arun");
 
-      const noTd=document.createElement("td");
-      noTd.textContent = displayIndex++;
-      tr.appendChild(noTd);
-
-      row.forEach((cell,index)=>{
-        const td=document.createElement("td");
-        td.textContent=cell;
-
-        if(index===1){
-          const age=parseInt(cell);
-          if(!isNaN(age) && age>60){
-            td.classList.add("red-age");
-          }
-        }
-
-        if(index===2 && cell==="Arun"){
-          td.classList.add("aic-arun");
-        }
-
-        tr.appendChild(td);
-      });
-
-      tbody.appendChild(tr);
+      tr.appendChild(td);
     });
 
-    clearInterval(loaderInterval);
-    document.getElementById("percentText").textContent="100%";
-
-    setTimeout(()=>{
-      document.getElementById("loader").style.display="none";
-    },300);
-
-  })
-  .catch(()=>{
-    document.getElementById("loader").style.display="none";
+    tbody.appendChild(tr);
   });
 }
 
-/* INITIAL LOAD */
-loadCount();
-loadData();
+/* ================= LOAD ================= */
+async function loadData(){
+  if(firstLoad) showLoader();
 
-/* SILENT REFRESH */
-setInterval(()=>{
-  loadCount();
+  try{
+    const r=await fetch(DATA_API,{cache:"no-store"});
+    const d=await r.json();
+
+    if(Array.isArray(d)){
+      cachedRows=d;
+      renderTable(d);
+      saveState();
+    }
+
+    hideLoader();
+    firstLoad=false;
+  }catch(e){
+    hideLoader();
+  }
+}
+
+/* ================= BACK FIX ================= */
+window.addEventListener("pageshow",e=>{
+  if(e.persisted){
+    restoreState();
+    firstLoad=false;
+  }
+});
+
+/* INIT */
+if(!restoreState()){
   loadData();
-},30000);
+}
+loadCount();
+setInterval(loadData,30000);
+setInterval(loadCount,30000);
 
 </script>
-
 </body>
 </html>
