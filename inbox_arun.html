@@ -16,12 +16,21 @@ body{
   padding:10px;
 }
 
-h3{
-  margin:5px 0 10px;
-  font-weight:500;
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
 }
 
-/* MOBILE SCROLL WRAPPER */
+.badge{
+  background:red;
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:bold;
+}
+
 .table-wrap{
   overflow-x:auto;
   -webkit-overflow-scrolling:touch;
@@ -29,7 +38,7 @@ h3{
 
 table{
   width:100%;
-  min-width:700px;
+  min-width:800px;
   border-collapse:collapse;
 }
 
@@ -45,7 +54,6 @@ th{
   text-align:left;
   position:sticky;
   top:0;
-  z-index:2;
 }
 
 .red-age{
@@ -58,12 +66,16 @@ th{
 
 <body>
 
-<h3>Inbox - Arun</h3>
+<div class="header">
+  <h3>Inbox - Arun</h3>
+  <div class="badge" id="inboxCount">0</div>
+</div>
 
 <div class="table-wrap">
 <table id="dataTable">
   <thead>
     <tr>
+      <th>No.</th>
       <th>Date</th>
       <th>Age</th>
       <th>AIC</th>
@@ -78,11 +90,25 @@ th{
 </div>
 
 <script>
-const API =
-"https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec";
+
+const DATA_API =
+"https://script.google.com/macros/s/PASTE_DEPLOYMENT_ID/exec?mode=inbox_arun";
+
+const COUNT_API =
+"https://script.google.com/macros/s/PASTE_DEPLOYMENT_ID/exec";
+
+function loadCount(){
+  fetch(COUNT_API,{cache:"no-store"})
+  .then(r=>r.json())
+  .then(d=>{
+    if(d.inbox !== undefined){
+      document.getElementById("inboxCount").textContent = d.inbox;
+    }
+  });
+}
 
 function loadData(){
-  fetch(API,{cache:"no-store"})
+  fetch(DATA_API,{cache:"no-store"})
   .then(r=>r.json())
   .then(data=>{
     const tbody=document.querySelector("#dataTable tbody");
@@ -90,14 +116,19 @@ function loadData(){
 
     if(!Array.isArray(data)) return;
 
-    data.forEach(row=>{
+    data.forEach((row,rowIndex)=>{
       const tr=document.createElement("tr");
+
+      // 🔹 NO COLUMN
+      const noTd=document.createElement("td");
+      noTd.textContent = rowIndex + 1;
+      tr.appendChild(noTd);
 
       row.forEach((cell,index)=>{
         const td=document.createElement("td");
         td.textContent=cell;
 
-        // jobcard_age column (index 1)
+        // Age column (index 1)
         if(index===1){
           const age=parseInt(cell);
           if(!isNaN(age) && age>60){
@@ -110,17 +141,20 @@ function loadData(){
 
       tbody.appendChild(tr);
     });
-  })
-  .catch(err=>{
-    console.log("Error:",err);
   });
 }
 
-// First load
-loadData();
+function refreshAll(){
+  loadData();
+  loadCount();
+}
 
-// Silent auto refresh every 30 sec
-setInterval(loadData,30000);
+// First load
+refreshAll();
+
+// Silent refresh every 30 sec
+setInterval(refreshAll,30000);
+
 </script>
 
 </body>
