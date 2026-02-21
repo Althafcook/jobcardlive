@@ -217,15 +217,18 @@ function restoreState(){
 }
 
 /* ================= COUNT ================= */
-const COUNT_API = ".../exec?mode=count_workin_arun";
+const COUNT_API =
+"https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=count_workin_arun";
 
 function loadCount(){
   fetch(COUNT_API,{cache:"no-store"})
   .then(r=>r.json())
   .then(d=>{
-    if(d.inbox !== undefined)
-      inboxCount.textContent = d.inbox;
-  });
+    if(d.inbox !== undefined){
+      document.getElementById("inboxCount").textContent = d.inbox;
+    }
+  })
+  .catch(()=>{});
 }
 
 /* ================= TABLE RENDER ================= */
