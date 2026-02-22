@@ -53,15 +53,21 @@ body{
   color:#fff;
 }
 
+/* 🔥 Disabled look */
+.disabled{
+  opacity:.4;
+  pointer-events:none;
+  cursor:default;
+}
+
 .animation-box{
   width:320px;
   height:320px;
 }
 
-/* 🔥 MOBILE FIX — KEEP SIDE BY SIDE */
 @media(max-width:900px){
   .wrapper{
-    flex-direction:row;   /* ← changed */
+    flex-direction:row;
     gap:20px;
   }
 
@@ -83,15 +89,18 @@ body{
 <div class="wrapper">
 
   <div class="menu">
-    <div class="menu-item">
+    <div class="menu-item" id="inboxItem">
       Inbox <span id="inboxCount">(…)</span>
     </div>
-    <div class="menu-item">
+
+    <div class="menu-item" id="workinItem">
       Work in progress <span id="workinCount">(…)</span>
     </div>
-    <div class="menu-item">
+
+    <div class="menu-item" id="clipItem">
       Clip <span id="clipCount">(…)</span>
     </div>
+
     <div class="menu-item">Pending items <span>(10)</span></div>
     <div class="menu-item">FSE wise pending <span>(10)</span></div>
   </div>
@@ -102,7 +111,7 @@ body{
 
 <script>
 
-/* LOTTIE */
+/* ================= LOTTIE ================= */
 lottie.loadAnimation({
   container: document.getElementById("robotAnimation"),
   renderer: "svg",
@@ -111,24 +120,50 @@ lottie.loadAnimation({
   path: "assets/images/robo_workbook.json"
 });
 
-/* 🔥 FETCH SUMMARY MODE (IMPORTANT FIX) */
-fetch("https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=workbook_summary")
-.then(res => res.json())
-.then(data => {
+/* ================= CONFIG ================= */
+const API_URL =
+"https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=workbook_summary";
 
-  document.getElementById("inboxCount").textContent =
-    "(" + (data.inbox ?? 0) + ")";
+/* ================= LOAD COUNTS ================= */
+function loadSummary(){
 
-  document.getElementById("workinCount").textContent =
-    "(" + (data.workin ?? 0) + ")";
+  fetch(API_URL,{cache:"no-store"})
+  .then(res => res.json())
+  .then(data => {
 
-  document.getElementById("clipCount").textContent =
-    "(" + (data.clip ?? 0) + ")";
+    const inbox  = Number(data.inbox)  || 0;
+    const workin = Number(data.workin) || 0;
+    const clip   = Number(data.clip)   || 0;
 
-})
-.catch(err => {
-  console.log("Sheet fetch error:", err);
-});
+    inboxCount.textContent  = "(" + inbox  + ")";
+    workinCount.textContent = "(" + workin + ")";
+    clipCount.textContent   = "(" + clip   + ")";
+
+    setupClick(inboxItem,  inbox,  "inbox_arun.html");
+    setupClick(workinItem, workin, "workin_arun.html");
+    setupClick(clipItem,   clip,   "clip_arun.html");
+
+  })
+  .catch(err => console.log("Sheet fetch error:", err));
+}
+
+/* ================= CLICK CONTROL ================= */
+function setupClick(element, count, url){
+
+  if(count > 0){
+    element.classList.remove("disabled");
+    element.onclick = () => location.href = url;
+  }else{
+    element.classList.add("disabled");
+    element.onclick = null;
+  }
+}
+
+/* ================= INIT ================= */
+loadSummary();
+
+/* 🔥 30 Seconds Silent Refresh */
+setInterval(loadSummary,30000);
 
 </script>
 
