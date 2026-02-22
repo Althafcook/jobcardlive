@@ -160,9 +160,6 @@ tbody tr:hover{
 const DATA_API =
 "https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=workin_arun";
 
-const COUNT_API =
-"https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=count_workin_arun";
-
 const JOBCARD_API =
 "https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
 
@@ -172,6 +169,8 @@ const STATE_KEY = "WORKIN_ARUN_STATE";
 let cachedRows = [];
 let firstLoad = true;
 let loaderInterval = null;
+let secondsInterval = null;
+let seconds = 0;
 
 /* ================= CAT ================= */
 lottie.loadAnimation({
@@ -185,15 +184,24 @@ lottie.loadAnimation({
 /* ================= LOADER ================= */
 function showLoader(){
   let percent = 0;
+  seconds = 0;
+
   loaderInterval = setInterval(()=>{
     percent+=3;
     if(percent>90) percent=90;
     percentText.textContent = percent + "%";
   },60);
+
+  secondsInterval = setInterval(()=>{
+    seconds++;
+    document.querySelector(".loader-sub").textContent =
+      "Please wait... " + seconds + "s";
+  },1000);
 }
 
 function hideLoader(){
   clearInterval(loaderInterval);
+  clearInterval(secondsInterval);
   percentText.textContent="100%";
   setTimeout(()=>loader.style.display="none",300);
 }
@@ -217,28 +225,17 @@ function restoreState(){
   }
 }
 
-/* ================= COUNT ================= */
-async function loadCount(){
-  try{
-    const r = await fetch(COUNT_API,{cache:"no-store"});
-    const d = await r.json();
-
-    if(d && d.inbox !== undefined){
-      document.getElementById("inboxCount").textContent = d.inbox;
-    }
-  }catch(e){
-    console.log("Count error:",e);
-  }
-}
-
 /* ================= TABLE RENDER ================= */
 function renderTable(data){
   const tbody=document.querySelector("#dataTable tbody");
   tbody.innerHTML="";
   let i=1;
+  let visibleCount = 0;
 
   data.forEach(row=>{
     if(row.every(c=>c===""||c===null)) return;
+
+    visibleCount++;
 
     const tr=document.createElement("tr");
 
@@ -272,6 +269,9 @@ function renderTable(data){
 
     tbody.appendChild(tr);
   });
+
+  // 🔥 INSTANT BADGE UPDATE (NO API)
+  document.getElementById("inboxCount").textContent = visibleCount;
 }
 
 /* ================= LOAD ================= */
@@ -307,9 +307,7 @@ window.addEventListener("pageshow",e=>{
 if(!restoreState()){
   loadData();
 }
-loadCount();
 setInterval(loadData,30000);
-setInterval(loadCount,30000);
 
 </script>
 </body>
