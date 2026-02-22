@@ -26,9 +26,9 @@ body{
   width:95%;
   max-width:1000px;
   display:flex;
-  justify-content:center;
+  justify-content:space-between;
   align-items:center;
-  gap:80px;
+  gap:60px;
 }
 
 .menu{
@@ -56,25 +56,23 @@ body{
 .animation-box{
   width:320px;
   height:320px;
-  margin-left:-40px;
 }
 
+/* 🔥 MOBILE FIX — KEEP SIDE BY SIDE */
 @media(max-width:900px){
   .wrapper{
-    flex-direction:column;
-    gap:30px;
-    text-align:center;
+    flex-direction:row;   /* ← changed */
+    gap:20px;
   }
 
   .menu{
-    font-size:15px;
-    gap:18px;
+    font-size:14px;
+    gap:15px;
   }
 
   .animation-box{
-    width:220px;
-    height:220px;
-    margin-left:0;
+    width:180px;
+    height:180px;
   }
 }
 </style>
@@ -86,10 +84,14 @@ body{
 
   <div class="menu">
     <div class="menu-item">
-      Inbox <span id="inboxCount">(Wait…)</span>
+      Inbox <span id="inboxCount">(…)</span>
     </div>
-    <div class="menu-item">Work in progress <span>(15)</span></div>
-    <div class="menu-item">Clip <span>(98)</span></div>
+    <div class="menu-item">
+      Work in progress <span id="workinCount">(…)</span>
+    </div>
+    <div class="menu-item">
+      Clip <span id="clipCount">(…)</span>
+    </div>
     <div class="menu-item">Pending items <span>(10)</span></div>
     <div class="menu-item">FSE wise pending <span>(10)</span></div>
   </div>
@@ -99,6 +101,7 @@ body{
 </div>
 
 <script>
+
 /* LOTTIE */
 lottie.loadAnimation({
   container: document.getElementById("robotAnimation"),
@@ -108,16 +111,25 @@ lottie.loadAnimation({
   path: "assets/images/robo_workbook.json"
 });
 
-/* FETCH GOOGLE SHEET VALUE */
-fetch("https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec")
+/* 🔥 FETCH SUMMARY MODE (IMPORTANT FIX) */
+fetch("https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=workbook_summary")
 .then(res => res.json())
 .then(data => {
+
   document.getElementById("inboxCount").textContent =
-    "(" + data.inbox + ")";
+    "(" + (data.inbox ?? 0) + ")";
+
+  document.getElementById("workinCount").textContent =
+    "(" + (data.workin ?? 0) + ")";
+
+  document.getElementById("clipCount").textContent =
+    "(" + (data.clip ?? 0) + ")";
+
 })
 .catch(err => {
   console.log("Sheet fetch error:", err);
 });
+
 </script>
 
 </body>
