@@ -160,9 +160,6 @@ tbody tr:hover{
 const DATA_API =
 "https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=inbox_arun";
 
-const COUNT_API =
-"https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=count_inbox_arun";
-
 const JOBCARD_API =
 "https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
 
@@ -228,28 +225,17 @@ function restoreState(){
   }
 }
 
-/* ================= COUNT ================= */
-async function loadCount(){
-  try{
-    const r = await fetch(COUNT_API,{cache:"no-store"});
-    const d = await r.json();
-
-    if(d && d.inbox !== undefined){
-      document.getElementById("inboxCount").textContent = d.inbox;
-    }
-  }catch(e){
-    console.log("Count error",e);
-  }
-}
-
 /* ================= TABLE RENDER ================= */
 function renderTable(data){
   const tbody=document.querySelector("#dataTable tbody");
   tbody.innerHTML="";
   let i=1;
+  let visibleCount = 0;
 
   data.forEach(row=>{
     if(row.every(c=>c===""||c===null)) return;
+
+    visibleCount++;
 
     const tr=document.createElement("tr");
 
@@ -283,6 +269,9 @@ function renderTable(data){
 
     tbody.appendChild(tr);
   });
+
+  // 🔥 INSTANT BADGE UPDATE (NO API)
+  document.getElementById("inboxCount").textContent = visibleCount;
 }
 
 /* ================= LOAD ================= */
@@ -318,9 +307,7 @@ window.addEventListener("pageshow",e=>{
 if(!restoreState()){
   loadData();
 }
-loadCount();
 setInterval(loadData,30000);
-setInterval(loadCount,30000);
 
 </script>
 </body>
