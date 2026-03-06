@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arun FSE Summary</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+  margin:0;
+  background:#000;
+  color:#fff;
+  font-family:Segoe UI,Arial;
+  padding:20px;
+}
+
+.wrapper{
+  width:95%;
+  max-width:1100px;
+  margin:auto;
+}
+
+h2{
+  margin-bottom:20px;
+  font-weight:500;
+}
+
+.chart-box{
+  background:#111;
+  padding:20px;
+  border-radius:10px;
+}
+
+canvas{
+  cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<h2>FSE Pending Summary</h2>
+
+<div class="chart-box">
+<canvas id="fseChart"></canvas>
+</div>
+
+</div>
+
+<script>
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbyTfK8LwqHjv8NzOsPjsNOQrRy49Qfbij6tg0TWvoz6ses2oTG0qvYPwq1ArHXjMPI/exec?mode=arun_fse_summary";
+
+
+async function loadGraph(){
+
+  const res = await fetch(API_URL,{cache:"no-store"});
+  const data = await res.json();
+
+  const labels = [];
+  const below = [];
+  const above = [];
+
+  data.forEach(r=>{
+    labels.push(r.fse);
+    below.push(r.below60);
+    above.push(r.above60);
+  });
+
+
+  const ctx = document.getElementById("fseChart").getContext("2d");
+
+  const chart = new Chart(ctx,{
+    type:"bar",
+    data:{
+      labels:labels,
+      datasets:[
+        {
+          label:"Below 60 days",
+          data:below,
+          backgroundColor:"#2196f3"
+        },
+        {
+          label:"Above 60 days",
+          data:above,
+          backgroundColor:"#ff3b3b"
+        }
+      ]
+    },
+
+    options:{
+      indexAxis:'y',      // horizontal bars
+      responsive:true,
+      maintainAspectRatio:false,
+
+      scales:{
+        x:{
+          stacked:true,
+          ticks:{color:"#ccc"}
+        },
+        y:{
+          stacked:true,
+          ticks:{color:"#ccc"}
+        }
+      },
+
+      plugins:{
+        legend:{
+          labels:{color:"#fff"}
+        }
+      },
+
+      onClick:(evt,items)=>{
+
+        if(items.length){
+
+          const index = items[0].index;
+          const fse = labels[index];
+
+          location.href =
+          "arun_fse_detail.html?fse=" + encodeURIComponent(fse);
+
+        }
+
+      }
+
+    }
+
+  });
+
+}
+
+loadGraph();
+
+</script>
+
+</body>
+</html>
