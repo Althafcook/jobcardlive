@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arun FSE Summary</title>
+<title>FSE Pending Summary</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -24,21 +24,15 @@ body{
 }
 
 h2{
+  text-align:center;
   margin-bottom:15px;
   font-weight:500;
-  text-align:center;
 }
 
 .chart-box{
   background:#111;
   padding:15px;
   border-radius:12px;
-  box-shadow:0 0 20px rgba(0,0,0,0.6);
-}
-
-/* mobile scroll */
-.chart-scroll{
-  overflow-x:auto;
 }
 
 canvas{
@@ -55,9 +49,7 @@ canvas{
 <h2>FSE Pending Summary</h2>
 
 <div class="chart-box">
-<div class="chart-scroll">
 <canvas id="fseChart"></canvas>
-</div>
 </div>
 
 </div>
@@ -76,49 +68,58 @@ async function loadGraph(){
   const labels = [];
   const below = [];
   const above = [];
+  const total = [];
 
   data.forEach(r=>{
     labels.push(r.fse);
     below.push(r.below60);
     above.push(r.above60);
+    total.push(r.below60 + r.above60);
   });
-
 
   const canvas = document.getElementById("fseChart");
 
-  /* 🔥 Dynamic height for all executives */
+  /* auto height based on executives */
   canvas.height = labels.length * 45;
 
   const ctx = canvas.getContext("2d");
 
 
-  /* plugin to draw values under bars */
+  /* value box plugin */
 
-  const valuePlugin = {
-    id:"valuePlugin",
+  const boxPlugin = {
+    id:"boxPlugin",
+
     afterDatasetsDraw(chart){
 
       const {ctx} = chart;
 
-      chart.data.datasets.forEach((dataset,i)=>{
+      chart.data.labels.forEach((label,i)=>{
 
-        const meta = chart.getDatasetMeta(i);
+        const meta = chart.getDatasetMeta(0);
+        const bar = meta.data[i];
 
-        meta.data.forEach((bar,index)=>{
+        const x = bar.x + 10;
+        const y = bar.y;
 
-          const value = dataset.data[index];
+        const belowVal = below[i];
+        const aboveVal = above[i];
+        const totalVal = total[i];
 
-          ctx.fillStyle="#ccc";
+        const drawBox = (text,color,offset)=>{
+
+          ctx.fillStyle=color;
+          ctx.fillRect(x + offset, y-10, 55, 18);
+
+          ctx.fillStyle="#fff";
           ctx.font="11px Segoe UI";
           ctx.textAlign="center";
+          ctx.fillText(text, x + offset + 27, y+3);
+        }
 
-          ctx.fillText(
-            value,
-            bar.x,
-            bar.y + 12
-          );
-
-        });
+        drawBox(belowVal,"#2ea8ff",0);
+        drawBox(aboveVal,"#ff4d4d",60);
+        drawBox(totalVal,"#000",120);
 
       });
 
@@ -126,7 +127,7 @@ async function loadGraph(){
   };
 
 
-  const chart = new Chart(ctx,{
+  new Chart(ctx,{
 
     type:"bar",
 
@@ -134,18 +135,16 @@ async function loadGraph(){
       labels:labels,
       datasets:[
         {
-          label:"Below 60 days",
           data:below,
           backgroundColor:"#2ea8ff",
           borderRadius:4,
-          barThickness:16
+          barThickness:18
         },
         {
-          label:"Above 60 days",
           data:above,
           backgroundColor:"#ff4d4d",
           borderRadius:4,
-          barThickness:16
+          barThickness:18
         }
       ]
     },
@@ -157,26 +156,11 @@ async function loadGraph(){
       responsive:true,
       maintainAspectRatio:false,
 
-      animation:{
-        duration:900
-      },
-
-      layout:{
-        padding:{
-          bottom:20
-        }
-      },
-
       scales:{
 
         x:{
           stacked:true,
-          ticks:{
-            color:"#aaa"
-          },
-          grid:{
-            color:"#222"
-          }
+          display:false
         },
 
         y:{
@@ -195,23 +179,8 @@ async function loadGraph(){
       },
 
       plugins:{
-
-        legend:{
-          position:"top",
-          labels:{
-            color:"#fff",
-            boxWidth:14
-          }
-        },
-
-        tooltip:{
-          backgroundColor:"#111"
-        }
-
+        legend:{display:false}
       },
-
-
-      /* click executive */
 
       onClick:(evt,items)=>{
 
@@ -229,7 +198,7 @@ async function loadGraph(){
 
     },
 
-    plugins:[valuePlugin]
+    plugins:[boxPlugin]
 
   });
 
