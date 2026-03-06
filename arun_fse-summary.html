@@ -14,24 +14,31 @@ body{
   background:#000;
   color:#fff;
   font-family:Segoe UI,Arial;
-  padding:20px;
+  padding:15px;
 }
 
 .wrapper{
-  width:95%;
-  max-width:1100px;
+  width:100%;
+  max-width:1200px;
   margin:auto;
 }
 
 h2{
-  margin-bottom:20px;
+  margin-bottom:15px;
   font-weight:500;
+  text-align:center;
 }
 
 .chart-box{
   background:#111;
-  padding:20px;
-  border-radius:10px;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 0 20px rgba(0,0,0,0.6);
+}
+
+/* mobile scroll */
+.chart-scroll{
+  overflow-x:auto;
 }
 
 canvas{
@@ -48,7 +55,9 @@ canvas{
 <h2>FSE Pending Summary</h2>
 
 <div class="chart-box">
+<div class="chart-scroll">
 <canvas id="fseChart"></canvas>
+</div>
 </div>
 
 </div>
@@ -75,47 +84,134 @@ async function loadGraph(){
   });
 
 
-  const ctx = document.getElementById("fseChart").getContext("2d");
+  const canvas = document.getElementById("fseChart");
+
+  /* 🔥 Dynamic height for all executives */
+  canvas.height = labels.length * 45;
+
+  const ctx = canvas.getContext("2d");
+
+
+  /* plugin to draw values under bars */
+
+  const valuePlugin = {
+    id:"valuePlugin",
+    afterDatasetsDraw(chart){
+
+      const {ctx} = chart;
+
+      chart.data.datasets.forEach((dataset,i)=>{
+
+        const meta = chart.getDatasetMeta(i);
+
+        meta.data.forEach((bar,index)=>{
+
+          const value = dataset.data[index];
+
+          ctx.fillStyle="#ccc";
+          ctx.font="11px Segoe UI";
+          ctx.textAlign="center";
+
+          ctx.fillText(
+            value,
+            bar.x,
+            bar.y + 12
+          );
+
+        });
+
+      });
+
+    }
+  };
+
 
   const chart = new Chart(ctx,{
+
     type:"bar",
+
     data:{
       labels:labels,
       datasets:[
         {
           label:"Below 60 days",
           data:below,
-          backgroundColor:"#2196f3"
+          backgroundColor:"#2ea8ff",
+          borderRadius:4,
+          barThickness:16
         },
         {
           label:"Above 60 days",
           data:above,
-          backgroundColor:"#ff3b3b"
+          backgroundColor:"#ff4d4d",
+          borderRadius:4,
+          barThickness:16
         }
       ]
     },
 
     options:{
-      indexAxis:'y',      // horizontal bars
+
+      indexAxis:'y',
+
       responsive:true,
       maintainAspectRatio:false,
 
-      scales:{
-        x:{
-          stacked:true,
-          ticks:{color:"#ccc"}
-        },
-        y:{
-          stacked:true,
-          ticks:{color:"#ccc"}
+      animation:{
+        duration:900
+      },
+
+      layout:{
+        padding:{
+          bottom:20
         }
       },
 
-      plugins:{
-        legend:{
-          labels:{color:"#fff"}
+      scales:{
+
+        x:{
+          stacked:true,
+          ticks:{
+            color:"#aaa"
+          },
+          grid:{
+            color:"#222"
+          }
+        },
+
+        y:{
+          stacked:true,
+          ticks:{
+            color:"#fff",
+            font:{
+              size:12
+            }
+          },
+          grid:{
+            display:false
+          }
         }
+
       },
+
+      plugins:{
+
+        legend:{
+          position:"top",
+          labels:{
+            color:"#fff",
+            boxWidth:14
+          }
+        },
+
+        tooltip:{
+          backgroundColor:"#111"
+        }
+
+      },
+
+
+      /* click executive */
 
       onClick:(evt,items)=>{
 
@@ -131,7 +227,9 @@ async function loadGraph(){
 
       }
 
-    }
+    },
+
+    plugins:[valuePlugin]
 
   });
 
