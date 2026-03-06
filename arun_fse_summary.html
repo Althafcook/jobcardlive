@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FSE Pending Summary</title>
+<title>Arun FSE Summary</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -24,15 +24,20 @@ body{
 }
 
 h2{
-  text-align:center;
   margin-bottom:15px;
   font-weight:500;
+  text-align:center;
 }
 
 .chart-box{
   background:#111;
   padding:15px;
   border-radius:12px;
+  box-shadow:0 0 20px rgba(0,0,0,0.6);
+}
+
+.chart-scroll{
+  overflow-x:auto;
 }
 
 canvas{
@@ -49,7 +54,9 @@ canvas{
 <h2>FSE Pending Summary</h2>
 
 <div class="chart-box">
+<div class="chart-scroll">
 <canvas id="fseChart"></canvas>
+</div>
 </div>
 
 </div>
@@ -77,36 +84,36 @@ async function loadGraph(){
     total.push(r.below60 + r.above60);
   });
 
+
   const canvas = document.getElementById("fseChart");
 
   /* auto height based on executives */
-  canvas.height = labels.length * 45;
+  canvas.height = labels.length * 48;
 
   const ctx = canvas.getContext("2d");
 
 
   /* value box plugin */
 
-  const boxPlugin = {
-    id:"boxPlugin",
+  const valuePlugin = {
+    id:"valuePlugin",
 
     afterDatasetsDraw(chart){
 
       const {ctx} = chart;
 
-      chart.data.labels.forEach((label,i)=>{
+      const metaBelow = chart.getDatasetMeta(0);
 
-        const meta = chart.getDatasetMeta(0);
-        const bar = meta.data[i];
+      metaBelow.data.forEach((bar,index)=>{
 
         const x = bar.x + 10;
         const y = bar.y;
 
-        const belowVal = below[i];
-        const aboveVal = above[i];
-        const totalVal = total[i];
+        const belowVal = below[index];
+        const aboveVal = above[index];
+        const totalVal = total[index];
 
-        const drawBox = (text,color,offset)=>{
+        function drawBox(text,color,offset){
 
           ctx.fillStyle=color;
           ctx.fillRect(x + offset, y-10, 55, 18);
@@ -115,6 +122,7 @@ async function loadGraph(){
           ctx.font="11px Segoe UI";
           ctx.textAlign="center";
           ctx.fillText(text, x + offset + 27, y+3);
+
         }
 
         drawBox(belowVal,"#2ea8ff",0);
@@ -156,6 +164,10 @@ async function loadGraph(){
       responsive:true,
       maintainAspectRatio:false,
 
+      animation:{
+        duration:900
+      },
+
       scales:{
 
         x:{
@@ -179,8 +191,12 @@ async function loadGraph(){
       },
 
       plugins:{
-        legend:{display:false}
+        legend:{display:false},
+        tooltip:{enabled:false}
       },
+
+
+      /* click executive */
 
       onClick:(evt,items)=>{
 
@@ -198,7 +214,7 @@ async function loadGraph(){
 
     },
 
-    plugins:[boxPlugin]
+    plugins:[valuePlugin]
 
   });
 
