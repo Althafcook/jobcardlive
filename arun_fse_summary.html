@@ -56,7 +56,7 @@ color:#fff;
 }
 
 .total-box{
-background:#001f5c;
+background:#b8860b; /* dark yellow */
 }
 
 .below-box{
@@ -66,7 +66,6 @@ background:#1e73ff;
 .above-box{
 background:#ff1e1e;
 }
-
 
 /* ACCURACY */
 
@@ -85,7 +84,6 @@ color:#aaa;
 width:60px;
 height:60px;
 }
-
 
 /* LEGEND */
 
@@ -111,7 +109,6 @@ margin-right:6px;
 .bluebox{background:#1e73ff;}
 .redbox{background:#ff1e1e;}
 
-
 /* ROW */
 
 .row{
@@ -131,7 +128,6 @@ font-size:12px;
 color:#aaa;
 margin-top:3px;
 }
-
 
 /* BAR */
 
@@ -168,7 +164,6 @@ margin-left:4px;
 white-space:nowrap;
 }
 
-
 /* LOADER */
 
 #loader{
@@ -188,7 +183,6 @@ font-size:14px;
 color:#888;
 margin-top:5px;
 }
-
 
 /* MOBILE */
 
@@ -222,8 +216,8 @@ flex-direction:column;
 <body>
 
 <div id="loader">
-<div id="percent">0%</div>
-<div class="loader-sub">Loading... 0s</div>
+<div id="percent">Loading...</div>
+<div class="loader-sub">Fetching data</div>
 </div>
 
 <div class="wrapper" id="content" style="display:none">
@@ -270,13 +264,12 @@ fill="#fff"
 <div class="summary">
 
 <div class="box total-box" id="totalBox">Total 0</div>
-<div class="box below-box" id="belowBox">Below 0</div>
-<div class="box above-box" id="aboveBox">Above 0</div>
+<div class="box below-box" id="belowBox">Below 60 0</div>
+<div class="box above-box" id="aboveBox">Above 60 0</div>
 
 </div>
 
 </div>
-
 
 <div class="legend">
 <span><span class="bluebox"></span>Below 60 days</span>
@@ -286,7 +279,6 @@ fill="#fff"
 <div id="chart"></div>
 
 </div>
-
 
 <script>
 
@@ -298,7 +290,6 @@ const chart=document.getElementById("chart");
 function format(num){
 return Number(num).toLocaleString('en-IN');
 }
-
 
 /* RENDER */
 
@@ -325,12 +316,9 @@ totalAbove+=r.above60;
 
 let totalAll=totalBelow+totalAbove;
 
-/* summary update */
-
 totalBox.innerHTML="Total "+format(totalAll);
-belowBox.innerHTML="Below "+format(totalBelow);
-aboveBox.innerHTML="Above "+format(totalAbove);
-
+belowBox.innerHTML="Below 60 "+format(totalBelow);
+aboveBox.innerHTML="Above 60 "+format(totalAbove);
 
 data.forEach(r=>{
 
@@ -375,7 +363,6 @@ chart.appendChild(row);
 
 }
 
-
 /* ACCURACY */
 
 function drawAccuracy(value){
@@ -402,10 +389,9 @@ text.textContent=value+"%";
 
 }
 
-
 /* LOAD */
 
-async function load(){
+async function load(first=false){
 
 const res=await fetch(API,{cache:"no-store"});
 const json=await res.json();
@@ -413,23 +399,21 @@ const json=await res.json();
 render(json.data);
 drawAccuracy(json.accuracy);
 
+if(first){
+loader.style.display="none";
+content.style.display="block";
 }
 
+}
 
 /* FIRST LOAD */
 
-load();
-
-setTimeout(()=>{
-loader.style.display="none";
-content.style.display="block";
-},800);
-
+load(true);
 
 /* AUTO REFRESH */
 
 setInterval(()=>{
-load();
+load(false);
 },30000);
 
 </script>
