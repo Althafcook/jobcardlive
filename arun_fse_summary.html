@@ -318,8 +318,6 @@ const chart=document.getElementById("chart");
 let percent=0;
 let seconds=0;
 
-/* loader animation */
-
 const loaderTimer=setInterval(()=>{
 
 percent=(percent+2)%100;
@@ -378,10 +376,6 @@ let redWidth=Math.max(redPercent,0.8);
 const row=document.createElement("div");
 row.className="row";
 
-
-
-/* CLICK EVENT */
-
 row.onclick=async()=>{
 
 await fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse));
@@ -389,6 +383,7 @@ await fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse));
 location.href="arun_fse_detail.html";
 
 };
+
 row.innerHTML=`
 
 <div class="name">
@@ -450,6 +445,8 @@ async function load(first=false){
 const res=await fetch(API+"?mode=arun_fse_summary",{cache:"no-store"});
 const json=await res.json();
 
+sessionStorage.setItem("arunFseSummary",JSON.stringify(json));
+
 render(json.data);
 drawAccuracy(json.accuracy);
 
@@ -464,9 +461,25 @@ content.style.display="block";
 
 }
 
-/* FIRST LOAD */
+/* PAGE START */
+
+const cache=sessionStorage.getItem("arunFseSummary");
+
+if(cache){
+
+const json=JSON.parse(cache);
+
+render(json.data);
+drawAccuracy(json.accuracy);
+
+loader.style.display="none";
+content.style.display="block";
+
+}else{
 
 load(true);
+
+}
 
 /* AUTO REFRESH */
 
