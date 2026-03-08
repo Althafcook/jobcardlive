@@ -378,16 +378,17 @@ let redWidth=Math.max(redPercent,0.8);
 const row=document.createElement("div");
 row.className="row";
 
+
+
 /* CLICK EVENT */
 
-row.onclick=()=>{
+row.onclick=async()=>{
 
-fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse),{mode:"no-cors"});
+await fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse));
 
 location.href="arun_fse_detail.html";
 
 };
-
 row.innerHTML=`
 
 <div class="name">
