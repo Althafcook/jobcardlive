@@ -40,32 +40,46 @@ font-size:24px;
 font-weight:500;
 }
 
-/* SUMMARY BOX */
+/* SUMMARY */
 
 .summary{
 display:flex;
-gap:8px;
+gap:15px;
+align-items:flex-start;
 }
 
-.box{
-padding:6px 10px;
-border-radius:6px;
+.summary-item{
+display:flex;
+flex-direction:column;
+align-items:center;
 font-size:12px;
-font-weight:500;
 color:#fff;
 }
 
+.summary-label{
+margin-bottom:4px;
+}
+
+.box{
+padding:8px 14px;
+border-radius:6px;
+font-size:16px;
+font-weight:600;
+}
+
 .total-box{
-background:#fdb913; /* dark yellow */
-color:#000000;
+background:#fdb913;
+color:#000;
 }
 
 .below-box{
 background:#1e73ff;
+color:#fff;
 }
 
 .above-box{
 background:#ff1e1e;
+color:#fff;
 }
 
 /* ACCURACY */
@@ -217,8 +231,8 @@ flex-direction:column;
 <body>
 
 <div id="loader">
-<div id="percent">Loading...</div>
-<div class="loader-sub">Fetching data</div>
+<div id="percent">0%</div>
+<div class="loader-sub" id="seconds">0s</div>
 </div>
 
 <div class="wrapper" id="content" style="display:none">
@@ -264,9 +278,20 @@ fill="#fff"
 
 <div class="summary">
 
-<div class="box total-box" id="totalBox">Total 0</div>
-<div class="box below-box" id="belowBox">Below 60 0</div>
-<div class="box above-box" id="aboveBox">Above 60 0</div>
+<div class="summary-item">
+<div class="summary-label">Total</div>
+<div class="box total-box" id="totalBox">0</div>
+</div>
+
+<div class="summary-item">
+<div class="summary-label">Total Below 60 :</div>
+<div class="box below-box" id="belowBox">0</div>
+</div>
+
+<div class="summary-item">
+<div class="summary-label">Total Above 60 :</div>
+<div class="box above-box" id="aboveBox">0</div>
+</div>
 
 </div>
 
@@ -287,6 +312,20 @@ const API =
 "https://script.google.com/macros/s/AKfycbyTfK8LwqHjv8NzOsPjsNOQrRy49Qfbij6tg0TWvoz6ses2oTG0qvYPwq1ArHXjMPI/exec?mode=arun_fse_summary";
 
 const chart=document.getElementById("chart");
+
+let percent=0;
+let seconds=0;
+
+/* loader animation */
+
+const loaderTimer=setInterval(()=>{
+percent=(percent+3)%100;
+seconds++;
+
+document.getElementById("percent").innerText=percent+"%";
+document.getElementById("seconds").innerText=seconds+"s";
+
+},100);
 
 function format(num){
 return Number(num).toLocaleString('en-IN');
@@ -317,9 +356,9 @@ totalAbove+=r.above60;
 
 let totalAll=totalBelow+totalAbove;
 
-totalBox.innerHTML="Total "+format(totalAll);
-belowBox.innerHTML="Below 60 "+format(totalBelow);
-aboveBox.innerHTML="Above 60 "+format(totalAbove);
+totalBox.innerText=format(totalAll);
+belowBox.innerText=format(totalBelow);
+aboveBox.innerText=format(totalAbove);
 
 data.forEach(r=>{
 
@@ -401,8 +440,12 @@ render(json.data);
 drawAccuracy(json.accuracy);
 
 if(first){
+
+clearInterval(loaderTimer);
+
 loader.style.display="none";
 content.style.display="block";
+
 }
 
 }
