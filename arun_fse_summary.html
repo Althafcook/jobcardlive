@@ -61,7 +61,7 @@ margin-bottom:4px;
 }
 
 .box{
-padding:4px 10px;   /* height reduced */
+padding:4px 10px;
 border-radius:6px;
 font-size:16px;
 font-weight:600;
@@ -131,6 +131,7 @@ margin-right:6px;
 display:flex;
 margin-bottom:30px;
 align-items:flex-start;
+cursor:pointer;
 }
 
 .name{
@@ -310,7 +311,7 @@ fill="#fff"
 <script>
 
 const API =
-"https://script.google.com/macros/s/AKfycbyTfK8LwqHjv8NzOsPjsNOQrRy49Qfbij6tg0TWvoz6ses2oTG0qvYPwq1ArHXjMPI/exec?mode=arun_fse_summary";
+"https://script.google.com/macros/s/AKfycbyTfK8LwqHjv8NzOsPjsNOQrRy49Qfbij6tg0TWvoz6ses2oTG0qvYPwq1ArHXjMPI/exec";
 
 const chart=document.getElementById("chart");
 
@@ -377,6 +378,16 @@ let redWidth=Math.max(redPercent,0.8);
 const row=document.createElement("div");
 row.className="row";
 
+/* CLICK EVENT */
+
+row.onclick=()=>{
+
+fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse),{mode:"no-cors"});
+
+location.href="arun_fse_detail.html";
+
+};
+
 row.innerHTML=`
 
 <div class="name">
@@ -435,7 +446,7 @@ text.textContent=value+"%";
 
 async function load(first=false){
 
-const res=await fetch(API,{cache:"no-store"});
+const res=await fetch(API+"?mode=arun_fse_summary",{cache:"no-store"});
 const json=await res.json();
 
 render(json.data);
