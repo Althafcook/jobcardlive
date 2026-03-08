@@ -23,8 +23,8 @@ margin:auto;
 h2{
 text-align:center;
 font-weight:500;
-margin-bottom:8px;
-font-size:21px;
+margin-bottom:10px;
+font-size:22px;
 }
 
 /* legend */
@@ -62,11 +62,12 @@ display:flex;
 align-items:center;
 justify-content:center;
 flex-direction:column;
-font-size:20px;
+font-size:22px;
+z-index:999;
 }
 
 .loader-sub{
-font-size:13px;
+font-size:14px;
 color:#888;
 margin-top:5px;
 }
@@ -76,7 +77,7 @@ margin-top:5px;
 
 .row{
 display:flex;
-margin-bottom:28px;
+margin-bottom:30px;
 align-items:flex-start;
 }
 
@@ -102,19 +103,19 @@ flex:1;
 .bar{
 height:18px;
 position:relative;
-margin:0;   /* zero gap */
+margin:0;
 }
 
 .blue{
 background:#1e73ff;
 height:100%;
-border-radius:3px 3px 0 0;
+border-radius:3px;
 }
 
 .red{
 background:#ff1e1e;
 height:100%;
-border-radius:0 0 3px 3px;
+border-radius:3px;
 }
 
 .value{
@@ -127,17 +128,36 @@ white-space:nowrap;
 }
 
 
-/* responsive */
+
+/* MOBILE FIX */
 
 @media(max-width:700px){
 
+body{
+padding:15px;
+}
+
 .row{
 flex-direction:column;
+margin-bottom:35px;
 }
 
 .name{
 width:100%;
-margin-bottom:10px;
+margin-bottom:12px;
+font-size:15px;
+}
+
+.bar-area{
+width:100%;
+}
+
+.bar{
+width:100%;
+}
+
+.value{
+font-size:13px;
 }
 
 }
@@ -147,12 +167,10 @@ margin-bottom:10px;
 
 <body>
 
-
 <div id="loader">
 <div id="percent">0%</div>
 <div class="loader-sub">Loading... 0s</div>
 </div>
-
 
 <div class="wrapper" id="content" style="display:none">
 
@@ -179,14 +197,14 @@ let sec=0;
 let percent=0;
 
 
-/* number comma format */
+/* number format */
 
 function format(num){
 return Number(num).toLocaleString('en-IN');
 }
 
 
-/* loader animation */
+/* loader */
 
 const loadInterval=setInterval(()=>{
 percent+=3;
@@ -220,15 +238,13 @@ if(r.fse==="Executive") return;
 
 const total=r.below60+r.above60;
 
-/* width calculation */
-
 let blueWidth=(r.below60/max)*100;
 let redWidth=(r.above60/max)*100;
 
-/* minimum bar width */
+/* minimum width for zero */
 
-if(r.below60===0) blueWidth=0.4;
-if(r.above60===0) redWidth=0.4;
+if(r.below60===0) blueWidth=0.3;
+if(r.above60===0) redWidth=0.3;
 
 const row=document.createElement("div");
 row.className="row";
