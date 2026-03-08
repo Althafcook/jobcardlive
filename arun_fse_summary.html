@@ -12,7 +12,7 @@ margin:0;
 background:#000;
 color:#fff;
 font-family:Segoe UI,Arial;
-padding:15px;
+padding:20px;
 }
 
 .wrapper{
@@ -22,33 +22,35 @@ margin:auto;
 
 h2{
 text-align:center;
-margin-bottom:10px;
 font-weight:500;
+margin-bottom:8px;
+font-size:22px;
 }
 
 /* legend */
 
 .legend{
 text-align:center;
-margin-bottom:20px;
-font-size:14px;
-color:#ccc;
+font-size:13px;
+color:#aaa;
+margin-bottom:25px;
 }
 
 .legend span{
-display:inline-flex;
-align-items:center;
 margin:0 10px;
 }
 
-.box{
-width:14px;
-height:14px;
+.bluebox,
+.redbox{
+display:inline-block;
+width:12px;
+height:12px;
 margin-right:6px;
 }
 
 .bluebox{background:#1e73ff;}
 .redbox{background:#ff1e1e;}
+
 
 /* loader */
 
@@ -60,33 +62,36 @@ display:flex;
 align-items:center;
 justify-content:center;
 flex-direction:column;
-font-size:22px;
+font-size:20px;
 }
 
 .loader-sub{
-font-size:14px;
-color:#aaa;
-margin-top:6px;
+font-size:13px;
+color:#888;
+margin-top:5px;
 }
+
 
 /* rows */
 
 .row{
 display:flex;
+margin-bottom:30px;
 align-items:flex-start;
-margin-bottom:28px;
 }
 
 .name{
-width:220px;
-font-size:18px;
+width:230px;
+font-size:17px;
+font-weight:500;
 }
 
 .total{
-font-size:15px;
-color:#bbb;
-margin-top:4px;
+font-size:13px;
+color:#aaa;
+margin-top:3px;
 }
+
 
 /* bars */
 
@@ -95,29 +100,33 @@ flex:1;
 }
 
 .bar{
+height:18px;
 position:relative;
-height:20px;
-display:flex;
 margin-bottom:6px;
 }
 
 .blue{
 background:#1e73ff;
 height:100%;
+border-radius:3px;
 }
 
 .red{
 background:#ff1e1e;
 height:100%;
+border-radius:3px;
 }
 
 .value{
 position:absolute;
 top:50%;
 transform:translateY(-50%);
-font-size:14px;
+font-size:13px;
+color:#fff;
+margin-left:3px;
 white-space:nowrap;
 }
+
 
 /* responsive */
 
@@ -129,7 +138,7 @@ flex-direction:column;
 
 .name{
 width:100%;
-margin-bottom:8px;
+margin-bottom:10px;
 }
 
 }
@@ -139,23 +148,26 @@ margin-bottom:8px;
 
 <body>
 
+
 <div id="loader">
 <div id="percent">0%</div>
 <div class="loader-sub">Loading... 0s</div>
 </div>
+
 
 <div class="wrapper" id="content" style="display:none">
 
 <h2>FSE Pending Summary</h2>
 
 <div class="legend">
-<span><div class="box bluebox"></div>Below 60 days</span>
-<span><div class="box redbox"></div>Above 60 days</span>
+<span><span class="bluebox"></span>Below 60 days</span>
+<span><span class="redbox"></span>Above 60 days</span>
 </div>
 
 <div id="chart"></div>
 
 </div>
+
 
 <script>
 
@@ -167,7 +179,8 @@ const chart=document.getElementById("chart");
 let sec=0;
 let percent=0;
 
-/* loader */
+
+/* loader animation */
 
 const loadInterval=setInterval(()=>{
 percent+=3;
@@ -181,7 +194,6 @@ document.querySelector(".loader-sub").textContent="Loading... "+sec+"s";
 },1000);
 
 
-/* render */
 
 function render(data){
 
@@ -190,13 +202,13 @@ chart.innerHTML="";
 let max=0;
 
 data.forEach(r=>{
+if(r.fse==="Executive") return;
 let total=r.below60+r.above60;
 if(total>max)max=total;
 });
 
-data.forEach(r=>{
 
-/* skip header row */
+data.forEach(r=>{
 
 if(r.fse==="Executive") return;
 
@@ -218,18 +230,13 @@ ${r.fse}
 <div class="bar-area">
 
 <div class="bar">
-
 <div class="blue" style="width:${blueWidth}%"></div>
+<div class="value" style="left:${blueWidth}%">${r.below60}</div>
+</div>
+
+<div class="bar">
 <div class="red" style="width:${redWidth}%"></div>
-
-<div class="value" style="left:calc(${blueWidth}% + 3px)">
-${r.below60}
-</div>
-
-<div class="value" style="left:calc(${blueWidth + redWidth}% + 3px)">
-${r.above60}
-</div>
-
+<div class="value" style="left:${redWidth}%">${r.above60}</div>
 </div>
 
 </div>
@@ -245,6 +252,7 @@ chart.appendChild(row);
 });
 
 }
+
 
 
 /* load data */
