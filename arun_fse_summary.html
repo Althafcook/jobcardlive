@@ -18,6 +18,7 @@ padding:20px;
 .wrapper{
 max-width:1100px;
 margin:auto;
+position:relative;
 }
 
 h2{
@@ -52,6 +53,28 @@ margin-right:6px;
 .redbox{background:#ff1e1e;}
 
 
+/* accuracy circle */
+
+.accuracy-box{
+position:absolute;
+top:0;
+right:0;
+text-align:center;
+}
+
+.accuracy-title{
+font-size:12px;
+color:#aaa;
+margin-bottom:4px;
+}
+
+.accuracy-circle{
+width:70px;
+height:70px;
+}
+
+
+
 /* loader */
 
 #loader{
@@ -71,6 +94,7 @@ font-size:14px;
 color:#888;
 margin-top:5px;
 }
+
 
 
 /* rows */
@@ -143,6 +167,11 @@ width:100%;
 margin-bottom:12px;
 }
 
+.accuracy-box{
+top:-5px;
+right:0;
+}
+
 }
 
 </style>
@@ -155,9 +184,54 @@ margin-bottom:12px;
 <div class="loader-sub">Loading... 0s</div>
 </div>
 
+
 <div class="wrapper" id="content" style="display:none">
 
 <h2>FSE Pending Summary</h2>
+
+<div class="accuracy-box">
+
+<div class="accuracy-title">Accuracy</div>
+
+<svg class="accuracy-circle" viewBox="0 0 120 120">
+
+<circle
+cx="60"
+cy="60"
+r="52"
+stroke="#333"
+stroke-width="10"
+fill="none"
+/>
+
+<circle
+id="accuracyRing"
+cx="60"
+cy="60"
+r="52"
+stroke="green"
+stroke-width="10"
+fill="none"
+stroke-linecap="round"
+stroke-dasharray="326"
+stroke-dashoffset="326"
+/>
+
+<text
+id="accuracyText"
+x="60"
+y="66"
+text-anchor="middle"
+font-size="24"
+fill="#fff"
+>
+0%
+</text>
+
+</svg>
+
+</div>
+
 
 <div class="legend">
 <span><span class="bluebox"></span>Below 60 days</span>
@@ -224,10 +298,8 @@ const total=r.below60+r.above60;
 let bluePercent=(r.below60/max)*100;
 let redPercent=(r.above60/max)*100;
 
-/* minimum width fix */
-
-let blueWidth = Math.max(bluePercent,0.8);
-let redWidth = Math.max(redPercent,0.8);
+let blueWidth=Math.max(bluePercent,0.8);
+let redWidth=Math.max(redPercent,0.8);
 
 const row=document.createElement("div");
 row.className="row";
@@ -267,14 +339,46 @@ chart.appendChild(row);
 
 
 
-/* load data */
+/* accuracy circle */
+
+function drawAccuracy(value){
+
+const ring=document.getElementById("accuracyRing");
+const text=document.getElementById("accuracyText");
+
+const radius=52;
+const circumference=2*Math.PI*radius;
+
+const percent=value;
+
+const offset=circumference-(percent/100)*circumference;
+
+ring.style.strokeDasharray=circumference;
+ring.style.strokeDashoffset=offset;
+
+let color="red";
+
+if(percent>=80) color="#00ff7f";
+else if(percent>=50) color="#ffc107";
+
+ring.style.stroke=color;
+
+text.textContent=percent+"%";
+
+}
+
+
+
+/* load */
 
 async function load(){
 
 const res=await fetch(API,{cache:"no-store"});
-const data=await res.json();
+const json=await res.json();
 
-render(data);
+render(json.data);
+
+drawAccuracy(json.accuracy);
 
 clearInterval(loadInterval);
 
@@ -288,7 +392,8 @@ content.style.display="block";
 }
 
 
-/* back cache fix */
+
+/* back fix */
 
 window.addEventListener("pageshow",e=>{
 if(e.persisted){
