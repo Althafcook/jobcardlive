@@ -318,19 +318,22 @@ const chart=document.getElementById("chart");
 let percent=0;
 let seconds=0;
 
+/* loader animation */
+
 const loaderTimer=setInterval(()=>{
 
-percent=(percent+2)%100;
-seconds++;
+percent+=3;
+if(percent>95) percent=95;
 
 document.getElementById("percent").innerText="Loading... "+percent+"%";
-document.getElementById("seconds").innerText="("+seconds+"s)";
 
+},60);
+
+setInterval(()=>{
+seconds++;
+document.getElementById("seconds").innerText="("+seconds+"s)";
 },1000);
 
-function format(num){
-return Number(num).toLocaleString('en-IN');
-}
 
 /* RENDER */
 
