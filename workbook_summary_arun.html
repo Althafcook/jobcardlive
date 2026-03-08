@@ -101,11 +101,12 @@ body{
       Clip <span id="clipCount">(…)</span>
     </div>
 
-    
-    <div class="menu-item">FSE wise pending </div>
+    <!-- ✔ ADDED ID -->
+    <div class="menu-item" id="fsePendingItem">FSE wise pending</div>
+
     <div class="menu-item">Pending items <span>(Upcoming version...)</span></div>
-     <div class="menu-item">Lost sale <span>(Upcoming version...)</span></div>
-     <div class="menu-item">Search locker items <span>(Upcoming version...)</span></div>
+    <div class="menu-item">Lost sale <span>(Upcoming version...)</span></div>
+    <div class="menu-item">Search locker items <span>(Upcoming version...)</span></div>
   </div>
 
   <div class="animation-box" id="robotAnimation"></div>
@@ -161,6 +162,11 @@ function setupClick(element, count, url){
     element.onclick = null;
   }
 }
+
+/* ================= FSE PAGE CLICK ================= */
+document.getElementById("fsePendingItem").onclick = () => {
+  location.href = "arun_fse_summary.html";
+};
 
 /* ================= INIT ================= */
 loadSummary();
