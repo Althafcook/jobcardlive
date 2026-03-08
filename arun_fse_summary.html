@@ -98,12 +98,14 @@ margin-top:3px;
 
 .bar-area{
 flex:1;
+width:100%;
 }
 
 .bar{
 height:18px;
 position:relative;
 margin:0;
+width:100%;
 }
 
 .blue{
@@ -123,41 +125,22 @@ position:absolute;
 top:50%;
 transform:translateY(-50%);
 font-size:13px;
-margin-left:3px;
+margin-left:4px;
 white-space:nowrap;
 }
 
 
-
-/* MOBILE FIX */
+/* mobile */
 
 @media(max-width:700px){
 
-body{
-padding:15px;
-}
-
 .row{
 flex-direction:column;
-margin-bottom:35px;
 }
 
 .name{
 width:100%;
 margin-bottom:12px;
-font-size:15px;
-}
-
-.bar-area{
-width:100%;
-}
-
-.bar{
-width:100%;
-}
-
-.value{
-font-size:13px;
 }
 
 }
@@ -238,13 +221,13 @@ if(r.fse==="Executive") return;
 
 const total=r.below60+r.above60;
 
-let blueWidth=(r.below60/max)*100;
-let redWidth=(r.above60/max)*100;
+let bluePercent=(r.below60/max)*100;
+let redPercent=(r.above60/max)*100;
 
-/* minimum width for zero */
+/* minimum width fix */
 
-if(r.below60===0) blueWidth=0.3;
-if(r.above60===0) redWidth=0.3;
+let blueWidth = Math.max(bluePercent,0.8);
+let redWidth = Math.max(redPercent,0.8);
 
 const row=document.createElement("div");
 row.className="row";
