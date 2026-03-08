@@ -3,45 +3,93 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arun FSE Summary</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>FSE Pending Summary</title>
 
 <style>
 
 body{
-  margin:0;
-  background:#000;
-  color:#fff;
-  font-family:Segoe UI,Arial;
-  padding:15px;
+margin:0;
+background:#000;
+font-family:Segoe UI,Arial;
+color:#fff;
+padding:15px;
 }
 
 .wrapper{
-  width:100%;
-  max-width:1200px;
-  margin:auto;
+max-width:1000px;
+margin:auto;
 }
 
 h2{
-  margin-bottom:15px;
-  font-weight:500;
-  text-align:center;
+text-align:center;
+margin-bottom:20px;
+font-weight:500;
 }
 
-.chart-box{
-  background:#111;
-  padding:15px;
-  border-radius:12px;
-  box-shadow:0 0 20px rgba(0,0,0,0.6);
+/* loader */
+
+#loader{
+position:fixed;
+inset:0;
+background:#000;
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+font-size:20px;
 }
 
-.chart-scroll{
-  overflow-x:auto;
+.loader-sub{
+font-size:14px;
+margin-top:10px;
+color:#aaa;
 }
 
-canvas{
-  cursor:pointer;
+/* chart */
+
+.row{
+margin-bottom:25px;
+}
+
+.name{
+font-size:18px;
+margin-bottom:6px;
+}
+
+.total{
+font-size:15px;
+color:#bbb;
+}
+
+.barbox{
+position:relative;
+height:22px;
+background:#111;
+border-radius:4px;
+overflow:hidden;
+}
+
+.blue{
+position:absolute;
+left:0;
+top:0;
+bottom:0;
+background:#1e73ff;
+}
+
+.red{
+position:absolute;
+top:0;
+bottom:0;
+background:#ff1e1e;
+}
+
+.val{
+position:absolute;
+right:6px;
+top:50%;
+transform:translateY(-50%);
+font-size:13px;
 }
 
 </style>
@@ -49,178 +97,142 @@ canvas{
 
 <body>
 
-<div class="wrapper">
+<div id="loader">
+<div id="percent">0%</div>
+<div class="loader-sub">Loading... 0s</div>
+</div>
+
+<div class="wrapper" id="content" style="display:none">
 
 <h2>FSE Pending Summary</h2>
 
-<div class="chart-box">
-<div class="chart-scroll">
-<canvas id="fseChart"></canvas>
-</div>
-</div>
+<div id="chart"></div>
 
 </div>
 
 <script>
 
-const API_URL =
+const API =
 "https://script.google.com/macros/s/AKfycbyTfK8LwqHjv8NzOsPjsNOQrRy49Qfbij6tg0TWvoz6ses2oTG0qvYPwq1ArHXjMPI/exec?mode=arun_fse_summary";
 
+const chart = document.getElementById("chart");
 
-async function loadGraph(){
+let loaderInterval;
+let sec=0;
 
-  const res = await fetch(API_URL,{cache:"no-store"});
-  const data = await res.json();
+/* loader */
 
-  const labels = [];
-  const below = [];
-  const above = [];
-  const total = [];
+function showLoader(){
 
-  data.forEach(r=>{
-    labels.push(r.fse);
-    below.push(r.below60);
-    above.push(r.above60);
-    total.push(r.below60 + r.above60);
-  });
+let p=0;
 
+loaderInterval=setInterval(()=>{
+p+=2;
+if(p>90)p=90;
+percent.textContent=p+"%";
+},50);
 
-  const canvas = document.getElementById("fseChart");
-
-  /* auto height based on executives */
-  canvas.height = labels.length * 48;
-
-  const ctx = canvas.getContext("2d");
-
-
-  /* value box plugin */
-
-  const valuePlugin = {
-    id:"valuePlugin",
-
-    afterDatasetsDraw(chart){
-
-      const {ctx} = chart;
-
-      const metaBelow = chart.getDatasetMeta(0);
-
-      metaBelow.data.forEach((bar,index)=>{
-
-        const x = bar.x + 10;
-        const y = bar.y;
-
-        const belowVal = below[index];
-        const aboveVal = above[index];
-        const totalVal = total[index];
-
-        function drawBox(text,color,offset){
-
-          ctx.fillStyle=color;
-          ctx.fillRect(x + offset, y-10, 55, 18);
-
-          ctx.fillStyle="#fff";
-          ctx.font="11px Segoe UI";
-          ctx.textAlign="center";
-          ctx.fillText(text, x + offset + 27, y+3);
-
-        }
-
-        drawBox(belowVal,"#2ea8ff",0);
-        drawBox(aboveVal,"#ff4d4d",60);
-        drawBox(totalVal,"#000",120);
-
-      });
-
-    }
-  };
-
-
-  new Chart(ctx,{
-
-    type:"bar",
-
-    data:{
-      labels:labels,
-      datasets:[
-        {
-          data:below,
-          backgroundColor:"#2ea8ff",
-          borderRadius:4,
-          barThickness:18
-        },
-        {
-          data:above,
-          backgroundColor:"#ff4d4d",
-          borderRadius:4,
-          barThickness:18
-        }
-      ]
-    },
-
-    options:{
-
-      indexAxis:'y',
-
-      responsive:true,
-      maintainAspectRatio:false,
-
-      animation:{
-        duration:900
-      },
-
-      scales:{
-
-        x:{
-          stacked:true,
-          display:false
-        },
-
-        y:{
-          stacked:true,
-          ticks:{
-            color:"#fff",
-            font:{
-              size:12
-            }
-          },
-          grid:{
-            display:false
-          }
-        }
-
-      },
-
-      plugins:{
-        legend:{display:false},
-        tooltip:{enabled:false}
-      },
-
-
-      /* click executive */
-
-      onClick:(evt,items)=>{
-
-        if(items.length){
-
-          const index = items[0].index;
-          const fse = labels[index];
-
-          location.href =
-          "arun_fse_detail.html?fse=" + encodeURIComponent(fse);
-
-        }
-
-      }
-
-    },
-
-    plugins:[valuePlugin]
-
-  });
+setInterval(()=>{
+sec++;
+document.querySelector(".loader-sub").textContent="Loading... "+sec+"s";
+},1000);
 
 }
 
-loadGraph();
+/* hide loader */
+
+function hideLoader(){
+
+clearInterval(loaderInterval);
+
+percent.textContent="100%";
+
+setTimeout(()=>{
+loader.style.display="none";
+content.style.display="block";
+},300);
+
+}
+
+/* render */
+
+function render(data){
+
+chart.innerHTML="";
+
+let max=0;
+
+data.forEach(r=>{
+let t=r.below60+r.above60;
+if(t>max)max=t;
+});
+
+data.forEach(r=>{
+
+const total=r.below60+r.above60;
+
+const blueWidth=(r.below60/max)*100;
+const redWidth=(r.above60/max)*100;
+
+const row=document.createElement("div");
+row.className="row";
+
+row.innerHTML=`
+
+<div class="name">
+${r.fse}
+<span class="total">(${total})</span>
+</div>
+
+<div class="barbox">
+
+<div class="blue" style="width:${blueWidth}%">
+<span class="val">${r.below60}</span>
+</div>
+
+<div class="red" style="left:${blueWidth}%;width:${redWidth}%">
+<span class="val">${r.above60}</span>
+</div>
+
+</div>
+
+`;
+
+row.onclick=()=>{
+location.href="arun_fse_detail.html?fse="+encodeURIComponent(r.fse);
+};
+
+chart.appendChild(row);
+
+});
+
+}
+
+/* load data */
+
+async function load(){
+
+showLoader();
+
+const r=await fetch(API,{cache:"no-store"});
+const data=await r.json();
+
+render(data);
+
+hideLoader();
+
+}
+
+/* back cache fix */
+
+window.addEventListener("pageshow",e=>{
+if(e.persisted){
+content.style.display="block";
+loader.style.display="none";
+}
+});
+
+load();
 
 </script>
 
