@@ -61,10 +61,11 @@ margin-bottom:4px;
 }
 
 .box{
-padding:8px 14px;
+padding:4px 10px;   /* height reduced */
 border-radius:6px;
 font-size:16px;
 font-weight:600;
+line-height:1.2;
 }
 
 .total-box{
@@ -194,9 +195,9 @@ z-index:999;
 }
 
 .loader-sub{
-font-size:14px;
-color:#888;
-margin-top:5px;
+font-size:16px;
+color:#aaa;
+margin-top:6px;
 }
 
 /* MOBILE */
@@ -231,8 +232,8 @@ flex-direction:column;
 <body>
 
 <div id="loader">
-<div id="percent">0%</div>
-<div class="loader-sub" id="seconds">0s</div>
+<div id="percent">Loading... 0%</div>
+<div class="loader-sub" id="seconds">(0s)</div>
 </div>
 
 <div class="wrapper" id="content" style="display:none">
@@ -319,13 +320,14 @@ let seconds=0;
 /* loader animation */
 
 const loaderTimer=setInterval(()=>{
-percent=(percent+3)%100;
+
+percent=(percent+2)%100;
 seconds++;
 
-document.getElementById("percent").innerText=percent+"%";
-document.getElementById("seconds").innerText=seconds+"s";
+document.getElementById("percent").innerText="Loading... "+percent+"%";
+document.getElementById("seconds").innerText="("+seconds+"s)";
 
-},100);
+},1000);
 
 function format(num){
 return Number(num).toLocaleString('en-IN');
