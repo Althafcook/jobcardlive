@@ -24,7 +24,7 @@ h2{
 text-align:center;
 font-weight:500;
 margin-bottom:8px;
-font-size:22px;
+font-size:21px;
 }
 
 /* legend */
@@ -76,18 +76,18 @@ margin-top:5px;
 
 .row{
 display:flex;
-margin-bottom:30px;
+margin-bottom:28px;
 align-items:flex-start;
 }
 
 .name{
-width:230px;
-font-size:17px;
+width:210px;
+font-size:15px;
 font-weight:500;
 }
 
 .total{
-font-size:13px;
+font-size:12px;
 color:#aaa;
 margin-top:3px;
 }
@@ -102,19 +102,19 @@ flex:1;
 .bar{
 height:18px;
 position:relative;
-margin-bottom:6px;
+margin:0;   /* zero gap */
 }
 
 .blue{
 background:#1e73ff;
 height:100%;
-border-radius:3px;
+border-radius:3px 3px 0 0;
 }
 
 .red{
 background:#ff1e1e;
 height:100%;
-border-radius:3px;
+border-radius:0 0 3px 3px;
 }
 
 .value{
@@ -122,7 +122,6 @@ position:absolute;
 top:50%;
 transform:translateY(-50%);
 font-size:13px;
-color:#fff;
 margin-left:3px;
 white-space:nowrap;
 }
@@ -180,6 +179,13 @@ let sec=0;
 let percent=0;
 
 
+/* number comma format */
+
+function format(num){
+return Number(num).toLocaleString('en-IN');
+}
+
+
 /* loader animation */
 
 const loadInterval=setInterval(()=>{
@@ -214,8 +220,15 @@ if(r.fse==="Executive") return;
 
 const total=r.below60+r.above60;
 
-const blueWidth=(r.below60/max)*100;
-const redWidth=(r.above60/max)*100;
+/* width calculation */
+
+let blueWidth=(r.below60/max)*100;
+let redWidth=(r.above60/max)*100;
+
+/* minimum bar width */
+
+if(r.below60===0) blueWidth=0.4;
+if(r.above60===0) redWidth=0.4;
 
 const row=document.createElement("div");
 row.className="row";
@@ -224,19 +237,19 @@ row.innerHTML=`
 
 <div class="name">
 ${r.fse}
-<div class="total">(${total})</div>
+<div class="total">(${format(total)})</div>
 </div>
 
 <div class="bar-area">
 
 <div class="bar">
 <div class="blue" style="width:${blueWidth}%"></div>
-<div class="value" style="left:${blueWidth}%">${r.below60}</div>
+<div class="value" style="left:${blueWidth}%">${format(r.below60)}</div>
 </div>
 
 <div class="bar">
 <div class="red" style="width:${redWidth}%"></div>
-<div class="value" style="left:${redWidth}%">${r.above60}</div>
+<div class="value" style="left:${redWidth}%">${format(r.above60)}</div>
 </div>
 
 </div>
