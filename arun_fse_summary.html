@@ -20,13 +20,19 @@ max-width:1100px;
 margin:auto;
 }
 
-/* header */
+/* HEADER */
 
 .header{
 display:flex;
 align-items:center;
-gap:15px;
+justify-content:space-between;
 margin-bottom:10px;
+}
+
+.left-head{
+display:flex;
+align-items:center;
+gap:15px;
 }
 
 .title{
@@ -34,7 +40,35 @@ font-size:24px;
 font-weight:500;
 }
 
-/* accuracy */
+/* SUMMARY BOX */
+
+.summary{
+display:flex;
+gap:8px;
+}
+
+.box{
+padding:6px 10px;
+border-radius:6px;
+font-size:12px;
+font-weight:500;
+color:#fff;
+}
+
+.total-box{
+background:#001f5c;
+}
+
+.below-box{
+background:#1e73ff;
+}
+
+.above-box{
+background:#ff1e1e;
+}
+
+
+/* ACCURACY */
 
 .accuracy-box{
 display:flex;
@@ -45,7 +79,6 @@ align-items:center;
 .accuracy-title{
 font-size:12px;
 color:#aaa;
-margin-bottom:2px;
 }
 
 .accuracy-circle{
@@ -54,7 +87,7 @@ height:60px;
 }
 
 
-/* legend */
+/* LEGEND */
 
 .legend{
 text-align:center;
@@ -79,7 +112,7 @@ margin-right:6px;
 .redbox{background:#ff1e1e;}
 
 
-/* rows */
+/* ROW */
 
 .row{
 display:flex;
@@ -100,7 +133,7 @@ margin-top:3px;
 }
 
 
-/* bars */
+/* BAR */
 
 .bar-area{
 flex:1;
@@ -136,7 +169,7 @@ white-space:nowrap;
 }
 
 
-/* loader */
+/* LOADER */
 
 #loader{
 position:fixed;
@@ -157,12 +190,19 @@ margin-top:5px;
 }
 
 
-/* mobile */
+/* MOBILE */
 
 @media(max-width:700px){
 
 .header{
+flex-direction:column;
+align-items:center;
+gap:10px;
+}
+
+.summary{
 justify-content:center;
+flex-wrap:wrap;
 }
 
 .name{
@@ -190,26 +230,18 @@ flex-direction:column;
 
 <div class="header">
 
+<div class="left-head">
+
 <div class="accuracy-box">
 
 <div class="accuracy-title">Accuracy</div>
 
 <svg class="accuracy-circle" viewBox="0 0 120 120">
 
-<circle
-cx="60"
-cy="60"
-r="52"
-stroke="#333"
-stroke-width="10"
-fill="none"
-/>
+<circle cx="60" cy="60" r="52" stroke="#333" stroke-width="10" fill="none"/>
 
-<circle
-id="accuracyRing"
-cx="60"
-cy="60"
-r="52"
+<circle id="accuracyRing"
+cx="60" cy="60" r="52"
 stroke="green"
 stroke-width="10"
 fill="none"
@@ -218,10 +250,8 @@ stroke-dasharray="326"
 stroke-dashoffset="326"
 />
 
-<text
-id="accuracyText"
-x="60"
-y="66"
+<text id="accuracyText"
+x="60" y="66"
 text-anchor="middle"
 font-size="24"
 fill="#fff"
@@ -233,11 +263,20 @@ fill="#fff"
 
 </div>
 
-<div class="title">
-FSE Pending Summary
+<div class="title">FSE Pending Summary</div>
+
+</div>
+
+<div class="summary">
+
+<div class="box total-box" id="totalBox">Total 0</div>
+<div class="box below-box" id="belowBox">Below 0</div>
+<div class="box above-box" id="aboveBox">Above 0</div>
+
 </div>
 
 </div>
+
 
 <div class="legend">
 <span><span class="bluebox"></span>Below 60 days</span>
@@ -256,47 +295,46 @@ const API =
 
 const chart=document.getElementById("chart");
 
-let sec=0;
-let percent=0;
-
-
-/* number format */
-
 function format(num){
 return Number(num).toLocaleString('en-IN');
 }
 
 
-/* loader */
-
-const loadInterval=setInterval(()=>{
-percent+=3;
-if(percent>90)percent=90;
-document.getElementById("percent").textContent=percent+"%";
-},60);
-
-setInterval(()=>{
-sec++;
-document.querySelector(".loader-sub").textContent="Loading... "+sec+"s";
-},1000);
-
-
+/* RENDER */
 
 function render(data){
 
 chart.innerHTML="";
 
 let max=0;
+let totalBelow=0;
+let totalAbove=0;
 
 data.forEach(r=>{
+
+if(r.fse==="Executive") return;
+
 let total=r.below60+r.above60;
-if(total>max)max=total;
+
+if(total>max) max=total;
+
+totalBelow+=r.below60;
+totalAbove+=r.above60;
+
 });
 
+let totalAll=totalBelow+totalAbove;
+
+/* summary update */
+
+totalBox.innerHTML="Total "+format(totalAll);
+belowBox.innerHTML="Below "+format(totalBelow);
+aboveBox.innerHTML="Above "+format(totalAbove);
+
 
 data.forEach(r=>{
 
-if(r.fse==="Executive") return;   // header remove
+if(r.fse==="Executive") return;
 
 const total=r.below60+r.above60;
 
@@ -329,12 +367,7 @@ ${r.fse}
 </div>
 
 </div>
-
 `;
-
-row.onclick=()=>{
-location.href="arun_fse_detail.html?fse="+encodeURIComponent(r.fse);
-};
 
 chart.appendChild(row);
 
@@ -343,8 +376,7 @@ chart.appendChild(row);
 }
 
 
-
-/* accuracy circle */
+/* ACCURACY */
 
 function drawAccuracy(value){
 
@@ -371,8 +403,7 @@ text.textContent=value+"%";
 }
 
 
-
-/* load */
+/* LOAD */
 
 async function load(){
 
@@ -380,21 +411,26 @@ const res=await fetch(API,{cache:"no-store"});
 const json=await res.json();
 
 render(json.data);
-
 drawAccuracy(json.accuracy);
 
-clearInterval(loadInterval);
+}
 
-document.getElementById("percent").textContent="100%";
+
+/* FIRST LOAD */
+
+load();
 
 setTimeout(()=>{
 loader.style.display="none";
 content.style.display="block";
-},300);
+},800);
 
-}
 
+/* AUTO REFRESH */
+
+setInterval(()=>{
 load();
+},30000);
 
 </script>
 
