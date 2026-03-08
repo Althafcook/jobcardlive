@@ -10,13 +10,13 @@
 body{
 margin:0;
 background:#000;
-font-family:Segoe UI,Arial;
 color:#fff;
+font-family:Segoe UI,Arial;
 padding:15px;
 }
 
 .wrapper{
-max-width:1000px;
+max-width:1100px;
 margin:auto;
 }
 
@@ -36,60 +36,85 @@ display:flex;
 align-items:center;
 justify-content:center;
 flex-direction:column;
-font-size:20px;
+font-size:22px;
 }
 
 .loader-sub{
 font-size:14px;
-margin-top:10px;
 color:#aaa;
+margin-top:6px;
 }
 
-/* chart */
+/* rows */
 
 .row{
-margin-bottom:25px;
+display:flex;
+align-items:flex-start;
+margin-bottom:30px;
 }
 
 .name{
+width:220px;
 font-size:18px;
-margin-bottom:6px;
 }
 
 .total{
 font-size:15px;
 color:#bbb;
+margin-top:4px;
 }
 
-.barbox{
+/* bars */
+
+.bar-area{
+flex:1;
+}
+
+.bar{
 position:relative;
 height:22px;
-background:#111;
+margin-bottom:6px;
+background:#222;
 border-radius:4px;
-overflow:hidden;
 }
 
 .blue{
-position:absolute;
-left:0;
-top:0;
-bottom:0;
 background:#1e73ff;
+height:100%;
+border-radius:4px;
 }
 
 .red{
-position:absolute;
-top:0;
-bottom:0;
 background:#ff1e1e;
+height:100%;
+border-radius:4px;
 }
 
-.val{
+.value{
 position:absolute;
-right:6px;
+right:-55px;
 top:50%;
 transform:translateY(-50%);
-font-size:13px;
+font-size:14px;
+}
+
+/* responsive */
+
+@media(max-width:700px){
+
+.row{
+flex-direction:column;
+}
+
+.name{
+width:100%;
+margin-bottom:8px;
+}
+
+.value{
+right:-45px;
+}
+
 }
 
 </style>
@@ -115,46 +140,26 @@ font-size:13px;
 const API =
 "https://script.google.com/macros/s/AKfycbyTfK8LwqHjv8NzOsPjsNOQrRy49Qfbij6tg0TWvoz6ses2oTG0qvYPwq1ArHXjMPI/exec?mode=arun_fse_summary";
 
-const chart = document.getElementById("chart");
+const chart=document.getElementById("chart");
 
-let loaderInterval;
 let sec=0;
+let percent=0;
 
 /* loader */
 
-function showLoader(){
-
-let p=0;
-
-loaderInterval=setInterval(()=>{
-p+=2;
-if(p>90)p=90;
-percent.textContent=p+"%";
-},50);
+const loadInterval=setInterval(()=>{
+percent+=3;
+if(percent>90)percent=90;
+document.getElementById("percent").textContent=percent+"%";
+},60);
 
 setInterval(()=>{
 sec++;
 document.querySelector(".loader-sub").textContent="Loading... "+sec+"s";
 },1000);
 
-}
 
-/* hide loader */
-
-function hideLoader(){
-
-clearInterval(loaderInterval);
-
-percent.textContent="100%";
-
-setTimeout(()=>{
-loader.style.display="none";
-content.style.display="block";
-},300);
-
-}
-
-/* render */
+/* render bars */
 
 function render(data){
 
@@ -181,17 +186,19 @@ row.innerHTML=`
 
 <div class="name">
 ${r.fse}
-<span class="total">(${total})</span>
+<div class="total">(${total})</div>
 </div>
 
-<div class="barbox">
+<div class="bar-area">
 
-<div class="blue" style="width:${blueWidth}%">
-<span class="val">${r.below60}</span>
+<div class="bar">
+<div class="blue" style="width:${blueWidth}%"></div>
+<div class="value">${r.below60}</div>
 </div>
 
-<div class="red" style="left:${blueWidth}%;width:${redWidth}%">
-<span class="val">${r.above60}</span>
+<div class="bar">
+<div class="red" style="width:${redWidth}%"></div>
+<div class="value">${r.above60}</div>
 </div>
 
 </div>
@@ -208,27 +215,34 @@ chart.appendChild(row);
 
 }
 
+
 /* load data */
 
 async function load(){
 
-showLoader();
-
-const r=await fetch(API,{cache:"no-store"});
-const data=await r.json();
+const res=await fetch(API,{cache:"no-store"});
+const data=await res.json();
 
 render(data);
 
-hideLoader();
+clearInterval(loadInterval);
+
+document.getElementById("percent").textContent="100%";
+
+setTimeout(()=>{
+loader.style.display="none";
+content.style.display="block";
+},300);
 
 }
+
 
 /* back cache fix */
 
 window.addEventListener("pageshow",e=>{
 if(e.persisted){
-content.style.display="block";
 loader.style.display="none";
+content.style.display="block";
 }
 });
 
