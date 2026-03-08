@@ -18,15 +18,41 @@ padding:20px;
 .wrapper{
 max-width:1100px;
 margin:auto;
-position:relative;
 }
 
-h2{
-text-align:center;
-font-weight:500;
+/* header */
+
+.header{
+display:flex;
+align-items:center;
+gap:15px;
 margin-bottom:10px;
-font-size:22px;
 }
+
+.title{
+font-size:24px;
+font-weight:500;
+}
+
+/* accuracy */
+
+.accuracy-box{
+display:flex;
+flex-direction:column;
+align-items:center;
+}
+
+.accuracy-title{
+font-size:12px;
+color:#aaa;
+margin-bottom:2px;
+}
+
+.accuracy-circle{
+width:60px;
+height:60px;
+}
+
 
 /* legend */
 
@@ -51,48 +77,6 @@ margin-right:6px;
 
 .bluebox{background:#1e73ff;}
 .redbox{background:#ff1e1e;}
-
-
-/* accuracy */
-
-.accuracy-box{
-position:absolute;
-top:0;
-right:0;
-text-align:center;
-}
-
-.accuracy-title{
-font-size:12px;
-color:#aaa;
-margin-bottom:4px;
-}
-
-.accuracy-circle{
-width:70px;
-height:70px;
-}
-
-
-/* loader */
-
-#loader{
-position:fixed;
-inset:0;
-background:#000;
-display:flex;
-align-items:center;
-justify-content:center;
-flex-direction:column;
-font-size:22px;
-z-index:999;
-}
-
-.loader-sub{
-font-size:14px;
-color:#888;
-margin-top:5px;
-}
 
 
 /* rows */
@@ -152,29 +136,42 @@ white-space:nowrap;
 }
 
 
-/* MOBILE FIX */
+/* loader */
+
+#loader{
+position:fixed;
+inset:0;
+background:#000;
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+font-size:22px;
+z-index:999;
+}
+
+.loader-sub{
+font-size:14px;
+color:#888;
+margin-top:5px;
+}
+
+
+/* mobile */
 
 @media(max-width:700px){
 
-.wrapper{
-padding-top:10px;
-}
-
-.accuracy-box{
-position:static;
-margin:10px auto 20px;
-display:flex;
-flex-direction:column;
-align-items:center;
-}
-
-.row{
-flex-direction:column;
+.header{
+justify-content:center;
 }
 
 .name{
 width:100%;
 margin-bottom:10px;
+}
+
+.row{
+flex-direction:column;
 }
 
 }
@@ -189,10 +186,9 @@ margin-bottom:10px;
 <div class="loader-sub">Loading... 0s</div>
 </div>
 
-
 <div class="wrapper" id="content" style="display:none">
 
-<h2>FSE Pending Summary</h2>
+<div class="header">
 
 <div class="accuracy-box">
 
@@ -237,6 +233,11 @@ fill="#fff"
 
 </div>
 
+<div class="title">
+FSE Pending Summary
+</div>
+
+</div>
 
 <div class="legend">
 <span><span class="bluebox"></span>Below 60 days</span>
@@ -294,6 +295,8 @@ if(total>max)max=total;
 
 
 data.forEach(r=>{
+
+if(r.fse==="Executive") return;   // header remove
 
 const total=r.below60+r.above60;
 
