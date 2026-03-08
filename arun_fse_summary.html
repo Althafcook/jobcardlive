@@ -53,7 +53,7 @@ margin-right:6px;
 .redbox{background:#ff1e1e;}
 
 
-/* accuracy circle */
+/* accuracy */
 
 .accuracy-box{
 position:absolute;
@@ -72,7 +72,6 @@ margin-bottom:4px;
 width:70px;
 height:70px;
 }
-
 
 
 /* loader */
@@ -94,7 +93,6 @@ font-size:14px;
 color:#888;
 margin-top:5px;
 }
-
 
 
 /* rows */
@@ -154,9 +152,21 @@ white-space:nowrap;
 }
 
 
-/* mobile */
+/* MOBILE FIX */
 
 @media(max-width:700px){
+
+.wrapper{
+padding-top:10px;
+}
+
+.accuracy-box{
+position:static;
+margin:10px auto 20px;
+display:flex;
+flex-direction:column;
+align-items:center;
+}
 
 .row{
 flex-direction:column;
@@ -164,12 +174,7 @@ flex-direction:column;
 
 .name{
 width:100%;
-margin-bottom:12px;
-}
-
-.accuracy-box{
-top:-5px;
-right:0;
+margin-bottom:10px;
 }
 
 }
@@ -283,15 +288,12 @@ chart.innerHTML="";
 let max=0;
 
 data.forEach(r=>{
-if(r.fse==="Executive") return;
 let total=r.below60+r.above60;
 if(total>max)max=total;
 });
 
 
 data.forEach(r=>{
-
-if(r.fse==="Executive") return;
 
 const total=r.below60+r.above60;
 
@@ -349,21 +351,19 @@ const text=document.getElementById("accuracyText");
 const radius=52;
 const circumference=2*Math.PI*radius;
 
-const percent=value;
-
-const offset=circumference-(percent/100)*circumference;
+const offset=circumference-(value/100)*circumference;
 
 ring.style.strokeDasharray=circumference;
 ring.style.strokeDashoffset=offset;
 
 let color="red";
 
-if(percent>=80) color="#00ff7f";
-else if(percent>=50) color="#ffc107";
+if(value>=80) color="#00ff7f";
+else if(value>=50) color="#ffc107";
 
 ring.style.stroke=color;
 
-text.textContent=percent+"%";
+text.textContent=value+"%";
 
 }
 
@@ -390,17 +390,6 @@ content.style.display="block";
 },300);
 
 }
-
-
-
-/* back fix */
-
-window.addEventListener("pageshow",e=>{
-if(e.persisted){
-loader.style.display="none";
-content.style.display="block";
-}
-});
 
 load();
 
