@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FSE Pending Detail</title>
+
+<style>
+
+body{
+margin:0;
+background:#000;
+color:#fff;
+font-family:Segoe UI,Arial;
+padding:20px;
+}
+
+.wrapper{
+max-width:1100px;
+margin:auto;
+}
+
+.title{
+font-size:24px;
+margin-bottom:20px;
+text-align:center;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:10px;
+text-align:left;
+border-bottom:1px solid #333;
+font-size:14px;
+}
+
+th{
+background:#0d47a1;
+}
+
+tr{
+cursor:pointer;
+transition:.2s;
+}
+
+tr:hover{
+background:#111;
+}
+
+.age{
+text-align:center;
+}
+
+.amount{
+text-align:right;
+}
+
+#loader{
+position:fixed;
+inset:0;
+background:#000;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:20px;
+}
+
+@media(max-width:700px){
+
+table{
+font-size:12px;
+}
+
+th,td{
+padding:8px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="loader">Loading...</div>
+
+<div class="wrapper" id="content" style="display:none">
+
+<div class="title">FSE Pending Detail</div>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Age</th>
+<th>AIC</th>
+<th>Customer</th>
+<th>Vehicle</th>
+<th>Executive</th>
+<th>Chase</th>
+<th>Amount</th>
+</tr>
+
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+const API =
+"https://script.google.com/macros/s/AKfycbyTfK8LwqHjv8NzOsPjsNOQrRy49Qfbij6tg0TWvoz6ses2oTG0qvYPwq1ArHXjMPI/exec";
+
+const body = document.getElementById("tableBody");
+
+function format(num){
+return Number(num).toLocaleString('en-IN');
+}
+
+/* render table */
+
+function render(data){
+
+body.innerHTML="";
+
+data.forEach(r=>{
+
+const tr=document.createElement("tr");
+
+tr.onclick=async()=>{
+
+await fetch(API+"?mode=set_chase&chase="+encodeURIComponent(r.chase));
+
+location.href="jobcard_arun.html";
+
+};
+
+tr.innerHTML=`
+
+<td class="age">${r.age}</td>
+<td>${r.aic}</td>
+<td>${r.customer}</td>
+<td>${r.vehicle}</td>
+<td>${r.executive}</td>
+<td>${r.chase}</td>
+<td class="amount">${format(r.amount)}</td>
+
+`;
+
+body.appendChild(tr);
+
+});
+
+}
+
+/* load data */
+
+async function load(){
+
+const res = await fetch(API+"?mode=arun_fse_detail",{cache:"no-store"});
+const data = await res.json();
+
+sessionStorage.setItem("arunFseDetail",JSON.stringify(data));
+
+render(data);
+
+loader.style.display="none";
+content.style.display="block";
+
+}
+
+/* page start */
+
+const cache=sessionStorage.getItem("arunFseDetail");
+
+if(cache){
+
+render(JSON.parse(cache));
+
+loader.style.display="none";
+content.style.display="block";
+
+}else{
+
+load();
+
+}
+
+</script>
+
+</body>
+</html>
