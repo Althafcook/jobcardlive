@@ -322,24 +322,21 @@ let seconds=0;
 
 function startLoader(){
 
-document.getElementById("loader").style.display="flex";
-document.getElementById("content").style.display="none";
+loader.style.display="flex";
+content.style.display="none";
 
 percent=0;
 seconds=0;
 
-document.getElementById("percent").innerText="Loading... 0%";
-document.getElementById("seconds").innerText="(0s)";
-
 loaderTimer=setInterval(()=>{
 percent+=3;
 if(percent>95) percent=95;
-document.getElementById("percent").innerText="Loading... "+percent+"%";
+percentText.innerText="Loading... "+percent+"%";
 },60);
 
 secondTimer=setInterval(()=>{
 seconds++;
-document.getElementById("seconds").innerText="("+seconds+"s)";
+secondsText.innerText="("+seconds+"s)";
 },1000);
 
 }
@@ -350,6 +347,11 @@ clearInterval(secondTimer);
 loader.style.display="none";
 content.style.display="block";
 }
+
+const loader=document.getElementById("loader");
+const content=document.getElementById("content");
+const percentText=document.getElementById("percent");
+const secondsText=document.getElementById("seconds");
 
 function format(num){
 return Number(num).toLocaleString('en-IN');
@@ -397,8 +399,6 @@ let redPercent=(r.above60/max)*100;
 let blueWidth=Math.max(bluePercent,0.8);
 let redWidth=Math.max(redPercent,0.8);
 
-/* ZERO VALUE FIX */
-
 let blueStyleWidth = r.below60===0 ? "1px" : blueWidth+"%";
 let redStyleWidth  = r.above60===0 ? "1px" : redWidth+"%";
 
@@ -414,7 +414,7 @@ startLoader();
 
 await fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse));
 
-window.location.href="arun_fse_detail.html?t="+Date.now();
+window.location.href="arun_fse_detail.html";
 
 };
 
