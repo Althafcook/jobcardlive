@@ -320,19 +320,36 @@ let seconds=0;
 
 /* loader animation */
 
-const loaderTimer=setInterval(()=>{
+function startLoader(){
 
+document.getElementById("loader").style.display="flex";
+document.getElementById("content").style.display="none";
+
+percent=0;
+seconds=0;
+
+document.getElementById("percent").innerText="Loading... 0%";
+document.getElementById("seconds").innerText="(0s)";
+
+loaderTimer=setInterval(()=>{
 percent+=3;
 if(percent>95) percent=95;
-
 document.getElementById("percent").innerText="Loading... "+percent+"%";
-
 },60);
 
-setInterval(()=>{
+secondTimer=setInterval(()=>{
 seconds++;
 document.getElementById("seconds").innerText="("+seconds+"s)";
 },1000);
+
+}
+
+function stopLoader(){
+clearInterval(loaderTimer);
+clearInterval(secondTimer);
+loader.style.display="none";
+content.style.display="block";
+}
 
 function format(num){
 return Number(num).toLocaleString('en-IN');
@@ -380,7 +397,7 @@ let redPercent=(r.above60/max)*100;
 let blueWidth=Math.max(bluePercent,0.8);
 let redWidth=Math.max(redPercent,0.8);
 
-/* ZERO VALUE HANDLING */
+/* ZERO VALUE FIX */
 
 let blueStyleWidth = r.below60===0 ? "1px" : blueWidth+"%";
 let redStyleWidth  = r.above60===0 ? "1px" : redWidth+"%";
@@ -393,9 +410,11 @@ row.className="row";
 
 row.onclick=async()=>{
 
+startLoader();
+
 await fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse));
 
-location.href="arun_fse_detail.html";
+window.location.href="arun_fse_detail.html?t="+Date.now();
 
 };
 
@@ -455,7 +474,12 @@ text.textContent=value+"%";
 
 /* LOAD */
 
+let loaderTimer;
+let secondTimer;
+
 async function load(first=false){
+
+if(first) startLoader();
 
 const res=await fetch(API+"?mode=arun_fse_summary",{cache:"no-store"});
 const json=await res.json();
@@ -465,14 +489,7 @@ sessionStorage.setItem("arunFseSummary",JSON.stringify(json));
 render(json.data);
 drawAccuracy(json.accuracy);
 
-if(first){
-
-clearInterval(loaderTimer);
-
-loader.style.display="none";
-content.style.display="block";
-
-}
+if(first) stopLoader();
 
 }
 
