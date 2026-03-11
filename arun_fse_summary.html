@@ -186,7 +186,7 @@ white-space:nowrap;
 #loader{
 position:fixed;
 inset:0;
-background:rgba(0,0,0,0.92);
+background:#000;
 display:flex;
 align-items:center;
 justify-content:center;
@@ -239,7 +239,70 @@ flex-direction:column;
 
 <div class="wrapper" id="content" style="display:none">
 
-<!-- original html unchanged -->
+<div class="header">
+
+<div class="left-head">
+
+<div class="accuracy-box">
+
+<div class="accuracy-title">Accuracy</div>
+
+<svg class="accuracy-circle" viewBox="0 0 120 120">
+
+<circle cx="60" cy="60" r="52" stroke="#333" stroke-width="10" fill="none"/>
+
+<circle id="accuracyRing"
+cx="60" cy="60" r="52"
+stroke="green"
+stroke-width="10"
+fill="none"
+stroke-linecap="round"
+stroke-dasharray="326"
+stroke-dashoffset="326"
+/>
+
+<text id="accuracyText"
+x="60" y="66"
+text-anchor="middle"
+font-size="24"
+fill="#fff"
+>
+0%
+</text>
+
+</svg>
+
+</div>
+
+<div class="title">FSE Pending Summary</div>
+
+</div>
+
+<div class="summary">
+
+<div class="summary-item">
+<div class="summary-label">Total</div>
+<div class="box total-box" id="totalBox">0</div>
+</div>
+
+<div class="summary-item">
+<div class="summary-label"> Below 60days</div>
+<div class="box below-box" id="belowBox">0</div>
+</div>
+
+<div class="summary-item">
+<div class="summary-label">Above 60days</div>
+<div class="box above-box" id="aboveBox">0</div>
+</div>
+
+</div>
+
+</div>
+
+<div class="legend">
+<span><span class="bluebox"></span>Below 60 days</span>
+<span><span class="redbox"></span>Above 60 days</span>
+</div>
 
 <div id="chart"></div>
 
@@ -247,28 +310,17 @@ flex-direction:column;
 
 <script>
 
-const API="https://script.google.com/macros/s/AKfycbyTfK8LwqHjv8NzOsPjsNOQrRy49Qfbij6tg0TWvoz6ses2oTG0qvYPwq1ArHXjMPI/exec";
+const API =
+"https://script.google.com/macros/s/AKfycbyTfK8LwqHjv8NzOsPjsNOQrRy49Qfbij6tg0TWvoz6ses2oTG0qvYPwq1ArHXjMPI/exec";
 
 const chart=document.getElementById("chart");
-const loader=document.getElementById("loader");
-const content=document.getElementById("content");
 
 let percent=0;
 let seconds=0;
 
-let loaderTimer;
-let secondsTimer;
+/* loader animation */
 
-/* LOADER START */
-
-function startLoader(){
-
-loader.style.display="flex";
-
-percent=0;
-seconds=0;
-
-loaderTimer=setInterval(()=>{
+const loaderTimer=setInterval(()=>{
 
 percent+=3;
 if(percent>95) percent=95;
@@ -277,24 +329,10 @@ document.getElementById("percent").innerText="Loading... "+percent+"%";
 
 },60);
 
-secondsTimer=setInterval(()=>{
+setInterval(()=>{
 seconds++;
 document.getElementById("seconds").innerText="("+seconds+"s)";
 },1000);
-
-}
-
-/* LOADER STOP */
-
-function stopLoader(){
-
-clearInterval(loaderTimer);
-clearInterval(secondsTimer);
-
-loader.style.display="none";
-content.style.display="block";
-
-}
 
 function format(num){
 return Number(num).toLocaleString('en-IN');
@@ -342,28 +380,27 @@ let redPercent=(r.above60/max)*100;
 let blueWidth=Math.max(bluePercent,0.8);
 let redWidth=Math.max(redPercent,0.8);
 
-let blueStyleWidth=r.below60===0?"1px":blueWidth+"%";
-let redStyleWidth=r.above60===0?"1px":redWidth+"%";
+/* ZERO VALUE HANDLING */
 
-let blueColor=r.below60===0?"#666":"#1e73ff";
-let redColor=r.above60===0?"#666":"#ff1e1e";
+let blueStyleWidth = r.below60===0 ? "1px" : blueWidth+"%";
+let redStyleWidth  = r.above60===0 ? "1px" : redWidth+"%";
+
+let blueColor = r.below60===0 ? "#666" : "#1e73ff";
+let redColor  = r.above60===0 ? "#666" : "#ff1e1e";
 
 const row=document.createElement("div");
 row.className="row";
 
 row.onclick=async()=>{
 
-startLoader();
+await fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse));
 
-/* wait for sheet update */
-await fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse)+"&t="+Date.now());
-
-/* open detail page fresh */
-location.href="arun_fse_detail.html?t="+Date.now();
+location.href="arun_fse_detail.html";
 
 };
 
 row.innerHTML=`
+
 <div class="name">
 ${r.fse}
 <div class="total">(${format(total)})</div>
@@ -399,6 +436,7 @@ const text=document.getElementById("accuracyText");
 
 const radius=52;
 const circumference=2*Math.PI*radius;
+
 const offset=circumference-(value/100)*circumference;
 
 ring.style.strokeDasharray=circumference;
@@ -410,6 +448,7 @@ if(value>=80) color="#00ff7f";
 else if(value>=50) color="#ffc107";
 
 ring.style.stroke=color;
+
 text.textContent=value+"%";
 
 }
@@ -417,8 +456,6 @@ text.textContent=value+"%";
 /* LOAD */
 
 async function load(first=false){
-
-if(first) startLoader();
 
 const res=await fetch(API+"?mode=arun_fse_summary",{cache:"no-store"});
 const json=await res.json();
@@ -428,7 +465,14 @@ sessionStorage.setItem("arunFseSummary",JSON.stringify(json));
 render(json.data);
 drawAccuracy(json.accuracy);
 
-if(first) stopLoader();
+if(first){
+
+clearInterval(loaderTimer);
+
+loader.style.display="none";
+content.style.display="block";
+
+}
 
 }
 
@@ -457,18 +501,6 @@ load(true);
 setInterval(()=>{
 load(false);
 },30000);
-
-/* BACK FIX */
-
-window.addEventListener("pageshow",function(){
-
-loader.style.display="none";
-content.style.display="block";
-
-clearInterval(loaderTimer);
-clearInterval(secondsTimer);
-
-});
 
 </script>
 
