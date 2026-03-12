@@ -164,6 +164,11 @@ font-size:12px;
 const API =
 "https://script.google.com/macros/s/AKfycbyTfK8LwqHjv8NzOsPjsNOQrRy49Qfbij6tg0TWvoz6ses2oTG0qvYPwq1ArHXjMPI/exec";
 
+/* same jobcard api used in daybook */
+
+const JOBCARD_API =
+"https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
+
 const body=document.getElementById("tableBody");
 const totalAmount=document.getElementById("totalAmount");
 
@@ -206,11 +211,14 @@ total+=Number(r.amount);
 
 const tr=document.createElement("tr");
 
-tr.onclick=async()=>{
+/* ===== SAME FUNCTION AS DAYBOOK ===== */
 
-/* SAME ORIGINAL FUNCTION */
+tr.onclick=()=>{
 
-await fetch(API+"?mode=set_chase&chase="+encodeURIComponent(r.chase)+"&t="+Date.now(),{cache:"no-store"});
+fetch(
+JOBCARD_API + "?mode=setChase&chase=" + encodeURIComponent(r.chase),
+{mode:"no-cors"}
+);
 
 location.href="jobcard_arun.html";
 
