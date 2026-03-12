@@ -10,7 +10,7 @@
 body{
 margin:0;
 background:#000;
-color:#fff;
+color:#e0e0e0;
 font-family:Segoe UI,Arial;
 padding:20px;
 }
@@ -20,11 +20,25 @@ max-width:1100px;
 margin:auto;
 }
 
+/* HEADER */
+
 .title{
-font-size:24px;
-margin-bottom:20px;
+font-size:22px;
+margin-bottom:10px;
 text-align:center;
+font-weight:600;
+letter-spacing:.5px;
 }
+
+.total{
+text-align:center;
+font-size:16px;
+margin-bottom:20px;
+color:#ff5252;
+font-weight:600;
+}
+
+/* TABLE */
 
 table{
 width:100%;
@@ -32,23 +46,32 @@ border-collapse:collapse;
 }
 
 th,td{
-padding:10px;
+padding:8px;
 text-align:left;
-border-bottom:1px solid #333;
-font-size:14px;
+border-bottom:1px solid #222;
+font-size:12px;
+color:#cfcfcf;
 }
 
 th{
 background:#0d47a1;
+color:#fff;
+font-weight:500;
 }
 
 tr{
 cursor:pointer;
-transition:.2s;
+transition:.15s;
 }
 
 tr:hover{
 background:#111;
+}
+
+.number{
+width:40px;
+text-align:center;
+color:#aaa;
 }
 
 .age{
@@ -57,7 +80,11 @@ text-align:center;
 
 .amount{
 text-align:right;
+color:#ff4d4d;
+font-weight:500;
 }
+
+/* LOADER */
 
 #loader{
 position:fixed;
@@ -67,16 +94,16 @@ display:flex;
 align-items:center;
 justify-content:center;
 font-size:20px;
+letter-spacing:.5px;
 }
+
+/* MOBILE */
 
 @media(max-width:700px){
 
-table{
-font-size:12px;
-}
-
 th,td{
-padding:8px;
+padding:7px;
+font-size:12px;
 }
 
 }
@@ -92,11 +119,14 @@ padding:8px;
 
 <div class="title">FSE Pending Detail</div>
 
+<div class="total" id="totalAmount">Total : ₹0</div>
+
 <table>
 
 <thead>
 
 <tr>
+<th>#</th>
 <th>Age</th>
 <th>AIC</th>
 <th>Customer</th>
@@ -119,7 +149,10 @@ padding:8px;
 const API =
 "https://script.google.com/macros/s/AKfycbyTfK8LwqHjv8NzOsPjsNOQrRy49Qfbij6tg0TWvoz6ses2oTG0qvYPwq1ArHXjMPI/exec";
 
-const body = document.getElementById("tableBody");
+const body=document.getElementById("tableBody");
+const totalAmount=document.getElementById("totalAmount");
+
+/* format number */
 
 function format(num){
 return Number(num).toLocaleString('en-IN');
@@ -131,20 +164,25 @@ function render(data){
 
 body.innerHTML="";
 
-data.forEach(r=>{
+let total=0;
+
+data.forEach((r,i)=>{
+
+total+=Number(r.amount);
 
 const tr=document.createElement("tr");
 
 tr.onclick=async()=>{
 
-await fetch(API+"?mode=set_chase&chase="+encodeURIComponent(r.chase));
+await fetch(API+"?mode=set_chase&chase="+encodeURIComponent(r.chase)+"&t="+Date.now(),{cache:"no-store"});
 
-location.href="jobcard_arun.html";
+location.href="jobcard_arun.html?t="+Date.now();
 
 };
 
 tr.innerHTML=`
 
+<td class="number">${i+1}</td>
 <td class="age">${r.age}</td>
 <td>${r.aic}</td>
 <td>${r.customer}</td>
@@ -159,16 +197,20 @@ body.appendChild(tr);
 
 });
 
+totalAmount.innerText="Total : ₹"+format(total);
+
 }
 
 /* load data */
 
 async function load(){
 
-const res = await fetch(API+"?mode=arun_fse_detail",{cache:"no-store"});
-const data = await res.json();
+/* force fresh google sheet data */
 
-sessionStorage.setItem("arunFseDetail",JSON.stringify(data));
+await fetch(API+"?mode=refresh&t="+Date.now(),{cache:"no-store"});
+
+const res=await fetch(API+"?mode=arun_fse_detail&t="+Date.now(),{cache:"no-store"});
+const data=await res.json();
 
 render(data);
 
@@ -177,22 +219,9 @@ content.style.display="block";
 
 }
 
-/* page start */
-
-const cache=sessionStorage.getItem("arunFseDetail");
-
-if(cache){
-
-render(JSON.parse(cache));
-
-loader.style.display="none";
-content.style.display="block";
-
-}else{
+/* always load fresh */
 
 load();
-
-}
 
 </script>
 
