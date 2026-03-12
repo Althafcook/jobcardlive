@@ -47,7 +47,7 @@ border-collapse:collapse;
 
 th,td{
 padding:8px;
-text-align:left;
+text-align:center;
 border-bottom:1px solid #222;
 font-size:12px;
 color:#cfcfcf;
@@ -70,7 +70,6 @@ background:#111;
 
 .number{
 width:40px;
-text-align:center;
 color:#aaa;
 }
 
@@ -78,8 +77,14 @@ color:#aaa;
 text-align:center;
 }
 
+.age.red{
+background:#ff2d2d;
+color:#fff;
+font-weight:600;
+border-radius:4px;
+}
+
 .amount{
-text-align:right;
 color:#ff4d4d;
 font-weight:500;
 }
@@ -93,8 +98,15 @@ background:#000;
 display:flex;
 align-items:center;
 justify-content:center;
+flex-direction:column;
 font-size:20px;
 letter-spacing:.5px;
+}
+
+.loader-sub{
+font-size:14px;
+margin-top:6px;
+color:#aaa;
 }
 
 /* MOBILE */
@@ -113,7 +125,10 @@ font-size:12px;
 
 <body>
 
-<div id="loader">Loading...</div>
+<div id="loader">
+<div id="percent">Loading... 0%</div>
+<div class="loader-sub" id="seconds">(0s)</div>
+</div>
 
 <div class="wrapper" id="content" style="display:none">
 
@@ -152,6 +167,25 @@ const API =
 const body=document.getElementById("tableBody");
 const totalAmount=document.getElementById("totalAmount");
 
+let percent=0;
+let seconds=0;
+
+/* loader animation */
+
+const loaderTimer=setInterval(()=>{
+
+percent+=3;
+if(percent>95) percent=95;
+
+document.getElementById("percent").innerText="Loading... "+percent+"%";
+
+},60);
+
+setInterval(()=>{
+seconds++;
+document.getElementById("seconds").innerText="("+seconds+"s)";
+},1000);
+
 /* format number */
 
 function format(num){
@@ -174,16 +208,25 @@ const tr=document.createElement("tr");
 
 tr.onclick=async()=>{
 
+/* SAME ORIGINAL FUNCTION */
+
 await fetch(API+"?mode=set_chase&chase="+encodeURIComponent(r.chase)+"&t="+Date.now(),{cache:"no-store"});
 
-location.href="jobcard_arun.html?t="+Date.now();
+location.href="jobcard_arun.html";
 
 };
+
+/* age highlight */
+
+let ageClass="age";
+if(Number(r.age)>60){
+ageClass="age red";
+}
 
 tr.innerHTML=`
 
 <td class="number">${i+1}</td>
-<td class="age">${r.age}</td>
+<td class="${ageClass}">${r.age}</td>
 <td>${r.aic}</td>
 <td>${r.customer}</td>
 <td>${r.vehicle}</td>
@@ -205,8 +248,6 @@ totalAmount.innerText="Total : ₹"+format(total);
 
 async function load(){
 
-/* force fresh google sheet data */
-
 await fetch(API+"?mode=refresh&t="+Date.now(),{cache:"no-store"});
 
 const res=await fetch(API+"?mode=arun_fse_detail&t="+Date.now(),{cache:"no-store"});
@@ -214,12 +255,14 @@ const data=await res.json();
 
 render(data);
 
+clearInterval(loaderTimer);
+
 loader.style.display="none";
 content.style.display="block";
 
 }
 
-/* always load fresh */
+/* page start */
 
 load();
 
