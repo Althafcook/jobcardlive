@@ -20,8 +20,6 @@ max-width:1100px;
 margin:auto;
 }
 
-/* HEADER */
-
 .header{
 display:flex;
 align-items:center;
@@ -39,8 +37,6 @@ gap:15px;
 font-size:24px;
 font-weight:500;
 }
-
-/* SUMMARY */
 
 .summary{
 display:flex;
@@ -83,8 +79,6 @@ background:#ff1e1e;
 color:#fff;
 }
 
-/* ACCURACY */
-
 .accuracy-box{
 display:flex;
 flex-direction:column;
@@ -100,8 +94,6 @@ color:#aaa;
 width:60px;
 height:60px;
 }
-
-/* LEGEND */
 
 .legend{
 text-align:center;
@@ -125,8 +117,6 @@ margin-right:6px;
 .bluebox{background:#1e73ff;}
 .redbox{background:#ff1e1e;}
 
-/* ROW */
-
 .row{
 display:flex;
 margin-bottom:30px;
@@ -145,8 +135,6 @@ font-size:12px;
 color:#aaa;
 margin-top:3px;
 }
-
-/* BAR */
 
 .bar-area{
 flex:1;
@@ -181,8 +169,6 @@ margin-left:4px;
 white-space:nowrap;
 }
 
-/* LOADER */
-
 #loader{
 position:fixed;
 inset:0;
@@ -201,40 +187,13 @@ color:#aaa;
 margin-top:6px;
 }
 
-/* MOBILE */
-
-@media(max-width:700px){
-
-.header{
-flex-direction:column;
-align-items:center;
-gap:10px;
-}
-
-.summary{
-justify-content:center;
-flex-wrap:wrap;
-}
-
-.name{
-width:100%;
-margin-bottom:10px;
-}
-
-.row{
-flex-direction:column;
-}
-
-}
-
 </style>
 </head>
 
 <body>
 
 <div id="loader">
-<div id="percent">Loading... 0%</div>
-<div class="loader-sub" id="seconds">(0s)</div>
+<div id="percent">Loading...</div>
 </div>
 
 <div class="wrapper" id="content" style="display:none">
@@ -266,9 +225,7 @@ x="60" y="66"
 text-anchor="middle"
 font-size="24"
 fill="#fff"
->
-0%
-</text>
+>0%</text>
 
 </svg>
 
@@ -286,7 +243,7 @@ fill="#fff"
 </div>
 
 <div class="summary-item">
-<div class="summary-label"> Below 60days</div>
+<div class="summary-label">Below 60days</div>
 <div class="box below-box" id="belowBox">0</div>
 </div>
 
@@ -310,34 +267,13 @@ fill="#fff"
 
 <script>
 
-const API =
-"https://script.google.com/macros/s/AKfycbyTfK8LwqHjv8NzOsPjsNOQrRy49Qfbij6tg0TWvoz6ses2oTG0qvYPwq1ArHXjMPI/exec";
+const API="https://script.google.com/macros/s/AKfycbyTfK8LwqHjv8NzOsPjsNOQrRy49Qfbij6tg0TWvoz6ses2oTG0qvYPwq1ArHXjMPI/exec";
 
 const chart=document.getElementById("chart");
-
-let percent=0;
-let seconds=0;
-
-/* loader animation */
-
-const loaderTimer=setInterval(()=>{
-
-percent+=3;
-if(percent>95) percent=95;
-
-document.getElementById("percent").innerText="Loading... "+percent+"%";
-
-},60);
-
-setInterval(()=>{
-seconds++;
-document.getElementById("seconds").innerText="("+seconds+"s)";
-},1000);
 
 function format(num){
 return Number(num).toLocaleString('en-IN');
 }
-
 
 /* RENDER */
 
@@ -350,16 +286,10 @@ let totalBelow=0;
 let totalAbove=0;
 
 data.forEach(r=>{
-
-if(r.fse==="Executive") return;
-
 let total=r.below60+r.above60;
-
 if(total>max) max=total;
-
 totalBelow+=r.below60;
 totalAbove+=r.above60;
-
 });
 
 let totalAll=totalBelow+totalAbove;
@@ -370,8 +300,6 @@ aboveBox.innerText=format(totalAbove);
 
 data.forEach(r=>{
 
-if(r.fse==="Executive") return;
-
 const total=r.below60+r.above60;
 
 let bluePercent=(r.below60/max)*100;
@@ -379,8 +307,6 @@ let redPercent=(r.above60/max)*100;
 
 let blueWidth=Math.max(bluePercent,0.8);
 let redWidth=Math.max(redPercent,0.8);
-
-/* ZERO VALUE HANDLING */
 
 let blueStyleWidth = r.below60===0 ? "1px" : blueWidth+"%";
 let redStyleWidth  = r.above60===0 ? "1px" : redWidth+"%";
@@ -393,7 +319,9 @@ row.className="row";
 
 row.onclick=async()=>{
 
-await fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse));
+await fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse)+"&t="+Date.now(),{
+cache:"no-store"
+});
 
 location.href="arun_fse_detail.html";
 
@@ -442,65 +370,35 @@ const offset=circumference-(value/100)*circumference;
 ring.style.strokeDasharray=circumference;
 ring.style.strokeDashoffset=offset;
 
-let color="red";
-
-if(value>=80) color="#00ff7f";
-else if(value>=50) color="#ffc107";
-
-ring.style.stroke=color;
-
 text.textContent=value+"%";
 
 }
 
 /* LOAD */
 
-async function load(first=false){
+async function load(){
 
-const res=await fetch(API+"?mode=arun_fse_summary",{cache:"no-store"});
+const res=await fetch(API+"?mode=arun_fse_summary&t="+Date.now(),{
+cache:"no-store"
+});
+
 const json=await res.json();
 
-sessionStorage.setItem("arunFseSummary",JSON.stringify(json));
-
 render(json.data);
 drawAccuracy(json.accuracy);
 
-if(first){
-
-clearInterval(loaderTimer);
-
-loader.style.display="none";
-content.style.display="block";
+document.getElementById("loader").style.display="none";
+document.getElementById("content").style.display="block";
 
 }
 
-}
+/* START */
 
-/* PAGE START */
-
-const cache=sessionStorage.getItem("arunFseSummary");
-
-if(cache){
-
-const json=JSON.parse(cache);
-
-render(json.data);
-drawAccuracy(json.accuracy);
-
-loader.style.display="none";
-content.style.display="block";
-
-}else{
-
-load(true);
-
-}
+load();
 
 /* AUTO REFRESH */
 
-setInterval(()=>{
-load(false);
-},30000);
+setInterval(load,30000);
 
 </script>
 
