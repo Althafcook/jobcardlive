@@ -18,8 +18,7 @@
   --unbilled:#ff5c5c;
   --billed-ng:#1f3b73;
 
-  /* NEW STATUS COLORS */
-  --clip:#cc5500;
+  --clip:#ff8c00;
   --progress:#ffd000;
   --notdone:#0b3d91;
   --closed:#8b0000;
@@ -64,7 +63,6 @@ body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
   border-bottom:1px solid var(--border);
 }
 
-/* 🔧 alignment change */
 .top-dates{
   display:flex;
   justify-content:space-between;
@@ -82,7 +80,9 @@ body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
   justify-content:space-between;
   align-items:center;
 }
+
 .title{font-size:18px;font-weight:700}
+
 .status-pill{
   background:#f4b400;
   color:#000;
@@ -111,7 +111,6 @@ body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
 .value{
   padding:6px 10px;
   font-size:10px;
-  color:var(--yellow);
   text-align:center;
   white-space:nowrap;
   overflow:hidden;
@@ -160,7 +159,6 @@ tbody td{
 .st-billed-ng{background:var(--billed-ng);color:#fff}
 .st-unbilled{background:none;color:var(--unbilled)}
 
-/* NEW STATUS */
 .st-clip{background:var(--clip);color:#fff}
 .st-progress{background:var(--progress);color:#000}
 .st-notdone{background:var(--notdone);color:#fff}
@@ -239,7 +237,6 @@ let polling = false;
 let pollTimer = null;
 let pollStart = 0;
 
-/* ---------- LOADER ---------- */
 let t0 = 0, tInt = null;
 
 function showLoader(){
@@ -258,7 +255,6 @@ function hideLoader(){
   loader.classList.add("hidden");
 }
 
-/* ---------- STATUS ---------- */
 function statusClass(s){
   if(!s) return "st-unbilled";
   s=s.toLowerCase();
@@ -275,7 +271,6 @@ function statusClass(s){
   return "st-unbilled";
 }
 
-/* ---------- ITEMS ---------- */
 function renderItems(items){
   itemBody.innerHTML="";
   items.forEach((it,i)=>{
@@ -290,7 +285,6 @@ function renderItems(items){
   });
 }
 
-/* ---------- APPLY DATA ---------- */
 function applyJobcard(d){
 
   recDate.innerText  = "Jobcard rec.date: "  + (d.jobcard_rec_date||"");
@@ -303,12 +297,31 @@ function applyJobcard(d){
   vehicle.innerText  = d.vehicle||"";
   color.innerText    = d.color||"";
   exec.innerText     = d.executive||"";
+
   workStatus.innerText = d.work_status||"";
+
+  let ws = (d.work_status || "").toLowerCase();
+
+  if(ws.includes("clip")){
+    workStatus.style.background="#ff8c00";
+    workStatus.style.color="#fff";
+  }
+  else if(ws.includes("work in progress")){
+    workStatus.style.background="#ffd000";
+    workStatus.style.color="#000";
+  }
+  else if(ws.includes("work not done")){
+    workStatus.style.background="#0b3d91";
+    workStatus.style.color="#fff";
+  }
+  else if(ws.includes("jobcard closed")){
+    workStatus.style.background="#8b0000";
+    workStatus.style.color="#fff";
+  }
 
   renderItems(d.items||[]);
 }
 
-/* ---------- POLL UNTIL CORRECT CHASE ---------- */
 async function pollUntilMatch(){
   if(polling) return;
   polling = true;
@@ -347,7 +360,6 @@ function finishLoad(d){
   applyJobcard(d);
 }
 
-/* ---------- SILENT AUTO REFRESH ---------- */
 async function silentRefresh(){
   if(polling) return;
 
@@ -360,7 +372,6 @@ async function silentRefresh(){
   applyJobcard(d);
 }
 
-/* ---------- INIT ---------- */
 pollUntilMatch();
 setInterval(silentRefresh, 30000);
 </script>
