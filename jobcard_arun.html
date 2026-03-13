@@ -262,6 +262,7 @@ function statusClass(s){
   if(s.includes("clip")) return "st-clip";
   if(s.includes("work in progress")) return "st-progress";
   if(s.includes("work not done")) return "st-notdone";
+  if(s.includes("work & billing completed")) return "st-notdone";
   if(s.includes("jobcard closed")) return "st-closed";
 
   if(s.includes("billed") && s.includes("not")) return "st-billed-ng";
