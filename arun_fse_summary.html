@@ -201,6 +201,32 @@ color:#aaa;
 margin-top:6px;
 }
 
+/* CLICK BUFFER OVERLAY */
+
+#clickOverlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.6);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:2000;
+}
+
+.spinner{
+width:40px;
+height:40px;
+border:4px solid #444;
+border-top:4px solid #fff;
+border-radius:50%;
+animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg)}
+100%{transform:rotate(360deg)}
+}
+
 /* MOBILE */
 
 @media(max-width:700px){
@@ -235,6 +261,11 @@ flex-direction:column;
 <div id="loader">
 <div id="percent">Loading... 0%</div>
 <div class="loader-sub" id="seconds">(0s)</div>
+</div>
+
+<!-- CLICK BUFFER -->
+<div id="clickOverlay">
+<div class="spinner"></div>
 </div>
 
 <div class="wrapper" id="content" style="display:none">
@@ -338,7 +369,6 @@ function format(num){
 return Number(num).toLocaleString('en-IN');
 }
 
-
 /* RENDER */
 
 function render(data){
@@ -380,8 +410,6 @@ let redPercent=(r.above60/max)*100;
 let blueWidth=Math.max(bluePercent,0.8);
 let redWidth=Math.max(redPercent,0.8);
 
-/* ZERO VALUE HANDLING */
-
 let blueStyleWidth = r.below60===0 ? "1px" : blueWidth+"%";
 let redStyleWidth  = r.above60===0 ? "1px" : redWidth+"%";
 
@@ -392,6 +420,9 @@ const row=document.createElement("div");
 row.className="row";
 
 row.onclick=async()=>{
+
+/* show dim overlay + spinner */
+document.getElementById("clickOverlay").style.display="flex";
 
 await fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse));
 
