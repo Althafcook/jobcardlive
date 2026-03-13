@@ -17,7 +17,14 @@
   --pending:#f2d23c;
   --unbilled:#ff5c5c;
   --billed-ng:#1f3b73;
+
+  /* NEW STATUS COLORS */
+  --clip:#cc5500;
+  --progress:#ffd000;
+  --notdone:#0b3d91;
+  --closed:#8b0000;
 }
+
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
 
@@ -56,13 +63,20 @@ body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
   padding:10px 14px;
   border-bottom:1px solid var(--border);
 }
+
+/* 🔧 alignment change */
 .top-dates{
   display:flex;
-  gap:10px;
+  justify-content:space-between;
   font-size:10px;
   color:#888;
   margin-bottom:6px;
 }
+
+#recDate{text-align:left}
+#workDate{text-align:center}
+#age{text-align:right}
+
 .top-main{
   display:flex;
   justify-content:space-between;
@@ -104,7 +118,6 @@ body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
   text-overflow:ellipsis;
 }
 
-/* 🔥 correct separation */
 .row.double .label:nth-child(3),
 .row.double .value:nth-child(4){
   border-left:1px solid var(--border);
@@ -146,6 +159,12 @@ tbody td{
 .st-pending{background:var(--pending);color:#000}
 .st-billed-ng{background:var(--billed-ng);color:#fff}
 .st-unbilled{background:none;color:var(--unbilled)}
+
+/* NEW STATUS */
+.st-clip{background:var(--clip);color:#fff}
+.st-progress{background:var(--progress);color:#000}
+.st-notdone{background:var(--notdone);color:#fff}
+.st-closed{background:var(--closed);color:#fff}
 </style>
 </head>
 
@@ -243,9 +262,16 @@ function hideLoader(){
 function statusClass(s){
   if(!s) return "st-unbilled";
   s=s.toLowerCase();
+
+  if(s.includes("clip")) return "st-clip";
+  if(s.includes("work in progress")) return "st-progress";
+  if(s.includes("work not done")) return "st-notdone";
+  if(s.includes("jobcard closed")) return "st-closed";
+
   if(s.includes("billed") && s.includes("not")) return "st-billed-ng";
   if(s==="billed") return "st-billed";
   if(s.includes("pend")) return "st-pending";
+
   return "st-unbilled";
 }
 
@@ -266,9 +292,10 @@ function renderItems(items){
 
 /* ---------- APPLY DATA ---------- */
 function applyJobcard(d){
-  recDate.innerText  = "Rec: "  + (d.jobcard_rec_date||"");
-  workDate.innerText = "Work: " + (d.work_provided_date||"");
-  age.innerText      = "Age: "  + (d.jobcard_age||"");
+
+  recDate.innerText  = "Jobcard rec.date: "  + (d.jobcard_rec_date||"");
+  workDate.innerText = "Work provided date: " + (d.work_provided_date||"");
+  age.innerText      = "Jobcard age: "  + (d.jobcard_age||"");
 
   aicTitle.innerText = (d.aic||"JOBCARD").toUpperCase();
   cust.innerText     = d.customer_name||"";
@@ -295,9 +322,7 @@ async function pollUntilMatch(){
 
     if(!d.ready) return;
 
-    // ✅ wait until correct chase arrives
     if(expectedChase && d.chase_no !== expectedChase){
-      // ⛑️ safety timeout (8s)
       if(Date.now() - pollStart > 8000){
         console.warn("Chase delay timeout → force load");
         finishLoad(d);
