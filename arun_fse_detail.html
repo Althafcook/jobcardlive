@@ -40,8 +40,14 @@ font-weight:600;
 
 /* TABLE */
 
+.table-wrapper{
+width:100%;
+overflow-x:auto;
+}
+
 table{
 width:100%;
+min-width:750px;
 border-collapse:collapse;
 }
 
@@ -51,6 +57,7 @@ text-align:center;
 border-bottom:1px solid #222;
 font-size:12px;
 color:#cfcfcf;
+white-space:nowrap;
 }
 
 th{
@@ -99,22 +106,20 @@ display:flex;
 align-items:center;
 justify-content:center;
 flex-direction:column;
-font-size:20px;
+font-size:22px;
 letter-spacing:.5px;
-}
-
-.loader-sub{
-font-size:14px;
-margin-top:6px;
-color:#aaa;
 }
 
 /* MOBILE */
 
 @media(max-width:700px){
 
+body{
+padding:12px;
+}
+
 th,td{
-padding:7px;
+padding:6px;
 font-size:12px;
 }
 
@@ -126,8 +131,7 @@ font-size:12px;
 <body>
 
 <div id="loader">
-<div id="percent">Loading... 0%</div>
-<div class="loader-sub" id="seconds">(0s)</div>
+<div id="waitText">Wait.. (0s)</div>
 </div>
 
 <div class="wrapper" id="content" style="display:none">
@@ -135,6 +139,8 @@ font-size:12px;
 <div class="title">FSE Pending Detail</div>
 
 <div class="total" id="totalAmount">Total : ₹0</div>
+
+<div class="table-wrapper">
 
 <table>
 
@@ -159,6 +165,8 @@ font-size:12px;
 
 </div>
 
+</div>
+
 <script>
 
 const API =
@@ -172,23 +180,15 @@ const JOBCARD_API =
 const body=document.getElementById("tableBody");
 const totalAmount=document.getElementById("totalAmount");
 
-let percent=0;
 let seconds=0;
 
-/* loader animation */
+/* loader timer */
 
 const loaderTimer=setInterval(()=>{
 
-percent+=3;
-if(percent>95) percent=95;
-
-document.getElementById("percent").innerText="Loading... "+percent+"%";
-
-},60);
-
-setInterval(()=>{
 seconds++;
-document.getElementById("seconds").innerText="("+seconds+"s)";
+document.getElementById("waitText").innerText="Wait.. ("+seconds+"s)";
+
 },1000);
 
 /* format number */
@@ -254,7 +254,11 @@ totalAmount.innerText="Total : ₹"+format(total);
 
 /* load data */
 
-async function load(){
+async function load(showLoader=true){
+
+if(showLoader){
+seconds=0;
+}
 
 await fetch(API+"?mode=refresh&t="+Date.now(),{cache:"no-store"});
 
@@ -263,6 +267,8 @@ const data=await res.json();
 
 render(data);
 
+if(showLoader){
+
 clearInterval(loaderTimer);
 
 loader.style.display="none";
@@ -270,9 +276,19 @@ content.style.display="block";
 
 }
 
+}
+
 /* page start */
 
-load();
+load(true);
+
+/* background refresh */
+
+setInterval(()=>{
+
+load(false);
+
+},30000);
 
 </script>
 
