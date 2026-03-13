@@ -259,10 +259,11 @@ function statusClass(s){
   if(!s) return "st-unbilled";
   s=s.toLowerCase();
 
+  if(s.includes("work & billing completed")) return "st-billed";
+
   if(s.includes("clip")) return "st-clip";
   if(s.includes("work in progress")) return "st-progress";
   if(s.includes("work not done")) return "st-notdone";
-  if(s.includes("work & billing completed")) return "st-notdone";
   if(s.includes("jobcard closed")) return "st-closed";
 
   if(s.includes("billed") && s.includes("not")) return "st-billed-ng";
@@ -303,17 +304,17 @@ function applyJobcard(d){
 
   let ws = (d.work_status || "").toLowerCase();
 
-  if(ws.includes("clip")){
+  if(ws.includes("work & billing completed")){
+    workStatus.style.background="#35c46a";
+    workStatus.style.color="#fff";
+  }
+  else if(ws.includes("clip")){
     workStatus.style.background="#ff8c00";
     workStatus.style.color="#fff";
   }
   else if(ws.includes("work in progress")){
     workStatus.style.background="#ffd000";
     workStatus.style.color="#000";
-  }
-    else if(ws.includes("Work & billing completed")){
-    workStatus.style.background="13a000";
-    workStatus.style.color="#fff";
   }
   else if(ws.includes("work not done")){
     workStatus.style.background="#0b3d91";
