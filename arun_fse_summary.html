@@ -201,32 +201,6 @@ color:#aaa;
 margin-top:6px;
 }
 
-/* CLICK BUFFER OVERLAY */
-
-#clickOverlay{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,0.6);
-display:none;
-align-items:center;
-justify-content:center;
-z-index:2000;
-}
-
-.spinner{
-width:40px;
-height:40px;
-border:4px solid #444;
-border-top:4px solid #fff;
-border-radius:50%;
-animation:spin 1s linear infinite;
-}
-
-@keyframes spin{
-0%{transform:rotate(0deg)}
-100%{transform:rotate(360deg)}
-}
-
 /* MOBILE */
 
 @media(max-width:700px){
@@ -261,11 +235,6 @@ flex-direction:column;
 <div id="loader">
 <div id="percent">Loading... 0%</div>
 <div class="loader-sub" id="seconds">(0s)</div>
-</div>
-
-<!-- CLICK BUFFER -->
-<div id="clickOverlay">
-<div class="spinner"></div>
 </div>
 
 <div class="wrapper" id="content" style="display:none">
@@ -369,6 +338,7 @@ function format(num){
 return Number(num).toLocaleString('en-IN');
 }
 
+
 /* RENDER */
 
 function render(data){
@@ -402,12 +372,26 @@ data.forEach(r=>{
 
 if(r.fse==="Executive") return;
 
+const total=r.below60+r.above60;
+
+let bluePercent=(r.below60/max)*100;
+let redPercent=(r.above60/max)*100;
+
+let blueWidth=Math.max(bluePercent,0.8);
+let redWidth=Math.max(redPercent,0.8);
+
+/* ZERO VALUE HANDLING */
+
+let blueStyleWidth = r.below60===0 ? "1px" : blueWidth+"%";
+let redStyleWidth  = r.above60===0 ? "1px" : redWidth+"%";
+
+let blueColor = r.below60===0 ? "#666" : "#1e73ff";
+let redColor  = r.above60===0 ? "#666" : "#ff1e1e";
+
 const row=document.createElement("div");
 row.className="row";
 
 row.onclick=async()=>{
-
-document.getElementById("clickOverlay").style.display="flex";
 
 await fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse));
 
@@ -415,7 +399,27 @@ location.href="arun_fse_detail.html";
 
 };
 
-row.innerHTML=`<div class="name">${r.fse}</div>`;
+row.innerHTML=`
+
+<div class="name">
+${r.fse}
+<div class="total">(${format(total)})</div>
+</div>
+
+<div class="bar-area">
+
+<div class="bar">
+<div class="blue" style="width:${blueStyleWidth};background:${blueColor}"></div>
+<div class="value" style="left:${blueStyleWidth}">${format(r.below60)}</div>
+</div>
+
+<div class="bar">
+<div class="red" style="width:${redStyleWidth};background:${redColor}"></div>
+<div class="value" style="left:${redStyleWidth}">${format(r.above60)}</div>
+</div>
+
+</div>
+`;
 
 chart.appendChild(row);
 
@@ -423,11 +427,31 @@ chart.appendChild(row);
 
 }
 
-/* BACK FIX */
+/* ACCURACY */
 
-window.addEventListener("pageshow",function(){
-document.getElementById("clickOverlay").style.display="none";
-});
+function drawAccuracy(value){
+
+const ring=document.getElementById("accuracyRing");
+const text=document.getElementById("accuracyText");
+
+const radius=52;
+const circumference=2*Math.PI*radius;
+
+const offset=circumference-(value/100)*circumference;
+
+ring.style.strokeDasharray=circumference;
+ring.style.strokeDashoffset=offset;
+
+let color="red";
+
+if(value>=80) color="#00ff7f";
+else if(value>=50) color="#ffc107";
+
+ring.style.stroke=color;
+
+text.textContent=value+"%";
+
+}
 
 /* LOAD */
 
@@ -436,19 +460,47 @@ async function load(first=false){
 const res=await fetch(API+"?mode=arun_fse_summary",{cache:"no-store"});
 const json=await res.json();
 
+sessionStorage.setItem("arunFseSummary",JSON.stringify(json));
+
 render(json.data);
+drawAccuracy(json.accuracy);
 
 if(first){
+
 clearInterval(loaderTimer);
+
 loader.style.display="none";
 content.style.display="block";
+
 }
 
 }
 
 /* PAGE START */
 
+const cache=sessionStorage.getItem("arunFseSummary");
+
+if(cache){
+
+const json=JSON.parse(cache);
+
+render(json.data);
+drawAccuracy(json.accuracy);
+
+loader.style.display="none";
+content.style.display="block";
+
+}else{
+
 load(true);
+
+}
+
+/* AUTO REFRESH */
+
+setInterval(()=>{
+load(false);
+},30000);
 
 </script>
 
