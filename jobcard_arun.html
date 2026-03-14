@@ -66,9 +66,35 @@ body{margin:0;background:var(--bg);font-family:system-ui;color:#fff}
 .top-dates{
   display:flex;
   justify-content:space-between;
-  font-size:10px;
-  color:#888;
+  font-size:11px;
+  color:#bbb;
   margin-bottom:6px;
+}
+
+/* AGE BOX STYLE */
+
+.age-box{
+  padding:2px 6px;
+  border-radius:4px;
+  font-size:11px;
+  font-weight:700;
+}
+
+.age-blue{
+  background:#0b3d91;
+  color:#fff;
+}
+
+.age-red{
+  background:#ff2d2d;
+  color:#fff;
+  animation:blinkAge 1s infinite;
+}
+
+@keyframes blinkAge{
+  0%{opacity:1}
+  50%{opacity:.3}
+  100%{opacity:1}
 }
 
 #recDate{text-align:left}
@@ -184,6 +210,7 @@ tbody td{
     <div id="workDate"></div>
     <div id="age"></div>
   </div>
+
   <div class="top-main">
     <div class="title" id="aicTitle">JOBCARD</div>
     <div class="status-pill" id="workStatus">IN PROGRESS</div>
@@ -239,6 +266,27 @@ let pollStart = 0;
 
 let t0 = 0, tInt = null;
 
+/* DATE FORMAT FUNCTION */
+function formatDate(d){
+  if(!d) return "";
+  const dt=new Date(d);
+  return dt.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+}
+
+/* AGE COLOR FUNCTION */
+function formatAge(ageText){
+
+  if(!ageText) return "";
+
+  let num=parseInt(ageText);
+
+  if(num>60){
+    return `Jobcard age: <span class="age-box age-red">${ageText}</span>`;
+  }else{
+    return `Jobcard age: <span class="age-box age-blue">${ageText}</span>`;
+  }
+}
+
 function showLoader(){
   loader.classList.remove("hidden");
   t0 = Date.now();
@@ -251,7 +299,6 @@ function showLoader(){
 
 function hideLoader(){
   clearInterval(tInt);
-  tInt = null;
   loader.classList.add("hidden");
 }
 
@@ -289,9 +336,10 @@ function renderItems(items){
 
 function applyJobcard(d){
 
-  recDate.innerText  = "Jobcard rec.date: "  + (d.jobcard_rec_date||"");
-  workDate.innerText = "Work provided date: " + (d.work_provided_date||"");
-  age.innerText      = "Jobcard age: "  + (d.jobcard_age||"");
+  recDate.innerText  = "Jobcard rec.date: " + formatDate(d.jobcard_rec_date);
+  workDate.innerText = "Work provided date: " + formatDate(d.work_provided_date);
+
+  age.innerHTML = formatAge(d.jobcard_age);
 
   aicTitle.innerText = (d.aic||"JOBCARD").toUpperCase();
   cust.innerText     = d.customer_name||"";
@@ -301,29 +349,6 @@ function applyJobcard(d){
   exec.innerText     = d.executive||"";
 
   workStatus.innerText = d.work_status||"";
-
-  let ws = (d.work_status || "").toLowerCase();
-
-  if(ws.includes("work & billing completed")){
-    workStatus.style.background="#35c46a";
-    workStatus.style.color="#fff";
-  }
-  else if(ws.includes("clip")){
-    workStatus.style.background="#ff8c00";
-    workStatus.style.color="#fff";
-  }
-  else if(ws.includes("work in progress")){
-    workStatus.style.background="#ffd000";
-    workStatus.style.color="#000";
-  }
-  else if(ws.includes("work not done")){
-    workStatus.style.background="#0b3d91";
-    workStatus.style.color="#fff";
-  }
-  else if(ws.includes("jobcard closed")){
-    workStatus.style.background="#8b0000";
-    workStatus.style.color="#fff";
-  }
 
   renderItems(d.items||[]);
 }
@@ -343,7 +368,6 @@ async function pollUntilMatch(){
 
     if(expectedChase && d.chase_no !== expectedChase){
       if(Date.now() - pollStart > 8000){
-        console.warn("Chase delay timeout → force load");
         finishLoad(d);
       }
       return;
