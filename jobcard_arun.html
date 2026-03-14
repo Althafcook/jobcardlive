@@ -77,22 +77,25 @@ margin-bottom:6px;
 .date-block{
 display:flex;
 flex-direction:column;
+align-items:center;
 gap:2px;
-font-size:10px;
+font-size:9px;
 }
 
 .date-label{
 color:#8c8c8c;
-font-size:10px;
+font-size:9px;
 }
 
 .date-value{
-color:#ffd94d;
-font-size:11px;
-font-weight:500;
+color:#b5b5b5;
+font-size:10px;
+padding:2px 8px;
+background:#222;
+border-radius:12px;
 }
 
-/* AGE BLOCK */
+/* AGE */
 
 .age-wrap{
 display:flex;
@@ -106,7 +109,7 @@ color:#8c8c8c;
 }
 
 .age-box{
-padding:2px 6px;
+padding:2px 7px;
 border-radius:4px;
 font-size:11px;
 font-weight:700;
@@ -334,9 +337,7 @@ return dt.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"
 }
 
 function formatAge(ageText){
-
 if(!ageText) return "";
-
 let n=parseInt(ageText);
 
 if(n>60){
@@ -344,7 +345,6 @@ return `<div class="age-box age-red">${ageText}</div>`;
 }else{
 return `<div class="age-box age-blue">${ageText}</div>`;
 }
-
 }
 
 /* EXISTING CODE SAFE */
@@ -356,7 +356,6 @@ const expectedChase=sessionStorage.getItem("EXPECTED_CHASE")||"";
 let firstLoad=true;
 let polling=false;
 let pollTimer=null;
-let pollStart=0;
 
 let t0=0,tInt=null;
 
@@ -375,18 +374,6 @@ clearInterval(tInt);
 loader.classList.add("hidden");
 }
 
-function statusClass(s){
-if(!s) return "";
-s=s.toLowerCase();
-
-if(s.includes("clip")) return "st-clip";
-if(s.includes("work in progress")) return "st-progress";
-if(s.includes("work not done")) return "st-notdone";
-if(s.includes("jobcard closed")) return "st-closed";
-
-return "";
-}
-
 function renderItems(items){
 itemBody.innerHTML="";
 items.forEach((it,i)=>{
@@ -394,7 +381,7 @@ itemBody.insertAdjacentHTML("beforeend",`
 <tr>
 <td class="col-no">${i+1}</td>
 <td class="col-item">${it.item||""}</td>
-<td class="col-status ${statusClass(it.status)}">${it.status||""}</td>
+<td class="col-status">${it.status||""}</td>
 <td class="col-note"></td>
 </tr>
 `);
@@ -422,9 +409,7 @@ renderItems(d.items||[]);
 async function pollUntilMatch(){
 
 if(polling) return;
-
 polling=true;
-pollStart=Date.now();
 
 if(firstLoad) showLoader();
 
