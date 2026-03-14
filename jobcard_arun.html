@@ -14,6 +14,11 @@
   --lite:#9aa0a6;
   --grey:#b5b5b5;
 
+  --billed:#35c46a;
+  --pending:#f2d23c;
+  --unbilled:#ff5c5c;
+  --billed-ng:#1f3b73;
+
   --clip:#ff8c00;
   --progress:#ffd000;
   --notdone:#0b3d91;
@@ -240,12 +245,17 @@ font-size:9px;
 color:#aaa;
 }
 
-/* STATUS */
+/* STATUS COLORS RESTORED */
 
-.st-clip{background:#ff8c00;color:#fff}
-.st-progress{background:#ffd000;color:#000}
-.st-notdone{background:#0b3d91;color:#fff}
-.st-closed{background:#8b0000;color:#fff}
+.st-billed{background:var(--billed);color:#fff}
+.st-pending{background:var(--pending);color:#000}
+.st-billed-ng{background:var(--billed-ng);color:#fff}
+.st-unbilled{background:none;color:var(--unbilled)}
+
+.st-clip{background:var(--clip);color:#fff}
+.st-progress{background:var(--progress);color:#000}
+.st-notdone{background:var(--notdone);color:#fff}
+.st-closed{background:var(--closed);color:#fff}
 
 </style>
 </head>
@@ -347,6 +357,26 @@ return `<div class="age-box age-blue">${ageText}</div>`;
 }
 }
 
+/* STATUS CLASS RESTORED */
+
+function statusClass(s){
+if(!s) return "st-unbilled";
+s=s.toLowerCase();
+
+if(s.includes("work & billing completed")) return "st-billed";
+
+if(s.includes("clip")) return "st-clip";
+if(s.includes("work in progress")) return "st-progress";
+if(s.includes("work not done")) return "st-notdone";
+if(s.includes("jobcard closed")) return "st-closed";
+
+if(s.includes("billed") && s.includes("not")) return "st-billed-ng";
+if(s==="billed") return "st-billed";
+if(s.includes("pend")) return "st-pending";
+
+return "st-unbilled";
+}
+
 /* EXISTING CODE SAFE */
 
 const API="https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
@@ -381,7 +411,7 @@ itemBody.insertAdjacentHTML("beforeend",`
 <tr>
 <td class="col-no">${i+1}</td>
 <td class="col-item">${it.item||""}</td>
-<td class="col-status">${it.status||""}</td>
+<td class="col-status ${statusClass(it.status)}">${it.status||""}</td>
 <td class="col-note"></td>
 </tr>
 `);
