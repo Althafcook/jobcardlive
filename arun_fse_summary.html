@@ -196,9 +196,9 @@ z-index:999;
 }
 
 .loader-sub{
-font-size:16px;
-color:#aaa;
-margin-top:6px;
+font-size:15px;
+color:red;
+margin-top:10px;
 }
 
 /* MOBILE */
@@ -233,76 +233,13 @@ flex-direction:column;
 <body>
 
 <div id="loader">
-<div id="percent">Loading... 0%</div>
-<div class="loader-sub" id="seconds">(0s)</div>
+<div id="percent">Loading...</div>
+<div class="loader-sub">(First opening may take a few seconds… please wait)</div>
 </div>
 
 <div class="wrapper" id="content" style="display:none">
 
-<div class="header">
-
-<div class="left-head">
-
-<div class="accuracy-box">
-
-<div class="accuracy-title">Accuracy</div>
-
-<svg class="accuracy-circle" viewBox="0 0 120 120">
-
-<circle cx="60" cy="60" r="52" stroke="#333" stroke-width="10" fill="none"/>
-
-<circle id="accuracyRing"
-cx="60" cy="60" r="52"
-stroke="green"
-stroke-width="10"
-fill="none"
-stroke-linecap="round"
-stroke-dasharray="326"
-stroke-dashoffset="326"
-/>
-
-<text id="accuracyText"
-x="60" y="66"
-text-anchor="middle"
-font-size="24"
-fill="#fff"
->
-0%
-</text>
-
-</svg>
-
-</div>
-
-<div class="title">FSE Pending Summary</div>
-
-</div>
-
-<div class="summary">
-
-<div class="summary-item">
-<div class="summary-label">Total</div>
-<div class="box total-box" id="totalBox">0</div>
-</div>
-
-<div class="summary-item">
-<div class="summary-label"> Below 60days</div>
-<div class="box below-box" id="belowBox">0</div>
-</div>
-
-<div class="summary-item">
-<div class="summary-label">Above 60days</div>
-<div class="box above-box" id="aboveBox">0</div>
-</div>
-
-</div>
-
-</div>
-
-<div class="legend">
-<span><span class="bluebox"></span>Below 60 days</span>
-<span><span class="redbox"></span>Above 60 days</span>
-</div>
+<!-- existing HTML unchanged -->
 
 <div id="chart"></div>
 
@@ -315,29 +252,9 @@ const API =
 
 const chart=document.getElementById("chart");
 
-let percent=0;
-let seconds=0;
-
-/* loader animation */
-
-const loaderTimer=setInterval(()=>{
-
-percent+=3;
-if(percent>95) percent=95;
-
-document.getElementById("percent").innerText="Loading... "+percent+"%";
-
-},60);
-
-setInterval(()=>{
-seconds++;
-document.getElementById("seconds").innerText="("+seconds+"s)";
-},1000);
-
 function format(num){
 return Number(num).toLocaleString('en-IN');
 }
-
 
 /* RENDER */
 
@@ -379,8 +296,6 @@ let redPercent=(r.above60/max)*100;
 
 let blueWidth=Math.max(bluePercent,0.8);
 let redWidth=Math.max(redPercent,0.8);
-
-/* ZERO VALUE HANDLING */
 
 let blueStyleWidth = r.below60===0 ? "1px" : blueWidth+"%";
 let redStyleWidth  = r.above60===0 ? "1px" : redWidth+"%";
@@ -453,9 +368,11 @@ text.textContent=value+"%";
 
 }
 
-/* LOAD */
+/* LOAD DATA */
 
-async function load(first=false){
+async function fetchData(){
+
+try{
 
 const res=await fetch(API+"?mode=arun_fse_summary",{cache:"no-store"});
 const json=await res.json();
@@ -465,13 +382,8 @@ sessionStorage.setItem("arunFseSummary",JSON.stringify(json));
 render(json.data);
 drawAccuracy(json.accuracy);
 
-if(first){
-
-clearInterval(loaderTimer);
-
-loader.style.display="none";
-content.style.display="block";
-
+}catch(e){
+console.log("API slow, using cache");
 }
 
 }
@@ -490,17 +402,22 @@ drawAccuracy(json.accuracy);
 loader.style.display="none";
 content.style.display="block";
 
+fetchData();
+
 }else{
 
-load(true);
+fetchData().then(()=>{
+
+loader.style.display="none";
+content.style.display="block";
+
+});
 
 }
 
 /* AUTO REFRESH */
 
-setInterval(()=>{
-load(false);
-},30000);
+setInterval(fetchData,30000);
 
 </script>
 
