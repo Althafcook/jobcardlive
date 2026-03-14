@@ -38,9 +38,13 @@ body{
   font-size:16px;
 }
 
+/* FIXED */
 .menu-item{
   cursor:pointer;
   transition:.3s;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
 .menu-item span{
@@ -53,14 +57,15 @@ body{
   color:#fff;
 }
 
-/* 🔥 Disabled look */
+/* Disabled */
 .disabled{
   opacity:.4;
   pointer-events:none;
   cursor:default;
 }
 
-/* ⭐ Coming Soon Badge */
+/* Coming Soon badge */
+
 .coming-badge{
   font-size:12px;
   background:#222;
@@ -70,9 +75,9 @@ body{
   margin-left:8px;
   font-weight:500;
   letter-spacing:.3px;
+  white-space:nowrap;
 }
 
-/* slight glow */
 .menu-item.coming:hover .coming-badge{
   background:#00d4ff;
   color:#000;
@@ -84,6 +89,7 @@ body{
 }
 
 @media(max-width:900px){
+
   .wrapper{
     flex-direction:row;
     gap:20px;
@@ -98,6 +104,7 @@ body{
     width:240px;
     height:240px;
   }
+
 }
 </style>
 </head>
@@ -134,6 +141,7 @@ body{
     <div class="menu-item coming">
       Search locker items <span class="coming-badge">Coming Soon</span>
     </div>
+
   </div>
 
   <div class="animation-box" id="robotAnimation"></div>
@@ -142,7 +150,8 @@ body{
 
 <script>
 
-/* ================= LOTTIE ================= */
+/* LOTTIE */
+
 lottie.loadAnimation({
   container: document.getElementById("robotAnimation"),
   renderer: "svg",
@@ -151,11 +160,13 @@ lottie.loadAnimation({
   path: "assets/images/robo_workbook.json"
 });
 
-/* ================= CONFIG ================= */
+/* CONFIG */
+
 const API_URL =
 "https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=workbook_summary";
 
-/* ================= LOAD COUNTS ================= */
+/* LOAD COUNTS */
+
 function loadSummary(){
 
   fetch(API_URL,{cache:"no-store"})
@@ -176,9 +187,11 @@ function loadSummary(){
 
   })
   .catch(err => console.log("Sheet fetch error:", err));
+
 }
 
-/* ================= CLICK CONTROL ================= */
+/* CLICK CONTROL */
+
 function setupClick(element, count, url){
 
   if(count > 0){
@@ -188,17 +201,21 @@ function setupClick(element, count, url){
     element.classList.add("disabled");
     element.onclick = null;
   }
+
 }
 
-/* ================= FSE PAGE CLICK ================= */
+/* FSE PAGE */
+
 document.getElementById("fsePendingItem").onclick = () => {
   location.href = "arun_fse_summary.html";
 };
 
-/* ================= INIT ================= */
+/* INIT */
+
 loadSummary();
 
-/* 🔥 30 Seconds Silent Refresh */
+/* AUTO REFRESH */
+
 setInterval(loadSummary,30000);
 
 </script>
