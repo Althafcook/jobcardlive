@@ -245,7 +245,7 @@ font-size:9px;
 color:#aaa;
 }
 
-/* STATUS COLORS RESTORED */
+/* STATUS COLORS */
 
 .st-billed{background:var(--billed);color:#fff}
 .st-pending{background:var(--pending);color:#000}
@@ -357,8 +357,6 @@ return `<div class="age-box age-blue">${ageText}</div>`;
 }
 }
 
-/* STATUS CLASS RESTORED */
-
 function statusClass(s){
 if(!s) return "st-unbilled";
 s=s.toLowerCase();
@@ -376,8 +374,6 @@ if(s.includes("pend")) return "st-pending";
 
 return "st-unbilled";
 }
-
-/* EXISTING CODE SAFE */
 
 const API="https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
 
@@ -432,6 +428,29 @@ color.innerText=d.color||"";
 exec.innerText=d.executive||"";
 
 workStatus.innerText=d.work_status||"";
+
+let ws=(d.work_status||"").toLowerCase();
+
+if(ws.includes("work & billing completed")){
+workStatus.style.background="#35c46a";
+workStatus.style.color="#fff";
+}
+else if(ws.includes("clip")){
+workStatus.style.background="#ff8c00";
+workStatus.style.color="#fff";
+}
+else if(ws.includes("work in progress")){
+workStatus.style.background="#ffd000";
+workStatus.style.color="#000";
+}
+else if(ws.includes("work not done")){
+workStatus.style.background="#0b3d91";
+workStatus.style.color="#fff";
+}
+else if(ws.includes("jobcard closed")){
+workStatus.style.background="#8b0000";
+workStatus.style.color="#fff";
+}
 
 renderItems(d.items||[]);
 }
