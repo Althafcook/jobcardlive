@@ -158,12 +158,12 @@ tbody tr:hover{
 
 /* ================= CONFIG ================= */
 const DATA_API =
-"https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=clip_arun";
+"https://script.google.com/macros/s/AKfycbwdy3vWw7kYiYHXY6onGHQsiG1U1f3lOjYYcDYJi_NsUdwompeJ8FQpa96z6coppLuF/exec?mode=clip_ashraf";
 
 const JOBCARD_API =
-"https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
+"https://script.google.com/macros/s/AKfycbwxd9qi9QIyuEkgMFEmYVB8EVE9klFGjHDSt-GdhRoOsFJGzGqIdKAmqmkIrSUGmqlV2g/exec";
 
-const STATE_KEY = "CLIP_ARUN_STATE";
+const STATE_KEY = "CLIP_ASHRAF_STATE";
 
 /* ================= STATE ================= */
 let cachedRows = [];
@@ -244,7 +244,7 @@ function renderTable(data){
         JOBCARD_API + "?mode=setChase&chase=" + encodeURIComponent(row[6]),
         {mode:"no-cors"}
       );
-      location.href="jobcard_arun.html";
+      location.href="jobcard_ashraf.html";
     };
 
     const no=document.createElement("td");
@@ -261,8 +261,8 @@ function renderTable(data){
           td.classList.add("red-age");
       }
 
-      if(index===2&&cell==="Arun")
-        td.classList.add("aic-arun");
+      if(index===2&&cell==="Ashraf")
+        td.classList.add("aic-ashraf");
 
       tr.appendChild(td);
     });
