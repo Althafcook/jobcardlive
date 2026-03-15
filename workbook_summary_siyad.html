@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workbook Summary</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:#000;
+  font-family:"Segoe UI",Arial,sans-serif;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.wrapper{
+  width:95%;
+  max-width:1000px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:60px;
+}
+
+.menu{
+  display:flex;
+  flex-direction:column;
+  gap:22px;
+  font-size:16px;
+}
+
+/* FIXED */
+.menu-item{
+  cursor:pointer;
+  transition:.3s;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.menu-item span{
+  color:#ff2d2d;
+  font-weight:600;
+}
+
+.menu-item:hover{
+  transform:translateX(6px);
+  color:#fff;
+}
+
+/* Disabled */
+.disabled{
+  opacity:.4;
+  pointer-events:none;
+  cursor:default;
+}
+
+/* Coming Soon badge */
+
+.coming-badge{
+  font-size:12px;
+  background:#222;
+  color:#00d4ff;
+  padding:3px 8px;
+  border-radius:12px;
+  margin-left:8px;
+  font-weight:500;
+  letter-spacing:.3px;
+  white-space:nowrap;
+}
+
+.menu-item.coming:hover .coming-badge{
+  background:#00d4ff;
+  color:#000;
+}
+
+.animation-box{
+  width:360px;
+  height:360px;
+}
+
+@media(max-width:900px){
+
+  .wrapper{
+    flex-direction:row;
+    gap:20px;
+  }
+
+  .menu{
+    font-size:14px;
+    gap:15px;
+  }
+
+  .animation-box{
+    width:240px;
+    height:240px;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+  <div class="menu">
+    <div class="menu-item" id="inboxItem">
+      Inbox <span id="inboxCount">(wait...)</span>
+    </div>
+
+    <div class="menu-item" id="workinItem">
+      Work in progress <span id="workinCount">(wait...)</span>
+    </div>
+
+    <div class="menu-item" id="clipItem">
+      Clip <span id="clipCount">(wait...)</span>
+    </div>
+
+    <div class="menu-item" id="fsePendingItem">
+      FSE wise pending
+    </div>
+
+    <div class="menu-item coming">
+      Pending items <span class="coming-badge">Coming Soon</span>
+    </div>
+
+    <div class="menu-item coming">
+      Lost sale <span class="coming-badge">Coming Soon</span>
+    </div>
+
+    <div class="menu-item coming">
+      Search locker items <span class="coming-badge">Coming Soon</span>
+    </div>
+
+  </div>
+
+  <div class="animation-box" id="robotAnimation"></div>
+
+</div>
+
+<script>
+
+/* LOTTIE */
+
+lottie.loadAnimation({
+  container: document.getElementById("robotAnimation"),
+  renderer: "svg",
+  loop: true,
+  autoplay: true,
+  path: "assets/images/robo_workbook.json"
+});
+
+/* CONFIG */
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=workbook_summary";
+
+/* LOAD COUNTS */
+
+function loadSummary(){
+
+  fetch(API_URL,{cache:"no-store"})
+  .then(res => res.json())
+  .then(data => {
+
+    const inbox  = Number(data.inbox)  || 0;
+    const workin = Number(data.workin) || 0;
+    const clip   = Number(data.clip)   || 0;
+
+    inboxCount.textContent  = "(" + inbox  + ")";
+    workinCount.textContent = "(" + workin + ")";
+    clipCount.textContent   = "(" + clip   + ")";
+
+    setupClick(inboxItem,  inbox,  "inbox_arun.html");
+    setupClick(workinItem, workin, "workin_arun.html");
+    setupClick(clipItem,   clip,   "clip_arun.html");
+
+  })
+  .catch(err => console.log("Sheet fetch error:", err));
+
+}
+
+/* CLICK CONTROL */
+
+function setupClick(element, count, url){
+
+  if(count > 0){
+    element.classList.remove("disabled");
+    element.onclick = () => location.href = url;
+  }else{
+    element.classList.add("disabled");
+    element.onclick = null;
+  }
+
+}
+
+/* FSE PAGE */
+
+document.getElementById("fsePendingItem").onclick = () => {
+  location.href = "arun_fse_summary.html";
+};
+
+/* INIT */
+
+loadSummary();
+
+/* AUTO REFRESH */
+
+setInterval(loadSummary,30000);
+
+</script>
+
+</body>
+</html>
