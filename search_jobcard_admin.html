@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<!-- MOBILE FIX -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Jobcard Search</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:#000;
+  font-family:"Segoe UI",Arial,sans-serif;
+  color:#fff;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:12px;
+}
+
+.search-wrap{
+  width:100%;
+  max-width:420px;
+  margin-top:10px;
+}
+
+/* GIF */
+.gif-box{
+  text-align:center;
+  margin-bottom:6px;
+}
+.gif-box img{
+  width:120px;
+  max-width:55vw;
+}
+
+/* TITLE */
+.logo{
+  text-align:center;
+  font-size:20px;
+  letter-spacing:2px;
+  margin-bottom:14px;
+}
+.logo span{color:#ff3b3b}
+
+/* SEARCH */
+.search-box{position:relative}
+
+.search-input{
+  width:100%;
+  padding:18px 56px 18px 22px;
+  border-radius:30px;
+  border:1px solid #333;
+  background:#000;
+  color:#fff;
+  font-size:15px;
+}
+
+.search-icon{
+  position:absolute;
+  right:18px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:20px;
+  cursor:pointer;
+  opacity:.4;
+  pointer-events:none;
+}
+
+.search-icon.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+/* INFO MESSAGE */
+.info-msg{
+  margin-top:8px;
+  font-size:10px;
+  color:#ff3b3b;
+  text-align:center;
+}
+
+/* DROPDOWN */
+.dropdown{
+  position:absolute;
+  top:110%;
+  left:0;
+  right:0;
+  background:#111;
+  border-radius:14px;
+  display:none;
+  overflow:hidden;
+  z-index:10;
+}
+
+.dropdown-item{
+  padding:14px 18px;
+  border-bottom:1px solid #222;
+  cursor:pointer;
+}
+.dropdown-item:hover{background:#1a1a1a}
+.small{font-size:12px;color:#888}
+</style>
+</head>
+
+<body>
+
+<div class="search-wrap">
+
+  <!-- GIF -->
+  <div class="gif-box">
+    <img src="assets/images/bee1.gif" alt="search">
+  </div>
+
+  <div class="logo">
+    JOBCARD <span>SEARCH</span>
+  </div>
+
+  <div class="search-box">
+    <input
+      id="searchInput"
+      class="search-input"
+      placeholder="Type customer name or chase number"
+      autocomplete="off"
+    >
+    <div class="search-icon" id="searchBtn">🔍</div>
+    <div class="dropdown" id="dropdown"></div>
+  </div>
+
+  <!-- 🔥 RED MESSAGE -->
+  <div class="info-msg">
+    Note : Details of unprinted or closed jobcards are not available here.
+  </div>
+
+</div>
+
+<script>
+/* 🔹 SEARCH INDEX API (READ ONLY) */
+const SEARCH_API =
+"https://script.google.com/macros/s/AKfycby8snhU3T4iVYVQSM5PxrTSqMZHTITSHM9BIQRiH-Zi7eiXXD1ob0ErL9vzWfDDKykV_Q/exec";
+  
+
+/* 🔹 JOBCARD API (WRITE A1) – SAME AS DAYBOOK */
+const JOBCARD_API =
+"https://script.google.com/macros/s/AKfycbzOJIw7alWcif__URPQshoUKf54h0vaj0NJoJU4pK8PmHxOpZqozf1mEmV15UetiWOO/exec";
+
+let searchData=[];
+let selectedChase=null;
+
+const input=document.getElementById("searchInput");
+const dropdown=document.getElementById("dropdown");
+const searchBtn=document.getElementById("searchBtn");
+
+/* 🔥 SILENT AUTO REFRESH EVERY 30 SECONDS */
+setInterval(()=>{
+  location.reload();
+},30000);
+
+/* LOAD SEARCH DATA */
+fetch(SEARCH_API+"?mode=searchIndex",{cache:"no-store"})
+  .then(r=>r.json())
+  .then(d=>searchData=d||[]);
+
+/* INPUT */
+input.addEventListener("input",()=>{
+  const q=input.value.toLowerCase().trim();
+  dropdown.innerHTML="";
+  selectedChase=null;
+  searchBtn.classList.remove("active");
+
+  if(!q){
+    dropdown.style.display="none";
+    return;
+  }
+
+  const res=searchData.filter(r =>
+    r.customer.toLowerCase().includes(q) ||
+    r.chase.toLowerCase().includes(q)
+  ).slice(0,8);
+
+  if(!res.length){
+    dropdown.style.display="none";
+    return;
+  }
+
+  res.forEach(r=>{
+    const d=document.createElement("div");
+    d.className="dropdown-item";
+    d.innerHTML=`
+      <div>${r.customer}</div>
+      <div class="small">${r.chase}</div>
+    `;
+    d.onclick=()=>selectResult(r);
+    dropdown.appendChild(d);
+  });
+
+  dropdown.style.display="block";
+});
+
+/* SELECT FROM DROPDOWN */
+function selectResult(r){
+  input.value = r.customer+" ("+r.chase+")";
+  selectedChase = r.chase;
+  dropdown.style.display="none";
+  searchBtn.classList.add("active");
+}
+
+/* SEARCH ICON CLICK */
+searchBtn.onclick = ()=>{
+  if(!selectedChase) return;
+
+  fetch(
+    JOBCARD_API + "?mode=setChase&chase=" + encodeURIComponent(selectedChase),
+    { mode:"no-cors" }
+  );
+
+  setTimeout(()=>{
+    location.href="jobcard_sajid.html";
+  },150);
+};
+</script>
+<script src="guard.js"></script>
+</body>
+</html>
