@@ -163,7 +163,7 @@ lottie.loadAnimation({
 /* CONFIG */
 
 const API_URL =
-"https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=workbook_summary";
+"https://script.google.com/macros/s/AKfycbyrYAGyyMU7-iouFyxI8T1xIjI-XhnvKVXA9g4moZv7sSSQIl4F2YiMU_LYUQaoM329/exec?mode=workbook_summary";
 
 /* LOAD COUNTS */
 
@@ -181,9 +181,9 @@ function loadSummary(){
     workinCount.textContent = "(" + workin + ")";
     clipCount.textContent   = "(" + clip   + ")";
 
-    setupClick(inboxItem,  inbox,  "inbox_arun.html");
-    setupClick(workinItem, workin, "workin_arun.html");
-    setupClick(clipItem,   clip,   "clip_arun.html");
+    setupClick(inboxItem,  inbox,  "inbox_sajid.html");
+    setupClick(workinItem, workin, "workin_sajid.html");
+    setupClick(clipItem,   clip,   "clip_sajid.html");
 
   })
   .catch(err => console.log("Sheet fetch error:", err));
@@ -207,7 +207,7 @@ function setupClick(element, count, url){
 /* FSE PAGE */
 
 document.getElementById("fsePendingItem").onclick = () => {
-  location.href = "arun_fse_summary.html";
+  location.href = "sajid_fse_summary.html";
 };
 
 /* INIT */
