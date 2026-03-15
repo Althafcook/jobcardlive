@@ -158,12 +158,12 @@ tbody tr:hover{
 
 /* ================= CONFIG ================= */
 const DATA_API =
-"https://script.google.com/macros/s/AKfycbxbKFzPH4mlW6_6SGMqppmgPy0D6FXBRfY6AddknP837mnJkLy_u5noIGCaoZ_X2aV_aA/exec?mode=clip_arun";
+"https://script.google.com/macros/s/AKfycbyrYAGyyMU7-iouFyxI8T1xIjI-XhnvKVXA9g4moZv7sSSQIl4F2YiMU_LYUQaoM329/exec?mode=clip_sajid";
 
 const JOBCARD_API =
-"https://script.google.com/macros/s/AKfycbwr0Ltlv2tRUZWt8CnDtH7Zx3qcG3CzIEuMBncow_FS0SW3f7pyEaTziYnGtNvcOSYZ-w/exec";
+"https://script.google.com/macros/s/AKfycbzYToeHcRvjhye5lymN0_2uCwP8tCo-UESPrpdq14Jj0tBtQzJhZ2-4LPRexat4hBhc/exec";
 
-const STATE_KEY = "CLIP_ARUN_STATE";
+const STATE_KEY = "CLIP_SAJID_STATE";
 
 /* ================= STATE ================= */
 let cachedRows = [];
@@ -261,8 +261,8 @@ function renderTable(data){
           td.classList.add("red-age");
       }
 
-      if(index===2&&cell==="Arun")
-        td.classList.add("aic-arun");
+      if(index===2&&cell==="Sajid")
+        td.classList.add("aic-sajid");
 
       tr.appendChild(td);
     });
