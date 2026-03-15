@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FSE Pending Detail</title>
+
+<style>
+
+body{
+margin:0;
+background:#000;
+color:#e0e0e0;
+font-family:Segoe UI,Arial;
+padding:20px;
+}
+
+.wrapper{
+max-width:1100px;
+margin:auto;
+}
+
+/* HEADER */
+
+.title{
+font-size:22px;
+margin-bottom:10px;
+text-align:center;
+font-weight:600;
+letter-spacing:.5px;
+}
+
+.total{
+text-align:center;
+font-size:16px;
+margin-bottom:20px;
+color:#ff5252;
+font-weight:600;
+}
+
+/* TABLE */
+
+.table-wrapper{
+width:100%;
+overflow-x:auto;
+}
+
+table{
+width:100%;
+min-width:750px;
+border-collapse:collapse;
+}
+
+th,td{
+padding:8px;
+text-align:center;
+border-bottom:1px solid #222;
+font-size:12px;
+color:#cfcfcf;
+white-space:nowrap;
+}
+
+th{
+background:#0d47a1;
+color:#fff;
+font-weight:500;
+}
+
+tr{
+cursor:pointer;
+transition:.15s;
+}
+
+tr:hover{
+background:#111;
+}
+
+.number{
+width:40px;
+color:#aaa;
+}
+
+.age{
+text-align:center;
+}
+
+.age.red{
+background:#ff2d2d;
+color:#fff;
+font-weight:600;
+border-radius:4px;
+}
+
+.amount{
+color:#ff4d4d;
+font-weight:500;
+}
+
+/* LOADER */
+
+#loader{
+position:fixed;
+inset:0;
+background:#000;
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+font-size:22px;
+letter-spacing:.5px;
+}
+
+/* MOBILE */
+
+@media(max-width:700px){
+
+body{
+padding:12px;
+}
+
+th,td{
+padding:6px;
+font-size:12px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="loader">
+<div id="waitText">Wait.. (0s)</div>
+</div>
+
+<div class="wrapper" id="content" style="display:none">
+
+<div class="title">FSE Pending Detail</div>
+
+<div class="total" id="totalAmount">Total : ₹0</div>
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+
+<tr>
+<th>No.</th>
+<th>Jobcard age</th>
+<th>AIC</th>
+<th>Customer name</th>
+<th>Vehicle</th>
+<th>Executive</th>
+<th>Chase no.</th>
+<th>Pending amount</th>
+</tr>
+
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+const API =
+"https://script.google.com/macros/s/AKfycby5pGKryl-gt3ZGia5fni-0RY0BOE9FL2Yp7d-jK62C4_vor8wvBV2YvO2Rt9C3aWoW/exec";
+
+/* same jobcard api used in daybook */
+
+const JOBCARD_API =
+"https://script.google.com/macros/s/AKfycbzYToeHcRvjhye5lymN0_2uCwP8tCo-UESPrpdq14Jj0tBtQzJhZ2-4LPRexat4hBhc/exec";
+
+const body=document.getElementById("tableBody");
+const totalAmount=document.getElementById("totalAmount");
+
+let seconds=0;
+
+/* loader timer */
+
+const loaderTimer=setInterval(()=>{
+
+seconds++;
+document.getElementById("waitText").innerText="Wait.. ("+seconds+"s)";
+
+},1000);
+
+/* format number */
+
+function format(num){
+return Number(num).toLocaleString('en-IN');
+}
+
+/* render table */
+
+function render(data){
+
+body.innerHTML="";
+
+let total=0;
+
+data.forEach((r,i)=>{
+
+total+=Number(r.amount);
+
+const tr=document.createElement("tr");
+
+/* ===== SAME FUNCTION AS DAYBOOK ===== */
+
+tr.onclick=()=>{
+
+fetch(
+JOBCARD_API + "?mode=setChase&chase=" + encodeURIComponent(r.chase),
+{mode:"no-cors"}
+);
+
+location.href="jobcard_sajid.html";
+
+};
+
+/* age highlight */
+
+let ageClass="age";
+if(Number(r.age)>60){
+ageClass="age red";
+}
+
+tr.innerHTML=`
+
+<td class="number">${i+1}</td>
+<td class="${ageClass}">${r.age}</td>
+<td>${r.aic}</td>
+<td>${r.customer}</td>
+<td>${r.vehicle}</td>
+<td>${r.executive}</td>
+<td>${r.chase}</td>
+<td class="amount">${format(r.amount)}</td>
+
+`;
+
+body.appendChild(tr);
+
+});
+
+totalAmount.innerText="Total : ₹"+format(total);
+
+}
+
+/* load data */
+
+async function load(showLoader=true){
+
+if(showLoader){
+seconds=0;
+}
+
+await fetch(API+"?mode=refresh&t="+Date.now(),{cache:"no-store"});
+
+const res=await fetch(API+"?mode=arun_fse_detail&t="+Date.now(),{cache:"no-store"});
+const data=await res.json();
+
+render(data);
+
+if(showLoader){
+
+clearInterval(loaderTimer);
+
+loader.style.display="none";
+content.style.display="block";
+
+}
+
+}
+
+/* page start */
+
+load(true);
+
+/* background refresh */
+
+setInterval(()=>{
+
+load(false);
+
+},30000);
+
+</script>
+  <script src="guard.js"></script>
+
+</body>
+</html>
