@@ -404,10 +404,15 @@ location.reload();
 };
 
 
-  row.addEventListener("click", async ()=>{
+let navigating=false;
 
-await fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse),{
-cache:"no-store"
+row.addEventListener("click", ()=>{
+
+if(navigating) return;
+navigating=true;
+
+fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse),{
+mode:"no-cors"
 });
 
 window.location.href="ashraf_fse_detail.html";
