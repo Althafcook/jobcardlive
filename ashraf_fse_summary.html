@@ -396,7 +396,15 @@ let redColor  = r.above60===0 ? "#666" : "#ff1e1e";
 const row=document.createElement("div");
 row.className="row";
 
-row.addEventListener("click", async ()=>{
+
+  window.onpageshow = function(event){
+if(event.persisted){
+location.reload();
+}
+};
+
+
+  row.addEventListener("click", async ()=>{
 
 await fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse),{
 cache:"no-store"
@@ -405,6 +413,10 @@ cache:"no-store"
 window.location.href="ashraf_fse_detail.html";
 
 });
+
+
+
+  
 
 row.innerHTML=`
 
