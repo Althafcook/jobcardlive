@@ -396,13 +396,15 @@ let redColor  = r.above60===0 ? "#666" : "#ff1e1e";
 const row=document.createElement("div");
 row.className="row";
 
-row.onclick=async()=>{
+row.addEventListener("click", async ()=>{
 
-await fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse));
+await fetch(API+"?mode=set_fse&name="+encodeURIComponent(r.fse),{
+cache:"no-store"
+});
 
-location.href="siyad_fse_detail.html";
+window.location.href="siyad_fse_detail.html";
 
-};
+});
 
 row.innerHTML=`
 
