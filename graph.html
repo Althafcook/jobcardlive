@@ -78,24 +78,20 @@ justify-content:flex-end;
 height:100%;
 }
 
-/* 🔥 IMPORTANT FIX */
+/* BARS */
 
 .bars{
 display:flex;
 gap:14px;
 align-items:flex-end;
-height:260px; /* fixed baseline area */
+height:260px;
 }
-
-/* BAR */
 
 .bar{
 width:42px;
 border-radius:6px 6px 0 0;
 position:relative;
 }
-
-/* COLORS */
 
 .bar.blue{background:#4e79ff;}
 .bar.red{background:#ff2d2d;}
@@ -172,9 +168,16 @@ let max = 0;
 let total = 0;
 
 data.forEach(r=>{
-const t = r.above + r.below;
+
+/* 🔥 SWAP FIX */
+const below = r.above; // BLUE
+const above = r.below; // RED
+
+const t = above + below;
+
 if(t > max) max = t;
 total += t;
+
 });
 
 if(max === 0){
@@ -188,9 +191,9 @@ chart.innerHTML = "";
 
 data.forEach(r=>{
 
-/* ✅ FIX: correct mapping */
-const below = r.below; // BLUE
-const above = r.above; // RED
+/* 🔥 SWAP FIX */
+const below = r.above; // BLUE
+const above = r.below; // RED
 
 const blueHeight = (below / max) * 260;
 const redHeight  = (above / max) * 260;
@@ -202,12 +205,12 @@ div.innerHTML = `
 
 <div class="bars">
 
-<!-- BLUE LEFT -->
+<!-- BLUE (Below 60) -->
 <div class="bar blue" style="height:${blueHeight}px">
 <div class="value">${format(below)}</div>
 </div>
 
-<!-- RED RIGHT -->
+<!-- RED (Above 60) -->
 <div class="bar red" style="height:${redHeight}px">
 <div class="value">${format(above)}</div>
 </div>
