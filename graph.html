@@ -15,63 +15,56 @@ color:#fff;
 padding:20px;
 }
 
-/* CHART */
-
-.chart{
-position:relative;
-height:340px;
-width:80%;
-margin:20px auto 0;
-}
-
-/* 🔥 HEADER INSIDE CHART */
+/* HEADER */
 
 .header{
-position:absolute;
-top:10px;
-left:0;
-right:0;
 display:flex;
 justify-content:space-between;
-align-items:flex-start;
-padding:0 15px;
-z-index:2;
+align-items:center;
+margin-bottom:10px;
+flex-wrap:wrap;
 }
 
 .date{
 color:#00ff99;
-font-size:14px;
+font-size:16px;
 }
 
 .total{
-font-size:26px;
+font-size:30px;
 font-weight:600;
-margin-top:4px;
+margin-top:5px;
 }
-
-/* 🔥 LEGEND INSIDE */
 
 .legend{
 display:flex;
-gap:15px;
-font-size:13px;
-margin-top:5px;
+gap:20px;
+font-size:14px;
 }
 
 .legend span{
 display:flex;
 align-items:center;
-gap:6px;
+gap:8px;
 }
 
 .box{
-width:12px;
-height:12px;
+width:14px;
+height:14px;
 border-radius:3px;
 }
 
 .blue{background:#4e79ff;}
 .red{background:#ff2d2d;}
+
+/* CHART */
+
+.chart{
+position:relative;
+height:340px;
+width:80%;              /* 🔥 better balance */
+margin:20px auto 0;    /* 🔥 centered */
+}
 
 /* LOADER */
 
@@ -125,7 +118,7 @@ flex-direction:column;
 align-items:center;
 }
 
-/* 🔥 YOUR CURRENT GAP (UNCHANGED) */
+/* 🔥 EXACT MATCH TO YOUR IMAGE */
 
 .bar-group:nth-child(1){ left:24%; }
 .bar-group:nth-child(2){ left:39%; }
@@ -192,14 +185,11 @@ margin-top:3px;
 
 <body>
 
-<div class="chart" id="chart">
-
-<!-- 🔥 MOVED INSIDE -->
 <div class="header">
 
 <div>
 <div class="date" id="date">--</div>
-<div style="font-size:14px;">Bill pending value</div>
+<div>Bill pending value</div>
 <div class="total" id="total">₹0</div>
 </div>
 
@@ -210,8 +200,8 @@ margin-top:3px;
 
 </div>
 
+<div class="chart" id="chart">
 <div class="loader" id="loader">Loading... 0s</div>
-
 </div>
 
 <script>
@@ -256,14 +246,13 @@ total += t;
 });
 
 if(max === 0){
-chart.innerHTML += "<div>No data</div>";
+chart.innerHTML = "<div>No data</div>";
 return;
 }
 
 document.getElementById("total").innerText = "₹"+format(total);
 
-/* 🔥 remove only bars */
-chart.querySelectorAll(".bar-group").forEach(e=>e.remove());
+chart.innerHTML = "";
 
 data.forEach((r)=>{
 
@@ -328,7 +317,7 @@ firstLoad = false;
 
 }catch(err){
 
-document.getElementById("chart").innerHTML +=
+document.getElementById("chart").innerHTML =
 "<div style='color:red'>Failed to load data</div>";
 
 }
