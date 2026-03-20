@@ -25,6 +25,26 @@ margin-bottom:10px;
 flex-wrap:wrap;
 }
 
+/* 🔥 RIGHT SIDE (TEXT BLOCK) */
+.header > div:first-child{
+margin-left:auto;        /* push to right */
+text-align:right;        /* align text nicely */
+}
+
+/* 🔥 LEFT SIDE (LEGEND) */
+.legend{
+display:flex;
+gap:20px;
+font-size:14px;
+margin-right:auto;       /* push to left */
+}
+
+.legend span{
+display:flex;
+align-items:center;
+gap:8px;
+}
+
 .date{
 color:#00ff99;
 font-size:16px;
@@ -34,18 +54,6 @@ font-size:16px;
 font-size:30px;
 font-weight:600;
 margin-top:5px;
-}
-
-.legend{
-display:flex;
-gap:20px;
-font-size:14px;
-}
-
-.legend span{
-display:flex;
-align-items:center;
-gap:8px;
 }
 
 .box{
@@ -62,8 +70,8 @@ border-radius:3px;
 .chart{
 position:relative;
 height:340px;
-width:80%;              /* 🔥 better balance */
-margin:20px auto 0;    /* 🔥 centered */
+width:80%;
+margin:20px auto 0;
 }
 
 /* LOADER */
@@ -117,8 +125,6 @@ display:flex;
 flex-direction:column;
 align-items:center;
 }
-
-/* 🔥 EXACT MATCH TO YOUR IMAGE */
 
 .bar-group:nth-child(1){ left:24%; }
 .bar-group:nth-child(2){ left:39%; }
