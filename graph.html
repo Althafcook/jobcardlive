@@ -63,9 +63,6 @@ border-radius:3px;
 position:relative;
 height:340px;
 margin-top:40px;
-display:flex;
-justify-content:space-around;
-align-items:flex-end;
 }
 
 /* GROUND LINE */
@@ -101,20 +98,28 @@ transparent 60px
 /* GROUP */
 
 .bar-group{
+position:absolute;
+bottom:60px; /* 🔥 EXACT ground line */
+transform:translateX(-50%);
 display:flex;
 flex-direction:column;
 align-items:center;
-justify-content:flex-end;
-height:100%;
 }
 
-/* 🔥 FIX HERE */
+/* distribute manually */
+
+.bar-group:nth-child(1){ left:12%; }
+.bar-group:nth-child(2){ left:37%; }
+.bar-group:nth-child(3){ left:62%; }
+.bar-group:nth-child(4){ left:87%; }
+
+/* BARS */
 
 .bars{
 display:flex;
 gap:0;
 align-items:flex-end;
-height:280px; /* 🔥 increased (260 → 280) */
+height:280px;
 }
 
 /* BAR */
@@ -146,8 +151,10 @@ white-space:nowrap;
 /* LABEL */
 
 .label{
-margin-top:70px;
+margin-top:10px;
 text-align:center;
+position:absolute;
+top:290px; /* 🔥 BELOW LINE */
 }
 
 .name{
@@ -226,12 +233,11 @@ document.getElementById("total").innerText = "₹"+format(total);
 
 chart.innerHTML = "";
 
-data.forEach(r=>{
+data.forEach((r,i)=>{
 
 const below = r.above;
 const above = r.below;
 
-/* 🔥 MATCH HEIGHT WITH CSS */
 const blueHeight = (below / max) * 280;
 const redHeight  = (above / max) * 280;
 
