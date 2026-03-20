@@ -63,10 +63,9 @@ border-radius:3px;
 display:flex;
 justify-content:space-around;
 align-items:flex-end;
-height:350px;
+height:320px;
 margin-top:40px;
 border-bottom:2px solid rgba(255,255,255,0.3);
-position:relative;
 }
 
 /* GROUP */
@@ -79,14 +78,16 @@ justify-content:flex-end;
 height:100%;
 }
 
-/* BARS */
+/* 🔥 FIX: bars only area */
 
 .bars{
 display:flex;
 gap:12px;
 align-items:flex-end;
-height:100%;
+height:280px; /* fixed area for bars */
 }
+
+/* BAR */
 
 .bar{
 width:40px;
@@ -106,10 +107,10 @@ font-size:12px;
 white-space:nowrap;
 }
 
-/* LABEL AREA */
+/* LABEL */
 
 .label{
-margin-top:10px;
+margin-top:8px;
 text-align:center;
 }
 
@@ -185,8 +186,8 @@ chart.innerHTML = "";
 
 data.forEach(r=>{
 
-const blueHeight = (r.below / max) * 300;
-const redHeight = (r.above / max) * 300;
+const blueHeight = (r.below / max) * 280;
+const redHeight = (r.above / max) * 280;
 
 const div = document.createElement("div");
 div.className = "bar-group";
