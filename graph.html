@@ -57,6 +57,14 @@ border-radius:3px;
 .blue{background:#4e79ff;}
 .red{background:#ff2d2d;}
 
+/* CHART */
+
+.chart{
+position:relative;
+height:340px;
+margin-top:40px;
+}
+
 /* LOADER */
 
 .loader{
@@ -64,17 +72,8 @@ position:absolute;
 top:50%;
 left:50%;
 transform:translate(-50%,-50%);
-text-align:center;
-font-size:16px;
+font-size:18px;
 color:#aaa;
-}
-
-/* CHART */
-
-.chart{
-position:relative;
-height:200px; /* 🔥 50% reduced */
-margin-top:40px;
 }
 
 /* GROUND LINE */
@@ -84,7 +83,7 @@ content:"";
 position:absolute;
 left:0;
 right:0;
-bottom:40px;
+bottom:60px;
 height:2px;
 background:rgba(255,255,255,0.4);
 }
@@ -97,13 +96,13 @@ position:absolute;
 left:0;
 right:0;
 top:0;
-bottom:40px;
+bottom:60px;
 background:repeating-linear-gradient(
 to top,
 rgba(255,255,255,0.08),
 rgba(255,255,255,0.08) 1px,
 transparent 1px,
-transparent 30px
+transparent 60px
 );
 }
 
@@ -111,7 +110,7 @@ transparent 30px
 
 .bar-group{
 position:absolute;
-bottom:40px;
+bottom:60px;
 transform:translateX(-50%);
 display:flex;
 flex-direction:column;
@@ -129,16 +128,14 @@ align-items:center;
 display:flex;
 gap:0;
 align-items:flex-end;
-height:140px; /* 🔥 half */
+height:280px;
 }
 
-/* BAR */
-
 .bar{
-width:28px; /* 🔥 reduced */
+width:45px;
 border-radius:6px 6px 0 0;
 position:relative;
-box-shadow:0 4px 8px rgba(0,0,0,0.4);
+box-shadow:0 6px 12px rgba(0,0,0,0.4);
 }
 
 .bar.blue{
@@ -153,28 +150,29 @@ background:linear-gradient(to top,#d91c1c,#ff3b3b);
 
 .value{
 position:absolute;
-top:-18px;
-font-size:10px;
+top:-22px;
+font-size:12px;
 white-space:nowrap;
 }
 
 /* LABEL */
 
 .label{
-position:absolute;
-top:150px;
+margin-top:10px;
 text-align:center;
+position:absolute;
+top:290px;
 }
 
 .name{
-font-size:12px;
+font-size:14px;
 color:#ddd;
 }
 
 .sum{
-font-size:11px;
+font-size:13px;
 color:#aaa;
-margin-top:2px;
+margin-top:3px;
 }
 
 </style>
@@ -205,16 +203,18 @@ margin-top:2px;
 
 const API = "https://script.google.com/macros/s/AKfycbw7TsP6W-x_FLzj5pHNbYag-S9aq7Gg6r3PcVfI006HZc1BmkOoBswBIvW00VqGRi3Y/exec?mode=graph_data";
 
-let seconds = 0;
-let timer;
-
 function format(num){
 return Number(num).toLocaleString('en-IN');
 }
 
+let firstLoad = true;
+let seconds = 0;
+let timer;
+
+/* 🔥 loader counter */
 function startLoader(){
-seconds = 0;
 const loader = document.getElementById("loader");
+seconds = 0;
 loader.style.display = "block";
 
 timer = setInterval(()=>{
@@ -225,14 +225,17 @@ loader.innerText = "Loading... " + seconds + "s";
 
 function stopLoader(){
 clearInterval(timer);
-document.getElementById("loader").style.display = "none";
+const loader = document.getElementById("loader");
+loader.style.display = "none";
 }
 
-async function load(){
-
-startLoader();
+async function load(showLoader=true){
 
 try{
+
+if(showLoader && firstLoad){
+startLoader();
+}
 
 const res = await fetch(API);
 if(!res.ok) throw new Error("API error");
@@ -245,15 +248,11 @@ let max = 0;
 let total = 0;
 
 data.forEach(r=>{
-
 const below = r.above;
 const above = r.below;
-
 const t = above + below;
-
 if(t > max) max = t;
 total += t;
-
 });
 
 if(max === 0){
@@ -263,20 +262,26 @@ return;
 
 document.getElementById("total").innerText = "₹"+format(total);
 
-/* 🔥 KEEP OLD GRAPH (no blank flicker) */
-const oldGroups = chart.querySelectorAll(".bar-group");
-oldGroups.forEach(e=>e.remove());
+/* 🔥 keep existing UI during refresh */
+if(firstLoad){
+chart.innerHTML = "";
+}
 
 data.forEach((r,i)=>{
 
 const below = r.above;
 const above = r.below;
 
-const blueHeight = (below / max) * 140;
-const redHeight  = (above / max) * 140;
+const blueHeight = (below / max) * 280;
+const redHeight  = (above / max) * 280;
 
-const div = document.createElement("div");
+let div = chart.children[i];
+
+if(!div || firstLoad){
+div = document.createElement("div");
 div.className = "bar-group";
+chart.appendChild(div);
+}
 
 div.innerHTML = `
 
@@ -299,14 +304,15 @@ div.innerHTML = `
 
 `;
 
-chart.appendChild(div);
-
 });
 
 document.getElementById("date").innerText =
 new Date().toDateString();
 
+if(firstLoad){
 stopLoader();
+firstLoad = false;
+}
 
 }catch(err){
 
@@ -317,10 +323,13 @@ document.getElementById("chart").innerHTML =
 
 }
 
-load();
+/* first load */
+load(true);
 
-/* 🔥 AUTO REFRESH (silent) */
-setInterval(load,30000);
+/* 🔥 auto refresh every 30 sec (silent) */
+setInterval(()=>{
+load(false);
+},30000);
 
 </script>
 
