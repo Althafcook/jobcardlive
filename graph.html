@@ -63,9 +63,9 @@ border-radius:3px;
 display:flex;
 justify-content:space-around;
 align-items:flex-end;
-height:320px;
+height:300px;
 margin-top:40px;
-border-bottom:2px solid rgba(255,255,255,0.3);
+border-bottom:2px solid rgba(255,255,255,0.4);
 }
 
 /* GROUP */
@@ -78,22 +78,24 @@ justify-content:flex-end;
 height:100%;
 }
 
-/* 🔥 FIX: bars only area */
+/* 🔥 IMPORTANT FIX */
 
 .bars{
 display:flex;
-gap:12px;
+gap:14px;
 align-items:flex-end;
-height:280px; /* fixed area for bars */
+height:260px; /* fixed baseline area */
 }
 
 /* BAR */
 
 .bar{
-width:40px;
+width:42px;
 border-radius:6px 6px 0 0;
 position:relative;
 }
+
+/* COLORS */
 
 .bar.blue{background:#4e79ff;}
 .bar.red{background:#ff2d2d;}
@@ -186,8 +188,12 @@ chart.innerHTML = "";
 
 data.forEach(r=>{
 
-const blueHeight = (r.below / max) * 280;
-const redHeight = (r.above / max) * 280;
+/* ✅ FIX: correct mapping */
+const below = r.below; // BLUE
+const above = r.above; // RED
+
+const blueHeight = (below / max) * 260;
+const redHeight  = (above / max) * 260;
 
 const div = document.createElement("div");
 div.className = "bar-group";
@@ -196,19 +202,21 @@ div.innerHTML = `
 
 <div class="bars">
 
+<!-- BLUE LEFT -->
 <div class="bar blue" style="height:${blueHeight}px">
-<div class="value">${format(r.below)}</div>
+<div class="value">${format(below)}</div>
 </div>
 
+<!-- RED RIGHT -->
 <div class="bar red" style="height:${redHeight}px">
-<div class="value">${format(r.above)}</div>
+<div class="value">${format(above)}</div>
 </div>
 
 </div>
 
 <div class="label">
 <div class="name">${r.name}</div>
-<div class="sum">${format(r.above + r.below)}</div>
+<div class="sum">${format(above + below)}</div>
 </div>
 
 `;
