@@ -30,14 +30,6 @@ display:flex;
 flex-direction:column;
 }
 
-/* 🔥 RIGHT SIDE WRAPPER */
-.header-right{
-display:flex;
-flex-direction:column;
-align-items:flex-end;
-gap:10px;
-}
-
 /* 🔥 ACCURACY */
 
 .accuracy-box{
@@ -45,15 +37,14 @@ text-align:right;
 }
 
 .accuracy-title{
-font-size:11px;
-color:#9aa3b2;
+font-size:10px;
+color:#aaa;
 letter-spacing:0.5px;
 }
 
 .accuracy-value{
-font-size:16px;
-font-weight:500;
-color:#cfd6e4;
+font-size:10px;
+color:#aaa;
 margin-top:2px;
 }
 
@@ -108,6 +99,7 @@ margin-top:5px;
 display:flex;
 gap:20px;
 font-size:14px;
+justify-content:flex-end;
 }
 
 .legend span{
@@ -258,6 +250,7 @@ margin-top:3px;
 <div>Bill pending value</div>
 <div class="total" id="total">₹0</div>
 
+<!-- SUMMARY -->
 <div class="summary">
 <div class="summary-box">
 <div class="summary-label">Below 60 days</div>
@@ -272,20 +265,10 @@ margin-top:3px;
 
 </div>
 
-<!-- 🔥 RIGHT SIDE -->
-<div class="header-right">
-
-<div class="legend">
-<span><div class="box red"></div>Above 60 days</span>
-<span><div class="box blue"></div>Below 60 days</span>
-</div>
-
 <!-- 🔥 ACCURACY -->
 <div class="accuracy-box">
 <div class="accuracy-title">Accuracy</div>
-<div class="accuracy-value" id="accuracy">--%</div>
-</div>
-
+<div class="accuracy-value" id="accuracy">--</div>
 </div>
 
 </div>
@@ -326,6 +309,7 @@ const chart = document.getElementById("chart");
 
 let max = 0;
 let total = 0;
+
 let belowTotal = 0;
 let aboveTotal = 0;
 
@@ -364,19 +348,24 @@ const div = document.createElement("div");
 div.className = "bar-group";
 
 div.innerHTML = `
+
 <div class="bars">
+
 <div class="bar blue" style="height:${blueHeight}px">
 <div class="value">${format(below)}</div>
 </div>
+
 <div class="bar red" style="height:${redHeight}px">
 <div class="value">${format(above)}</div>
 </div>
+
 </div>
 
 <div class="label">
 <div class="name">${r.name}</div>
 <div class="sum">${format(above + below)}</div>
 </div>
+
 `;
 
 chart.appendChild(div);
@@ -393,10 +382,9 @@ function loadAccuracy(){
 fetch(API.replace("graph_data","accuracy"))
 .then(res=>res.json())
 .then(d=>{
-let val = d.accuracy;
-if(val !== undefined){
-document.getElementById("accuracy").innerText = val + "%";
-}
+let val = Number(d.accuracy || 0);
+let percent = Math.round(val * 100) + "%";
+document.getElementById("accuracy").innerText = percent;
 });
 }
 
@@ -434,6 +422,7 @@ load(true);
 
 setInterval(()=>{
 load(false);
+loadAccuracy();
 },30000);
 
 </script>
