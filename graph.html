@@ -108,13 +108,13 @@ justify-content:flex-end;
 height:100%;
 }
 
-/* BARS */
+/* 🔥 FIX HERE */
 
 .bars{
 display:flex;
-gap:0; /* 🔥 no gap */
+gap:0;
 align-items:flex-end;
-height:260px;
+height:280px; /* 🔥 increased (260 → 280) */
 }
 
 /* BAR */
@@ -143,10 +143,10 @@ font-size:12px;
 white-space:nowrap;
 }
 
-/* LABEL BELOW LINE */
+/* LABEL */
 
 .label{
-margin-top:70px; /* 🔥 push below ground */
+margin-top:70px;
 text-align:center;
 }
 
@@ -231,8 +231,9 @@ data.forEach(r=>{
 const below = r.above;
 const above = r.below;
 
-const blueHeight = (below / max) * 260;
-const redHeight  = (above / max) * 260;
+/* 🔥 MATCH HEIGHT WITH CSS */
+const blueHeight = (below / max) * 280;
+const redHeight  = (above / max) * 280;
 
 const div = document.createElement("div");
 div.className = "bar-group";
