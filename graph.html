@@ -57,11 +57,23 @@ border-radius:3px;
 .blue{background:#4e79ff;}
 .red{background:#ff2d2d;}
 
+/* LOADER */
+
+.loader{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+text-align:center;
+font-size:16px;
+color:#aaa;
+}
+
 /* CHART */
 
 .chart{
 position:relative;
-height:340px;
+height:200px; /* 🔥 50% reduced */
 margin-top:40px;
 }
 
@@ -72,7 +84,7 @@ content:"";
 position:absolute;
 left:0;
 right:0;
-bottom:60px;
+bottom:40px;
 height:2px;
 background:rgba(255,255,255,0.4);
 }
@@ -85,13 +97,13 @@ position:absolute;
 left:0;
 right:0;
 top:0;
-bottom:60px;
+bottom:40px;
 background:repeating-linear-gradient(
 to top,
 rgba(255,255,255,0.08),
 rgba(255,255,255,0.08) 1px,
 transparent 1px,
-transparent 60px
+transparent 30px
 );
 }
 
@@ -99,31 +111,17 @@ transparent 60px
 
 .bar-group{
 position:absolute;
-bottom:60px;
+bottom:40px;
 transform:translateX(-50%);
 display:flex;
 flex-direction:column;
 align-items:center;
 }
 
-/* desktop positions */
 .bar-group:nth-child(1){ left:12%; }
 .bar-group:nth-child(2){ left:37%; }
 .bar-group:nth-child(3){ left:62%; }
 .bar-group:nth-child(4){ left:87%; }
-
-/* MOBILE FIX */
-@media(max-width:600px){
-.bar{ width:28px; }
-
-.bar-group:nth-child(1){ left:10%; }
-.bar-group:nth-child(2){ left:35%; }
-.bar-group:nth-child(3){ left:60%; }
-.bar-group:nth-child(4){ left:85%; }
-
-.name{ font-size:12px; }
-.sum{ font-size:11px; }
-}
 
 /* BARS */
 
@@ -131,16 +129,16 @@ align-items:center;
 display:flex;
 gap:0;
 align-items:flex-end;
-height:280px;
+height:140px; /* 🔥 half */
 }
 
 /* BAR */
 
 .bar{
-width:45px;
+width:28px; /* 🔥 reduced */
 border-radius:6px 6px 0 0;
 position:relative;
-box-shadow:0 6px 12px rgba(0,0,0,0.4);
+box-shadow:0 4px 8px rgba(0,0,0,0.4);
 }
 
 .bar.blue{
@@ -155,45 +153,28 @@ background:linear-gradient(to top,#d91c1c,#ff3b3b);
 
 .value{
 position:absolute;
-top:-22px;
-font-size:12px;
+top:-18px;
+font-size:10px;
 white-space:nowrap;
 }
 
 /* LABEL */
 
 .label{
-margin-top:10px;
-text-align:center;
 position:absolute;
-top:290px;
-}
-
-/* LOADER */
-
-.loader{
-position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
+top:150px;
 text-align:center;
-font-size:14px;
-color:#ccc;
 }
 
-.spinner{
-width:30px;
-height:30px;
-border:3px solid rgba(255,255,255,0.2);
-border-top:3px solid #00ff99;
-border-radius:50%;
-animation:spin 1s linear infinite;
-margin:auto;
-margin-bottom:10px;
+.name{
+font-size:12px;
+color:#ddd;
 }
 
-@keyframes spin{
-to{ transform:rotate(360deg); }
+.sum{
+font-size:11px;
+color:#aaa;
+margin-top:2px;
 }
 
 </style>
@@ -202,6 +183,7 @@ to{ transform:rotate(360deg); }
 <body>
 
 <div class="header">
+
 <div>
 <div class="date" id="date">--</div>
 <div>Bill pending value</div>
@@ -212,36 +194,43 @@ to{ transform:rotate(360deg); }
 <span><div class="box red"></div>Above 60 days</span>
 <span><div class="box blue"></div>Below 60 days</span>
 </div>
+
 </div>
 
 <div class="chart" id="chart">
-
-<!-- LOADER -->
-<div class="loader" id="loader">
-<div class="spinner"></div>
-<div>Loading... <span id="sec">0</span>s</div>
-</div>
-
+<div class="loader" id="loader">Loading... 0s</div>
 </div>
 
 <script>
 
 const API = "https://script.google.com/macros/s/AKfycbw7TsP6W-x_FLzj5pHNbYag-S9aq7Gg6r3PcVfI006HZc1BmkOoBswBIvW00VqGRi3Y/exec?mode=graph_data";
 
+let seconds = 0;
+let timer;
+
 function format(num){
 return Number(num).toLocaleString('en-IN');
 }
 
-/* LOADER TIMER */
-let seconds = 0;
-const secEl = document.getElementById("sec");
+function startLoader(){
+seconds = 0;
+const loader = document.getElementById("loader");
+loader.style.display = "block";
 
-const timer = setInterval(()=>{
+timer = setInterval(()=>{
 seconds++;
-secEl.innerText = seconds;
+loader.innerText = "Loading... " + seconds + "s";
 },1000);
+}
+
+function stopLoader(){
+clearInterval(timer);
+document.getElementById("loader").style.display = "none";
+}
 
 async function load(){
+
+startLoader();
 
 try{
 
@@ -250,54 +239,64 @@ if(!res.ok) throw new Error("API error");
 
 const data = await res.json();
 
-clearInterval(timer);
-document.getElementById("loader").style.display="none";
-
 const chart = document.getElementById("chart");
 
 let max = 0;
 let total = 0;
 
 data.forEach(r=>{
+
 const below = r.above;
 const above = r.below;
+
 const t = above + below;
 
 if(t > max) max = t;
 total += t;
+
 });
+
+if(max === 0){
+chart.innerHTML = "<div>No data</div>";
+return;
+}
 
 document.getElementById("total").innerText = "₹"+format(total);
 
-/* KEEP OLD GRAPH (no blank refresh) */
-const old = chart.querySelectorAll(".bar-group");
-old.forEach(e=>e.remove());
+/* 🔥 KEEP OLD GRAPH (no blank flicker) */
+const oldGroups = chart.querySelectorAll(".bar-group");
+oldGroups.forEach(e=>e.remove());
 
-data.forEach(r=>{
+data.forEach((r,i)=>{
 
 const below = r.above;
 const above = r.below;
 
-const blueHeight = (below / max) * 280;
-const redHeight  = (above / max) * 280;
+const blueHeight = (below / max) * 140;
+const redHeight  = (above / max) * 140;
 
 const div = document.createElement("div");
 div.className = "bar-group";
 
 div.innerHTML = `
+
 <div class="bars">
+
 <div class="bar blue" style="height:${blueHeight}px">
 <div class="value">${format(below)}</div>
 </div>
+
 <div class="bar red" style="height:${redHeight}px">
 <div class="value">${format(above)}</div>
 </div>
+
 </div>
 
 <div class="label">
 <div class="name">${r.name}</div>
 <div class="sum">${format(above + below)}</div>
 </div>
+
 `;
 
 chart.appendChild(div);
@@ -307,16 +306,20 @@ chart.appendChild(div);
 document.getElementById("date").innerText =
 new Date().toDateString();
 
+stopLoader();
+
 }catch(err){
-console.error(err);
-}
+
+document.getElementById("chart").innerHTML =
+"<div style='color:red'>Failed to load data</div>";
 
 }
 
-/* INITIAL LOAD */
+}
+
 load();
 
-/* AUTO REFRESH (silent) */
+/* 🔥 AUTO REFRESH (silent) */
 setInterval(load,30000);
 
 </script>
