@@ -15,14 +15,27 @@ color:#fff;
 padding:10px;
 }
 
-/* HEADER */
+/* CHART */
+
+.chart{
+position:relative;
+height:380px;
+width:70%;
+margin:10px auto 0;
+}
+
+/* 🔥 HEADER INSIDE CHART */
 
 .header{
+position:absolute;
+top:5px;
+left:10px;
+right:10px;
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:4px; /* 🔥 tighter */
 flex-wrap:wrap;
+z-index:2;
 }
 
 .date{
@@ -56,15 +69,6 @@ border-radius:2px;
 
 .blue{background:#4e79ff;}
 .red{background:#ff2d2d;}
-
-/* CHART */
-
-.chart{
-position:relative;
-height:340px;
-width:70%;             /* 🔥 main fix */
-margin:10px auto 0;    /* 🔥 center + move up */
-}
 
 /* LOADER */
 
@@ -118,12 +122,12 @@ flex-direction:column;
 align-items:center;
 }
 
-/* 🔥 TIGHT SPACING */
+/* 🔥 PERFECT EQUAL GAP */
 
-.bar-group:nth-child(1){ left:10%; }
-.bar-group:nth-child(2){ left:35%; }
+.bar-group:nth-child(1){ left:20%; }
+.bar-group:nth-child(2){ left:40%; }
 .bar-group:nth-child(3){ left:60%; }
-.bar-group:nth-child(4){ left:85%; }
+.bar-group:nth-child(4){ left:80%; }
 
 /* BARS */
 
@@ -185,6 +189,9 @@ margin-top:2px;
 
 <body>
 
+<div class="chart" id="chart">
+
+<!-- 🔥 HEADER INSIDE -->
 <div class="header">
 
 <div>
@@ -200,8 +207,8 @@ margin-top:2px;
 
 </div>
 
-<div class="chart" id="chart">
 <div class="loader" id="loader">Loading... 0s</div>
+
 </div>
 
 <script>
@@ -252,7 +259,7 @@ return;
 
 document.getElementById("total").innerText = "₹"+format(total);
 
-chart.innerHTML = "";
+chart.querySelectorAll(".bar-group").forEach(e=>e.remove());
 
 data.forEach((r)=>{
 
