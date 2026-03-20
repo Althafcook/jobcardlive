@@ -21,7 +21,7 @@ padding:20px;
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:20px;
+margin-bottom:10px;
 flex-wrap:wrap;
 }
 
@@ -62,10 +62,11 @@ border-radius:3px;
 .chart{
 position:relative;
 height:340px;
-margin-top:40px;
+width:80%;              /* 🔥 better balance */
+margin:20px auto 0;    /* 🔥 centered */
 }
 
-/* 🔥 LOADER */
+/* LOADER */
 
 .loader{
 position:absolute;
@@ -117,10 +118,12 @@ flex-direction:column;
 align-items:center;
 }
 
-.bar-group:nth-child(1){ left:12%; }
-.bar-group:nth-child(2){ left:37%; }
-.bar-group:nth-child(3){ left:62%; }
-.bar-group:nth-child(4){ left:87%; }
+/* 🔥 EXACT MATCH TO YOUR IMAGE */
+
+.bar-group:nth-child(1){ left:15%; }
+.bar-group:nth-child(2){ left:35%; }
+.bar-group:nth-child(3){ left:55%; }
+.bar-group:nth-child(4){ left:75%; }
 
 /* BARS */
 
@@ -213,7 +216,6 @@ let firstLoad = true;
 let seconds = 0;
 let timer;
 
-// 🔥 LOADER TIMER
 function startLoader(){
 const el = document.getElementById("loader");
 timer = setInterval(()=>{
@@ -228,7 +230,6 @@ const el = document.getElementById("loader");
 if(el) el.style.display = "none";
 }
 
-// 🔥 MAIN RENDER
 function render(data){
 
 const chart = document.getElementById("chart");
@@ -251,7 +252,6 @@ return;
 
 document.getElementById("total").innerText = "₹"+format(total);
 
-// 🔥 keep loader hidden
 chart.innerHTML = "";
 
 data.forEach((r)=>{
@@ -295,7 +295,6 @@ new Date().toDateString();
 
 }
 
-// 🔥 FETCH
 async function load(showLoader=true){
 
 try{
@@ -325,10 +324,8 @@ document.getElementById("chart").innerHTML =
 
 }
 
-// 🔥 INITIAL LOAD
 load(true);
 
-// 🔥 AUTO REFRESH (silent)
 setInterval(()=>{
 load(false);
 },30000);
