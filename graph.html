@@ -12,16 +12,7 @@ margin:0;
 background:linear-gradient(180deg,#1f3b63,#243f6e);
 font-family:Segoe UI,Arial;
 color:#fff;
-padding:0; /* 🔥 removed extra spacing */
-}
-
-/* 🔥 SCALE WRAPPER */
-
-.wrapper{
-transform:scale(0.5);
-transform-origin:top left;
-width:200%; /* 🔥 important to avoid shrink clipping */
-height:200%;
+padding:20px;
 }
 
 /* HEADER */
@@ -32,7 +23,6 @@ justify-content:space-between;
 align-items:center;
 margin-bottom:20px;
 flex-wrap:wrap;
-padding:20px;
 }
 
 .date{
@@ -75,7 +65,7 @@ height:340px;
 margin-top:40px;
 }
 
-/* LOADER */
+/* 🔥 LOADER */
 
 .loader{
 position:absolute;
@@ -192,8 +182,6 @@ margin-top:3px;
 
 <body>
 
-<div class="wrapper"> <!-- 🔥 WRAPPER START -->
-
 <div class="header">
 
 <div>
@@ -213,8 +201,6 @@ margin-top:3px;
 <div class="loader" id="loader">Loading... 0s</div>
 </div>
 
-</div> <!-- 🔥 WRAPPER END -->
-
 <script>
 
 const API = "https://script.google.com/macros/s/AKfycbw7TsP6W-x_FLzj5pHNbYag-S9aq7Gg6r3PcVfI006HZc1BmkOoBswBIvW00VqGRi3Y/exec?mode=graph_data";
@@ -227,6 +213,7 @@ let firstLoad = true;
 let seconds = 0;
 let timer;
 
+// 🔥 LOADER TIMER
 function startLoader(){
 const el = document.getElementById("loader");
 timer = setInterval(()=>{
@@ -241,6 +228,7 @@ const el = document.getElementById("loader");
 if(el) el.style.display = "none";
 }
 
+// 🔥 MAIN RENDER
 function render(data){
 
 const chart = document.getElementById("chart");
@@ -263,6 +251,7 @@ return;
 
 document.getElementById("total").innerText = "₹"+format(total);
 
+// 🔥 keep loader hidden
 chart.innerHTML = "";
 
 data.forEach((r)=>{
@@ -306,6 +295,7 @@ new Date().toDateString();
 
 }
 
+// 🔥 FETCH
 async function load(showLoader=true){
 
 try{
@@ -335,8 +325,10 @@ document.getElementById("chart").innerHTML =
 
 }
 
+// 🔥 INITIAL LOAD
 load(true);
 
+// 🔥 AUTO REFRESH (silent)
 setInterval(()=>{
 load(false);
 },30000);
