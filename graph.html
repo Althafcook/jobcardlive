@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pending Dashboard</title>
+
+<style>
+
+body{
+margin:0;
+background:#1f3b63;
+font-family:Segoe UI,Arial;
+color:#fff;
+padding:20px;
+}
+
+/* HEADER */
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+flex-wrap:wrap;
+}
+
+.date{
+color:#00ff99;
+font-size:16px;
+}
+
+.total{
+font-size:28px;
+font-weight:600;
+margin-top:5px;
+}
+
+.legend{
+display:flex;
+gap:20px;
+font-size:14px;
+}
+
+.legend span{
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.box{
+width:14px;
+height:14px;
+border-radius:3px;
+}
+
+.blue{background:#4e79ff;}
+.red{background:#ff2d2d;}
+
+/* CHART */
+
+.chart{
+display:flex;
+align-items:flex-end;
+justify-content:space-around;
+height:320px;
+margin-top:40px;
+border-bottom:2px solid rgba(255,255,255,0.2);
+position:relative;
+}
+
+.bar-group{
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:10px;
+}
+
+.bars{
+display:flex;
+gap:10px;
+align-items:flex-end;
+}
+
+.bar{
+width:35px;
+border-radius:6px 6px 0 0;
+position:relative;
+transition:.3s;
+}
+
+.bar.blue{background:#4e79ff;}
+.bar.red{background:#ff2d2d;}
+
+.bar:hover{
+opacity:.8;
+transform:scale(1.05);
+}
+
+/* VALUE LABEL */
+
+.value{
+position:absolute;
+top:-22px;
+font-size:12px;
+white-space:nowrap;
+}
+
+/* NAME */
+
+.name{
+margin-top:10px;
+font-size:14px;
+color:#ddd;
+}
+
+.sum{
+font-size:13px;
+color:#aaa;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+
+<div>
+<div class="date" id="date">--</div>
+<div>Bill pending value</div>
+<div class="total" id="total">₹0</div>
+</div>
+
+<div class="legend">
+<span><div class="box red"></div>Above 60 days</span>
+<span><div class="box blue"></div>Below 60 days</span>
+</div>
+
+</div>
+
+<div class="chart" id="chart"></div>
+
+<script>
+
+// 🔥 YOUR API URL ഇവിടെ ഇടുക
+const API = "https://script.google.com/macros/s/AKfycbw7TsP6W-x_FLzj5pHNbYag-S9aq7Gg6r3PcVfI006HZc1BmkOoBswBIvW00VqGRi3Y/exec?mode=graph_data";
+
+function format(num){
+return Number(num).toLocaleString('en-IN');
+}
+
+async function load(){
+
+const res = await fetch(API);
+const data = await res.json();
+
+/*
+Expected format:
+[
+ {name:"Sajid", above:402089, below:321166},
+ ...
+]
+*/
+
+const chart = document.getElementById("chart");
+
+let max = 0;
+let total = 0;
+
+// find max
+data.forEach(r=>{
+const t = r.above + r.below;
+if(t > max) max = t;
+total += t;
+});
+
+document.getElementById("total").innerText = "₹"+format(total);
+
+// render
+data.forEach(r=>{
+
+const blueHeight = (r.below / max) * 250;
+const redHeight = (r.above / max) * 250;
+
+const div = document.createElement("div");
+div.className = "bar-group";
+
+div.innerHTML = `
+
+<div class="bars">
+
+<div class="bar blue" style="height:${blueHeight}px">
+<div class="value">${format(r.below)}</div>
+</div>
+
+<div class="bar red" style="height:${redHeight}px">
+<div class="value">${format(r.above)}</div>
+</div>
+
+</div>
+
+<div class="name">${r.name}</div>
+<div class="sum">${format(r.above + r.below)}</div>
+
+`;
+
+chart.appendChild(div);
+
+});
+
+// date
+document.getElementById("date").innerText =
+new Date().toDateString();
+
+}
+
+load();
+
+</script>
+
+</body>
+</html>
