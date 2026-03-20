@@ -9,7 +9,7 @@
 
 body{
 margin:0;
-background:#1f3b63;
+background:linear-gradient(180deg,#1f3b63,#243f6e);
 font-family:Segoe UI,Arial;
 color:#fff;
 padding:20px;
@@ -31,7 +31,7 @@ font-size:16px;
 }
 
 .total{
-font-size:28px;
+font-size:30px;
 font-weight:600;
 margin-top:5px;
 }
@@ -60,12 +60,32 @@ border-radius:3px;
 /* CHART */
 
 .chart{
+position:relative;
+height:320px;
+margin-top:40px;
+border-bottom:2px solid rgba(255,255,255,0.3);
 display:flex;
 justify-content:space-around;
 align-items:flex-end;
-height:300px;
-margin-top:40px;
-border-bottom:2px solid rgba(255,255,255,0.4);
+}
+
+/* GRID LINES */
+
+.chart::before{
+content:"";
+position:absolute;
+left:0;
+right:0;
+top:0;
+bottom:0;
+background:repeating-linear-gradient(
+to top,
+rgba(255,255,255,0.08),
+rgba(255,255,255,0.08) 1px,
+transparent 1px,
+transparent 60px
+);
+pointer-events:none;
 }
 
 /* GROUP */
@@ -78,23 +98,31 @@ justify-content:flex-end;
 height:100%;
 }
 
-/* BARS */
+/* BARS AREA */
 
 .bars{
 display:flex;
-gap:14px;
+gap:12px;
 align-items:flex-end;
 height:260px;
 }
 
+/* BAR */
+
 .bar{
-width:42px;
+width:45px;
 border-radius:6px 6px 0 0;
 position:relative;
+box-shadow:0 6px 12px rgba(0,0,0,0.4);
 }
 
-.bar.blue{background:#4e79ff;}
-.bar.red{background:#ff2d2d;}
+.bar.blue{
+background:linear-gradient(to top,#3f6df0,#6f95ff);
+}
+
+.bar.red{
+background:linear-gradient(to top,#d91c1c,#ff3b3b);
+}
 
 /* VALUE */
 
@@ -108,7 +136,7 @@ white-space:nowrap;
 /* LABEL */
 
 .label{
-margin-top:8px;
+margin-top:10px;
 text-align:center;
 }
 
@@ -169,9 +197,9 @@ let total = 0;
 
 data.forEach(r=>{
 
-/* 🔥 SWAP FIX */
-const below = r.above; // BLUE
-const above = r.below; // RED
+/* ✅ SWAP FIX */
+const below = r.above;
+const above = r.below;
 
 const t = above + below;
 
@@ -191,9 +219,9 @@ chart.innerHTML = "";
 
 data.forEach(r=>{
 
-/* 🔥 SWAP FIX */
-const below = r.above; // BLUE
-const above = r.below; // RED
+/* ✅ SWAP FIX */
+const below = r.above;
+const above = r.below;
 
 const blueHeight = (below / max) * 260;
 const redHeight  = (above / max) * 260;
@@ -205,12 +233,10 @@ div.innerHTML = `
 
 <div class="bars">
 
-<!-- BLUE (Below 60) -->
 <div class="bar blue" style="height:${blueHeight}px">
 <div class="value">${format(below)}</div>
 </div>
 
-<!-- RED (Above 60) -->
 <div class="bar red" style="height:${redHeight}px">
 <div class="value">${format(above)}</div>
 </div>
