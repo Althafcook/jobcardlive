@@ -15,27 +15,29 @@ color:#fff;
 padding:10px;
 }
 
-/* CHART */
+/* CHART (MAIN CONTAINER) */
 
 .chart{
 position:relative;
-height:380px;
+height:360px;
 width:70%;
-margin:10px auto 0;
+margin:10px auto;
+display:flex;
+justify-content:space-evenly; /* 🔥 equal spacing */
+align-items:flex-end;
 }
 
-/* 🔥 HEADER INSIDE CHART */
+/* HEADER INSIDE CHART */
 
 .header{
 position:absolute;
-top:5px;
-left:10px;
-right:10px;
+top:0;
+left:0;
+right:0;
 display:flex;
 justify-content:space-between;
 align-items:center;
-flex-wrap:wrap;
-z-index:2;
+padding:0 5px;
 }
 
 .date{
@@ -100,7 +102,7 @@ content:"";
 position:absolute;
 left:0;
 right:0;
-top:0;
+top:40px; /* 🔥 leave space for header */
 bottom:60px;
 background:repeating-linear-gradient(
 to top,
@@ -114,28 +116,20 @@ transparent 60px
 /* GROUP */
 
 .bar-group{
-position:absolute;
-bottom:60px;
-transform:translateX(-50%);
 display:flex;
 flex-direction:column;
 align-items:center;
+position:relative;
+bottom:60px;
 }
-
-/* 🔥 PERFECT EQUAL GAP */
-
-.bar-group:nth-child(1){ left:20%; }
-.bar-group:nth-child(2){ left:40%; }
-.bar-group:nth-child(3){ left:60%; }
-.bar-group:nth-child(4){ left:80%; }
 
 /* BARS */
 
 .bars{
 display:flex;
-gap:0;
+gap:0; /* 🔥 no gap between pair */
 align-items:flex-end;
-height:280px;
+height:260px;
 }
 
 /* BAR */
@@ -169,8 +163,6 @@ white-space:nowrap;
 .label{
 margin-top:6px;
 text-align:center;
-position:absolute;
-top:285px;
 }
 
 .name{
@@ -191,7 +183,7 @@ margin-top:2px;
 
 <div class="chart" id="chart">
 
-<!-- 🔥 HEADER INSIDE -->
+<!-- 🔥 HEADER MOVED INSIDE -->
 <div class="header">
 
 <div>
@@ -253,21 +245,22 @@ total += t;
 });
 
 if(max === 0){
-chart.innerHTML = "<div>No data</div>";
+chart.innerHTML += "<div>No data</div>";
 return;
 }
 
 document.getElementById("total").innerText = "₹"+format(total);
 
-chart.querySelectorAll(".bar-group").forEach(e=>e.remove());
+// 🔥 REMOVE OLD BARS ONLY
+document.querySelectorAll(".bar-group").forEach(e=>e.remove());
 
 data.forEach((r)=>{
 
 const below = r.above;
 const above = r.below;
 
-const blueHeight = (below / max) * 280;
-const redHeight  = (above / max) * 280;
+const blueHeight = (below / max) * 260;
+const redHeight  = (above / max) * 260;
 
 const div = document.createElement("div");
 div.className = "bar-group";
