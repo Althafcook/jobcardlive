@@ -30,13 +30,12 @@ display:flex;
 flex-direction:column;
 }
 
-/* 🔥 RIGHT SIDE WRAP */
-
+/* 🔥 RIGHT SIDE WRAPPER */
 .header-right{
 display:flex;
 flex-direction:column;
 align-items:flex-end;
-gap:6px;
+gap:10px;
 }
 
 /* 🔥 ACCURACY */
@@ -46,16 +45,19 @@ text-align:right;
 }
 
 .accuracy-title{
-font-size:12px;
-color:#aaa;
+font-size:11px;
+color:#9aa3b2;
+letter-spacing:0.5px;
 }
 
 .accuracy-value{
-font-size:18px;
-font-weight:600;
+font-size:16px;
+font-weight:500;
+color:#cfd6e4;
+margin-top:2px;
 }
 
-/* 🔥 NEW SUMMARY */
+/* 🔥 SUMMARY */
 
 .summary{
 display:flex;
@@ -256,7 +258,6 @@ margin-top:3px;
 <div>Bill pending value</div>
 <div class="total" id="total">₹0</div>
 
-<!-- SUMMARY -->
 <div class="summary">
 <div class="summary-box">
 <div class="summary-label">Below 60 days</div>
@@ -274,14 +275,15 @@ margin-top:3px;
 <!-- 🔥 RIGHT SIDE -->
 <div class="header-right">
 
-<div class="accuracy-box">
-<div class="accuracy-title">Accuracy</div>
-<div class="accuracy-value" id="accuracy">--</div>
-</div>
-
 <div class="legend">
 <span><div class="box red"></div>Above 60 days</span>
 <span><div class="box blue"></div>Below 60 days</span>
+</div>
+
+<!-- 🔥 ACCURACY -->
+<div class="accuracy-box">
+<div class="accuracy-title">Accuracy</div>
+<div class="accuracy-value" id="accuracy">--%</div>
 </div>
 
 </div>
@@ -391,7 +393,10 @@ function loadAccuracy(){
 fetch(API.replace("graph_data","accuracy"))
 .then(res=>res.json())
 .then(d=>{
-document.getElementById("accuracy").innerText = d.accuracy;
+let val = d.accuracy;
+if(val !== undefined){
+document.getElementById("accuracy").innerText = val + "%";
+}
 });
 }
 
@@ -409,7 +414,7 @@ if(!res.ok) throw new Error("API error");
 const data = await res.json();
 
 render(data);
-loadAccuracy(); // 🔥 added
+loadAccuracy();
 
 if(firstLoad){
 stopLoader();
