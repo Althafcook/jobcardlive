@@ -143,7 +143,6 @@ color:#aaa;
 
 <script>
 
-// 🔥 YOUR API URL ഇവിടെ ഇടുക
 const API = "https://script.google.com/macros/s/AKfycbw7TsP6W-x_FLzj5pHNbYag-S9aq7Gg6r3PcVfI006HZc1BmkOoBswBIvW00VqGRi3Y/exec?mode=graph_data";
 
 function format(num){
@@ -152,32 +151,37 @@ return Number(num).toLocaleString('en-IN');
 
 async function load(){
 
-const res = await fetch(API);
-const data = await res.json();
+try{
 
-/*
-Expected format:
-[
- {name:"Sajid", above:402089, below:321166},
- ...
-]
-*/
+const res = await fetch(API);
+
+if(!res.ok){
+throw new Error("API error");
+}
+
+const data = await res.json();
 
 const chart = document.getElementById("chart");
 
 let max = 0;
 let total = 0;
 
-// find max
 data.forEach(r=>{
 const t = r.above + r.below;
 if(t > max) max = t;
 total += t;
 });
 
+// 🔥 handle empty data
+if(max === 0){
+chart.innerHTML = "<div style='color:#aaa'>No data</div>";
+return;
+}
+
 document.getElementById("total").innerText = "₹"+format(total);
 
-// render
+chart.innerHTML = ""; // clear before render
+
 data.forEach(r=>{
 
 const blueHeight = (r.below / max) * 250;
@@ -212,6 +216,15 @@ chart.appendChild(div);
 // date
 document.getElementById("date").innerText =
 new Date().toDateString();
+
+}catch(err){
+
+console.error(err);
+
+document.getElementById("chart").innerHTML =
+"<div style='color:red'>Failed to load data</div>";
+
+}
 
 }
 
