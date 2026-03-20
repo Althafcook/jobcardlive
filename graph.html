@@ -64,11 +64,6 @@ position:relative;
 height:340px;
 width:80%;              /* 🔥 better balance */
 margin:20px auto 0;    /* 🔥 centered */
-display:flex;
-justify-content:center;
-gap:10px; /* EXACT GAP */
-align-items:flex-end;
-  
 }
 
 /* LOADER */
@@ -115,9 +110,9 @@ transparent 60px
 /* GROUP */
 
 .bar-group{
-position:relative;   /* 🔥 remove absolute */
-bottom:auto;
-transform:none;
+position:absolute;
+bottom:60px;
+transform:translateX(-50%);
 display:flex;
 flex-direction:column;
 align-items:center;
