@@ -61,43 +61,43 @@ border-radius:3px;
 
 .chart{
 display:flex;
-align-items:flex-end;
 justify-content:space-around;
-height:320px;
+align-items:flex-end;
+height:350px;
 margin-top:40px;
-border-bottom:2px solid rgba(255,255,255,0.2);
+border-bottom:2px solid rgba(255,255,255,0.3);
 position:relative;
 }
+
+/* GROUP */
 
 .bar-group{
 display:flex;
 flex-direction:column;
 align-items:center;
-gap:10px;
+justify-content:flex-end;
+height:100%;
 }
+
+/* BARS */
 
 .bars{
 display:flex;
-gap:10px;
+gap:12px;
 align-items:flex-end;
+height:100%;
 }
 
 .bar{
-width:35px;
+width:40px;
 border-radius:6px 6px 0 0;
 position:relative;
-transition:.3s;
 }
 
 .bar.blue{background:#4e79ff;}
 .bar.red{background:#ff2d2d;}
 
-.bar:hover{
-opacity:.8;
-transform:scale(1.05);
-}
-
-/* VALUE LABEL */
+/* VALUE */
 
 .value{
 position:absolute;
@@ -106,10 +106,14 @@ font-size:12px;
 white-space:nowrap;
 }
 
-/* NAME */
+/* LABEL AREA */
+
+.label{
+margin-top:10px;
+text-align:center;
+}
 
 .name{
-margin-top:10px;
 font-size:14px;
 color:#ddd;
 }
@@ -117,6 +121,7 @@ color:#ddd;
 .sum{
 font-size:13px;
 color:#aaa;
+margin-top:3px;
 }
 
 </style>
@@ -154,10 +159,7 @@ async function load(){
 try{
 
 const res = await fetch(API);
-
-if(!res.ok){
-throw new Error("API error");
-}
+if(!res.ok) throw new Error("API error");
 
 const data = await res.json();
 
@@ -172,20 +174,19 @@ if(t > max) max = t;
 total += t;
 });
 
-// 🔥 handle empty data
 if(max === 0){
-chart.innerHTML = "<div style='color:#aaa'>No data</div>";
+chart.innerHTML = "<div>No data</div>";
 return;
 }
 
 document.getElementById("total").innerText = "₹"+format(total);
 
-chart.innerHTML = ""; // clear before render
+chart.innerHTML = "";
 
 data.forEach(r=>{
 
-const blueHeight = (r.below / max) * 250;
-const redHeight = (r.above / max) * 250;
+const blueHeight = (r.below / max) * 300;
+const redHeight = (r.above / max) * 300;
 
 const div = document.createElement("div");
 div.className = "bar-group";
@@ -204,8 +205,10 @@ div.innerHTML = `
 
 </div>
 
+<div class="label">
 <div class="name">${r.name}</div>
 <div class="sum">${format(r.above + r.below)}</div>
+</div>
 
 `;
 
@@ -213,13 +216,10 @@ chart.appendChild(div);
 
 });
 
-// date
 document.getElementById("date").innerText =
 new Date().toDateString();
 
 }catch(err){
-
-console.error(err);
 
 document.getElementById("chart").innerHTML =
 "<div style='color:red'>Failed to load data</div>";
