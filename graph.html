@@ -12,72 +12,67 @@ margin:0;
 background:linear-gradient(180deg,#1f3b63,#243f6e);
 font-family:Segoe UI,Arial;
 color:#fff;
-padding:10px;
+padding:20px;
 }
+
+/* HEADER */
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+flex-wrap:wrap;
+}
+
+.date{
+color:#00ff99;
+font-size:16px;
+}
+
+.total{
+font-size:30px;
+font-weight:600;
+margin-top:5px;
+}
+
+.legend{
+display:flex;
+gap:20px;
+font-size:14px;
+}
+
+.legend span{
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.box{
+width:14px;
+height:14px;
+border-radius:3px;
+}
+
+.blue{background:#4e79ff;}
+.red{background:#ff2d2d;}
 
 /* CHART */
 
 .chart{
 position:relative;
 height:340px;
-width:70%;
-margin:10px auto 0;
+margin-top:40px;
 }
 
-/* 🔥 HEADER INSIDE CHART */
-
-.header{
-position:absolute;
-top:5px;
-left:0;
-right:0;
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:0 10px;
-z-index:2;
-}
-
-.date{
-color:#00ff99;
-font-size:12px;
-}
-
-.total{
-font-size:20px;
-font-weight:600;
-margin-top:2px;
-}
-
-.legend{
-display:flex;
-gap:10px;
-font-size:11px;
-}
-
-.legend span{
-display:flex;
-align-items:center;
-gap:5px;
-}
-
-.box{
-width:9px;
-height:9px;
-border-radius:2px;
-}
-
-.blue{background:#4e79ff;}
-.red{background:#ff2d2d;}
-
-/* LOADER */
+/* 🔥 LOADER */
 
 .loader{
 position:absolute;
 top:50%;
 left:50%;
 transform:translate(-50%,-50%);
-font-size:13px;
+font-size:18px;
 color:#aaa;
 }
 
@@ -122,12 +117,10 @@ flex-direction:column;
 align-items:center;
 }
 
-/* 🔥 EXACT GAP CONTROL (~10px feel) */
-
-.bar-group:nth-child(1){ left:20%; }
-.bar-group:nth-child(2){ left:40%; }
-.bar-group:nth-child(3){ left:60%; }
-.bar-group:nth-child(4){ left:80%; }
+.bar-group:nth-child(1){ left:12%; }
+.bar-group:nth-child(2){ left:37%; }
+.bar-group:nth-child(3){ left:62%; }
+.bar-group:nth-child(4){ left:87%; }
 
 /* BARS */
 
@@ -141,7 +134,7 @@ height:280px;
 /* BAR */
 
 .bar{
-width:40px;
+width:45px;
 border-radius:6px 6px 0 0;
 position:relative;
 box-shadow:0 6px 12px rgba(0,0,0,0.4);
@@ -159,29 +152,29 @@ background:linear-gradient(to top,#d91c1c,#ff3b3b);
 
 .value{
 position:absolute;
-top:-18px;
-font-size:10px;
+top:-22px;
+font-size:12px;
 white-space:nowrap;
 }
 
 /* LABEL */
 
 .label{
-margin-top:6px;
+margin-top:10px;
 text-align:center;
 position:absolute;
-top:285px;
+top:290px;
 }
 
 .name{
-font-size:11px;
+font-size:14px;
 color:#ddd;
 }
 
 .sum{
-font-size:10px;
+font-size:13px;
 color:#aaa;
-margin-top:2px;
+margin-top:3px;
 }
 
 </style>
@@ -189,14 +182,11 @@ margin-top:2px;
 
 <body>
 
-<div class="chart" id="chart">
-
-<!-- 🔥 HEADER MOVED INSIDE -->
 <div class="header">
 
 <div>
 <div class="date" id="date">--</div>
-<div style="font-size:12px;">Bill pending value</div>
+<div>Bill pending value</div>
 <div class="total" id="total">₹0</div>
 </div>
 
@@ -207,8 +197,8 @@ margin-top:2px;
 
 </div>
 
+<div class="chart" id="chart">
 <div class="loader" id="loader">Loading... 0s</div>
-
 </div>
 
 <script>
@@ -223,6 +213,7 @@ let firstLoad = true;
 let seconds = 0;
 let timer;
 
+// 🔥 LOADER TIMER
 function startLoader(){
 const el = document.getElementById("loader");
 timer = setInterval(()=>{
@@ -237,6 +228,7 @@ const el = document.getElementById("loader");
 if(el) el.style.display = "none";
 }
 
+// 🔥 MAIN RENDER
 function render(data){
 
 const chart = document.getElementById("chart");
@@ -253,14 +245,14 @@ total += t;
 });
 
 if(max === 0){
-chart.innerHTML += "<div>No data</div>";
+chart.innerHTML = "<div>No data</div>";
 return;
 }
 
 document.getElementById("total").innerText = "₹"+format(total);
 
-// 🔥 keep header, remove only bars
-chart.querySelectorAll(".bar-group").forEach(e=>e.remove());
+// 🔥 keep loader hidden
+chart.innerHTML = "";
 
 data.forEach((r)=>{
 
@@ -303,6 +295,7 @@ new Date().toDateString();
 
 }
 
+// 🔥 FETCH
 async function load(showLoader=true){
 
 try{
@@ -325,15 +318,17 @@ firstLoad = false;
 
 }catch(err){
 
-document.getElementById("chart").innerHTML +=
+document.getElementById("chart").innerHTML =
 "<div style='color:red'>Failed to load data</div>";
 
 }
 
 }
 
+// 🔥 INITIAL LOAD
 load(true);
 
+// 🔥 AUTO REFRESH (silent)
 setInterval(()=>{
 load(false);
 },30000);
