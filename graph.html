@@ -12,7 +12,7 @@ margin:0;
 background:linear-gradient(180deg,#1f3b63,#243f6e);
 font-family:Segoe UI,Arial;
 color:#fff;
-padding:20px;
+padding:12px; /* 🔥 reduced */
 }
 
 /* HEADER */
@@ -21,37 +21,37 @@ padding:20px;
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:20px;
+margin-bottom:8px; /* 🔥 reduced */
 flex-wrap:wrap;
 }
 
 .date{
 color:#00ff99;
-font-size:16px;
+font-size:13px; /* 🔥 smaller */
 }
 
 .total{
-font-size:30px;
+font-size:22px; /* 🔥 reduced */
 font-weight:600;
-margin-top:5px;
+margin-top:2px;
 }
 
 .legend{
 display:flex;
-gap:20px;
-font-size:14px;
+gap:12px;
+font-size:12px; /* 🔥 smaller */
 }
 
 .legend span{
 display:flex;
 align-items:center;
-gap:8px;
+gap:6px;
 }
 
 .box{
-width:14px;
-height:14px;
-border-radius:3px;
+width:10px; /* 🔥 smaller */
+height:10px;
+border-radius:2px;
 }
 
 .blue{background:#4e79ff;}
@@ -62,17 +62,17 @@ border-radius:3px;
 .chart{
 position:relative;
 height:340px;
-margin-top:40px;
+margin-top:10px; /* 🔥 moved up */
 }
 
-/* 🔥 LOADER */
+/* LOADER */
 
 .loader{
 position:absolute;
 top:50%;
 left:50%;
 transform:translate(-50%,-50%);
-font-size:18px;
+font-size:14px;
 color:#aaa;
 }
 
@@ -117,10 +117,12 @@ flex-direction:column;
 align-items:center;
 }
 
-.bar-group:nth-child(1){ left:12%; }
-.bar-group:nth-child(2){ left:37%; }
+/* 🔥 REDUCED GAP BETWEEN GRAPHS */
+
+.bar-group:nth-child(1){ left:18%; }
+.bar-group:nth-child(2){ left:40%; }
 .bar-group:nth-child(3){ left:62%; }
-.bar-group:nth-child(4){ left:87%; }
+.bar-group:nth-child(4){ left:84%; }
 
 /* BARS */
 
@@ -152,29 +154,29 @@ background:linear-gradient(to top,#d91c1c,#ff3b3b);
 
 .value{
 position:absolute;
-top:-22px;
-font-size:12px;
+top:-20px;
+font-size:11px; /* 🔥 smaller */
 white-space:nowrap;
 }
 
 /* LABEL */
 
 .label{
-margin-top:10px;
+margin-top:8px;
 text-align:center;
 position:absolute;
 top:290px;
 }
 
 .name{
-font-size:14px;
+font-size:12px; /* 🔥 smaller */
 color:#ddd;
 }
 
 .sum{
-font-size:13px;
+font-size:11px; /* 🔥 smaller */
 color:#aaa;
-margin-top:3px;
+margin-top:2px;
 }
 
 </style>
@@ -186,7 +188,7 @@ margin-top:3px;
 
 <div>
 <div class="date" id="date">--</div>
-<div>Bill pending value</div>
+<div style="font-size:13px;">Bill pending value</div> <!-- 🔥 smaller -->
 <div class="total" id="total">₹0</div>
 </div>
 
@@ -213,7 +215,6 @@ let firstLoad = true;
 let seconds = 0;
 let timer;
 
-// 🔥 LOADER TIMER
 function startLoader(){
 const el = document.getElementById("loader");
 timer = setInterval(()=>{
@@ -228,7 +229,6 @@ const el = document.getElementById("loader");
 if(el) el.style.display = "none";
 }
 
-// 🔥 MAIN RENDER
 function render(data){
 
 const chart = document.getElementById("chart");
@@ -251,7 +251,6 @@ return;
 
 document.getElementById("total").innerText = "₹"+format(total);
 
-// 🔥 keep loader hidden
 chart.innerHTML = "";
 
 data.forEach((r)=>{
@@ -295,7 +294,6 @@ new Date().toDateString();
 
 }
 
-// 🔥 FETCH
 async function load(showLoader=true){
 
 try{
@@ -325,10 +323,8 @@ document.getElementById("chart").innerHTML =
 
 }
 
-// 🔥 INITIAL LOAD
 load(true);
 
-// 🔥 AUTO REFRESH (silent)
 setInterval(()=>{
 load(false);
 },30000);
