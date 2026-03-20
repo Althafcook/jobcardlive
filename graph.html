@@ -99,19 +99,31 @@ transparent 60px
 
 .bar-group{
 position:absolute;
-bottom:60px; /* 🔥 EXACT ground line */
+bottom:60px;
 transform:translateX(-50%);
 display:flex;
 flex-direction:column;
 align-items:center;
 }
 
-/* distribute manually */
-
+/* desktop positions */
 .bar-group:nth-child(1){ left:12%; }
 .bar-group:nth-child(2){ left:37%; }
 .bar-group:nth-child(3){ left:62%; }
 .bar-group:nth-child(4){ left:87%; }
+
+/* MOBILE FIX */
+@media(max-width:600px){
+.bar{ width:28px; }
+
+.bar-group:nth-child(1){ left:10%; }
+.bar-group:nth-child(2){ left:35%; }
+.bar-group:nth-child(3){ left:60%; }
+.bar-group:nth-child(4){ left:85%; }
+
+.name{ font-size:12px; }
+.sum{ font-size:11px; }
+}
 
 /* BARS */
 
@@ -154,18 +166,34 @@ white-space:nowrap;
 margin-top:10px;
 text-align:center;
 position:absolute;
-top:290px; /* 🔥 BELOW LINE */
+top:290px;
 }
 
-.name{
+/* LOADER */
+
+.loader{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+text-align:center;
 font-size:14px;
-color:#ddd;
+color:#ccc;
 }
 
-.sum{
-font-size:13px;
-color:#aaa;
-margin-top:3px;
+.spinner{
+width:30px;
+height:30px;
+border:3px solid rgba(255,255,255,0.2);
+border-top:3px solid #00ff99;
+border-radius:50%;
+animation:spin 1s linear infinite;
+margin:auto;
+margin-bottom:10px;
+}
+
+@keyframes spin{
+to{ transform:rotate(360deg); }
 }
 
 </style>
@@ -174,7 +202,6 @@ margin-top:3px;
 <body>
 
 <div class="header">
-
 <div>
 <div class="date" id="date">--</div>
 <div>Bill pending value</div>
@@ -185,10 +212,17 @@ margin-top:3px;
 <span><div class="box red"></div>Above 60 days</span>
 <span><div class="box blue"></div>Below 60 days</span>
 </div>
-
 </div>
 
-<div class="chart" id="chart"></div>
+<div class="chart" id="chart">
+
+<!-- LOADER -->
+<div class="loader" id="loader">
+<div class="spinner"></div>
+<div>Loading... <span id="sec">0</span>s</div>
+</div>
+
+</div>
 
 <script>
 
@@ -197,6 +231,15 @@ const API = "https://script.google.com/macros/s/AKfycbw7TsP6W-x_FLzj5pHNbYag-S9a
 function format(num){
 return Number(num).toLocaleString('en-IN');
 }
+
+/* LOADER TIMER */
+let seconds = 0;
+const secEl = document.getElementById("sec");
+
+const timer = setInterval(()=>{
+seconds++;
+secEl.innerText = seconds;
+},1000);
 
 async function load(){
 
@@ -207,33 +250,30 @@ if(!res.ok) throw new Error("API error");
 
 const data = await res.json();
 
+clearInterval(timer);
+document.getElementById("loader").style.display="none";
+
 const chart = document.getElementById("chart");
 
 let max = 0;
 let total = 0;
 
 data.forEach(r=>{
-
 const below = r.above;
 const above = r.below;
-
 const t = above + below;
 
 if(t > max) max = t;
 total += t;
-
 });
-
-if(max === 0){
-chart.innerHTML = "<div>No data</div>";
-return;
-}
 
 document.getElementById("total").innerText = "₹"+format(total);
 
-chart.innerHTML = "";
+/* KEEP OLD GRAPH (no blank refresh) */
+const old = chart.querySelectorAll(".bar-group");
+old.forEach(e=>e.remove());
 
-data.forEach((r,i)=>{
+data.forEach(r=>{
 
 const below = r.above;
 const above = r.below;
@@ -245,24 +285,19 @@ const div = document.createElement("div");
 div.className = "bar-group";
 
 div.innerHTML = `
-
 <div class="bars">
-
 <div class="bar blue" style="height:${blueHeight}px">
 <div class="value">${format(below)}</div>
 </div>
-
 <div class="bar red" style="height:${redHeight}px">
 <div class="value">${format(above)}</div>
 </div>
-
 </div>
 
 <div class="label">
 <div class="name">${r.name}</div>
 <div class="sum">${format(above + below)}</div>
 </div>
-
 `;
 
 chart.appendChild(div);
@@ -273,15 +308,16 @@ document.getElementById("date").innerText =
 new Date().toDateString();
 
 }catch(err){
-
-document.getElementById("chart").innerHTML =
-"<div style='color:red'>Failed to load data</div>";
-
+console.error(err);
 }
 
 }
 
+/* INITIAL LOAD */
 load();
+
+/* AUTO REFRESH (silent) */
+setInterval(load,30000);
 
 </script>
 
