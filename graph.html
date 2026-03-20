@@ -30,6 +30,31 @@ display:flex;
 flex-direction:column;
 }
 
+/* 🔥 RIGHT SIDE WRAP */
+
+.header-right{
+display:flex;
+flex-direction:column;
+align-items:flex-end;
+gap:6px;
+}
+
+/* 🔥 ACCURACY */
+
+.accuracy-box{
+text-align:right;
+}
+
+.accuracy-title{
+font-size:12px;
+color:#aaa;
+}
+
+.accuracy-value{
+font-size:18px;
+font-weight:600;
+}
+
 /* 🔥 NEW SUMMARY */
 
 .summary{
@@ -81,7 +106,6 @@ margin-top:5px;
 display:flex;
 gap:20px;
 font-size:14px;
-justify-content:flex-end;
 }
 
 .legend span{
@@ -232,7 +256,7 @@ margin-top:3px;
 <div>Bill pending value</div>
 <div class="total" id="total">₹0</div>
 
-<!-- 🔥 NEW SUMMARY -->
+<!-- SUMMARY -->
 <div class="summary">
 <div class="summary-box">
 <div class="summary-label">Below 60 days</div>
@@ -247,9 +271,19 @@ margin-top:3px;
 
 </div>
 
+<!-- 🔥 RIGHT SIDE -->
+<div class="header-right">
+
+<div class="accuracy-box">
+<div class="accuracy-title">Accuracy</div>
+<div class="accuracy-value" id="accuracy">--</div>
+</div>
+
 <div class="legend">
 <span><div class="box red"></div>Above 60 days</span>
 <span><div class="box blue"></div>Below 60 days</span>
+</div>
+
 </div>
 
 </div>
@@ -290,8 +324,6 @@ const chart = document.getElementById("chart");
 
 let max = 0;
 let total = 0;
-
-/* 🔥 NEW TOTALS */
 let belowTotal = 0;
 let aboveTotal = 0;
 
@@ -313,8 +345,6 @@ return;
 }
 
 document.getElementById("total").innerText = "₹"+format(total);
-
-/* 🔥 UPDATE SUMMARY */
 document.getElementById("belowTotal").innerText = format(belowTotal);
 document.getElementById("aboveTotal").innerText = format(aboveTotal);
 
@@ -332,24 +362,19 @@ const div = document.createElement("div");
 div.className = "bar-group";
 
 div.innerHTML = `
-
 <div class="bars">
-
 <div class="bar blue" style="height:${blueHeight}px">
 <div class="value">${format(below)}</div>
 </div>
-
 <div class="bar red" style="height:${redHeight}px">
 <div class="value">${format(above)}</div>
 </div>
-
 </div>
 
 <div class="label">
 <div class="name">${r.name}</div>
 <div class="sum">${format(above + below)}</div>
 </div>
-
 `;
 
 chart.appendChild(div);
@@ -359,6 +384,15 @@ chart.appendChild(div);
 document.getElementById("date").innerText =
 new Date().toDateString();
 
+}
+
+/* 🔥 FETCH ACCURACY */
+function loadAccuracy(){
+fetch(API.replace("graph_data","accuracy"))
+.then(res=>res.json())
+.then(d=>{
+document.getElementById("accuracy").innerText = d.accuracy;
+});
 }
 
 async function load(showLoader=true){
@@ -375,6 +409,7 @@ if(!res.ok) throw new Error("API error");
 const data = await res.json();
 
 render(data);
+loadAccuracy(); // 🔥 added
 
 if(firstLoad){
 stopLoader();
