@@ -21,28 +21,13 @@ padding:20px;
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:10px;
-flex-wrap:wrap;
+margin:0 auto 10px;
+width:80%;              /* 🔥 match chart width */
 }
 
-/* 🔥 RIGHT SIDE (TEXT BLOCK) */
-.header > div:first-child{
-margin-left:auto;        /* push to right */
-text-align:right;        /* align text nicely */
-}
-
-/* 🔥 LEFT SIDE (LEGEND) */
-.legend{
+.header-left{
 display:flex;
-gap:20px;
-font-size:14px;
-margin-right:auto;       /* push to left */
-}
-
-.legend span{
-display:flex;
-align-items:center;
-gap:8px;
+flex-direction:column;
 }
 
 .date{
@@ -54,6 +39,19 @@ font-size:16px;
 font-size:30px;
 font-weight:600;
 margin-top:5px;
+}
+
+.legend{
+display:flex;
+gap:20px;
+font-size:14px;
+justify-content:flex-end; /* 🔥 right align */
+}
+
+.legend span{
+display:flex;
+align-items:center;
+gap:8px;
 }
 
 .box{
@@ -193,7 +191,7 @@ margin-top:3px;
 
 <div class="header">
 
-<div>
+<div class="header-left">
 <div class="date" id="date">--</div>
 <div>Bill pending value</div>
 <div class="total" id="total">₹0</div>
