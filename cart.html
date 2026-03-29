@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Jobcard Entry</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+    }
+
+    input, button {
+      padding: 8px;
+      font-size: 14px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    th {
+      background-color: #1f4e79;
+      color: white;
+      padding: 10px;
+      text-align: left;
+    }
+
+    td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h3>Jobcard Entry</h3>
+
+<!-- Input -->
+<input type="text" id="jobcard" placeholder="Enter Jobcard No">
+<button onclick="addRow()">Add</button>
+
+<!-- Table -->
+<table id="dataTable">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Time</th>
+      <th>Jobcard No.</th>
+      <th>Chase no.</th>
+      <th>AIC</th>
+      <th>Vehicle</th>
+      <th>item1</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+<script>
+function addRow() {
+  let jobcard = document.getElementById("jobcard").value;
+
+  if (jobcard === "") {
+    alert("Enter Jobcard No");
+    return;
+  }
+
+  let table = document.getElementById("dataTable").getElementsByTagName('tbody')[0];
+
+  let row = table.insertRow();
+
+  let now = new Date();
+
+  let date = now.toLocaleDateString();
+  let time = now.toLocaleTimeString();
+
+  row.insertCell(0).innerHTML = date;
+  row.insertCell(1).innerHTML = time;
+  row.insertCell(2).innerHTML = jobcard;
+  row.insertCell(3).innerHTML = ""; // Chase
+  row.insertCell(4).innerHTML = ""; // AIC
+  row.insertCell(5).innerHTML = ""; // Vehicle
+  row.insertCell(6).innerHTML = ""; // item1
+
+  document.getElementById("jobcard").value = "";
+}
+</script>
+
+</body>
+</html>
