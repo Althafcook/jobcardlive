@@ -123,9 +123,9 @@
 
 let lastFetchedData = {};
 
-// 🔥 Fetch Chase (UPDATED)
+// 🔥 Fetch (FINAL FIXED)
 async function fetchChase() {
-  let jobcard = document.getElementById("jobcard").value;
+  let jobcard = document.getElementById("jobcard").value.toUpperCase();
 
   if (jobcard.length < 2) {
     document.getElementById("chasePreview").value = "";
@@ -157,7 +157,7 @@ async function fetchChase() {
 
 // 🔥 Add Row
 function addRow() {
-  let jobcard = document.getElementById("jobcard").value;
+  let jobcard = document.getElementById("jobcard").value.toUpperCase();
   let chase = document.getElementById("chaseValue").value;
 
   if (jobcard === "" || chase === "") {
@@ -187,7 +187,6 @@ function addRow() {
   `;
 
   row.classList.add("pending");
-
   row.setAttribute("data-time", now.getTime());
 
   document.getElementById("jobcard").value = "";
@@ -196,7 +195,7 @@ function addRow() {
 }
 
 
-// 🔥 Status Update
+// 🔥 Status
 function updateStatus(select) {
   let row = select.closest("tr");
 
@@ -212,7 +211,7 @@ function updateStatus(select) {
 }
 
 
-// 🔥 Alert Check
+// 🔥 Alert
 setInterval(checkTimeDiff, 10000);
 
 function checkTimeDiff() {
