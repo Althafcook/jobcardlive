@@ -170,14 +170,14 @@ function addRow() {
 
   if (jobcard === "" || chase === "") return;
 
-  // 🔥 NEW: SEND TO NEW GOOGLE SHEET
+  // 🔥 UPDATED: FORM DATA POST (ONLY CHANGE)
+  let formData = new FormData();
+  formData.append("chase", chase);
+
   fetch("https://script.google.com/macros/s/AKfycbxwzv_W43Z5Dkt4KgpldaUdB3aJCCDcSgrryj-JPEI5T14gmZDd9EoBw11Hts9kAKGDuw/exec", {
-  method: "POST",
-  headers: {
-    "Content-Type": "text/plain;charset=utf-8"
-  },
-  body: JSON.stringify({ chase: chase })
-});
+    method: "POST",
+    body: formData
+  });
 
   let table = document.getElementById("dataTable").getElementsByTagName('tbody')[0];
   let row = table.insertRow();
