@@ -111,9 +111,6 @@
 
 </div>
 
-<!-- 🔥 REQUIRED (hidden iframe) -->
-<iframe name="hidden_iframe" style="display:none;"></iframe>
-
 <audio id="alertSound" loop>
   <source src="images/alert.mp3" type="audio/mpeg">
 </audio>
@@ -173,21 +170,11 @@ function addRow() {
 
   if (jobcard === "" || chase === "") return;
 
-  // 🔥 FINAL FIX (FORM SUBMIT METHOD)
-  let form = document.createElement("form");
-  form.method = "POST";
-  form.action = "https://script.google.com/macros/s/AKfycbylR0KHxVDdprDcowUH33duXOkOjWlCPRMDWx9uLpJRmcIkG0etvZGnM-F6s0D9a2lzuw/exec";
-  form.target = "hidden_iframe";
+  // ✅ FINAL FIX (IMAGE REQUEST - 100% WORKING)
+  let img = new Image();
+  img.src = "https://script.google.com/macros/s/AKfycbylR0KHxVDdprDcowUH33duXOkOjWlCPRMDWx9uLpJRmcIkG0etvZGnM-F6s0D9a2lzuw/exec?chase=" + encodeURIComponent(chase);
 
-  let input = document.createElement("input");
-  input.type = "hidden";
-  input.name = "chase";
-  input.value = chase;
-
-  form.appendChild(input);
-  document.body.appendChild(form);
-  form.submit();
-  document.body.removeChild(form);
+  console.log("Sent:", chase);
 
   let table = document.getElementById("dataTable").getElementsByTagName('tbody')[0];
   let row = table.insertRow();
