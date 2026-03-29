@@ -3,8 +3,6 @@
 <head>
   <title>Jobcard Tracker</title>
 
-  <base target="_top"> <!-- 🔥 REQUIRED -->
-
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -113,6 +111,7 @@
 
 </div>
 
+<!-- 🔥 REQUIRED (hidden iframe) -->
 <iframe name="hidden_iframe" style="display:none;"></iframe>
 
 <audio id="alertSound" loop>
@@ -121,60 +120,21 @@
 
 <script>
 
-let lastFetchedData = {};
-let typingTimer;
-
-function handleTyping() {
-  clearTimeout(typingTimer);
-
-  document.getElementById("chasePreview").value = "Wait...";
-  document.getElementById("chaseValue").value = "";
-  document.getElementById("addBtn").style.display = "none";
-
-  typingTimer = setTimeout(fetchChase, 500);
-}
-
-async function fetchChase() {
-  let jobcard = document.getElementById("jobcard").value.toUpperCase();
-
-  if (jobcard.length < 2) {
-    document.getElementById("chasePreview").value = "";
-    return;
-  }
-
-  try {
-    let response = await fetch("https://script.google.com/macros/s/AKfycby0k1Y-MDbXrJSom6yznBC8__xfiLHjA_GVdMlwQCTqMHlDqlnsBxMGASM1_rOfMFc1PA/exec?jobcard=" + jobcard);
-    let data = await response.json();
-
-    lastFetchedData = data;
-
-    if (!data.aic) {
-      document.getElementById("chasePreview").value = "Not Found";
-      document.getElementById("addBtn").style.display = "none";
-    } else {
-      document.getElementById("chasePreview").value = data.chase;
-      document.getElementById("chaseValue").value = data.chase;
-      document.getElementById("addBtn").style.display = "inline-block";
-    }
-
-  } catch (err) {
-    document.getElementById("chasePreview").value = "Error";
-    document.getElementById("addBtn").style.display = "none";
-  }
-}
-
-
-// 🔥 UPDATED PART
+// 🔥 Add Row
 function addRow() {
   let jobcard = document.getElementById("jobcard").value.toUpperCase();
   let chase = document.getElementById("chaseValue").value;
 
   if (jobcard === "" || chase === "") return;
 
-  // 🔥 NEW → A1 update + copy trigger
-  google.script.run.updateA1AndCopy(chase);
+  // ✅ NEW → Apps Script trigger (A1 update + copy)
+  try {
+    google.script.run.updateA1AndCopy(chase);
+  } catch (err) {
+    console.log("Apps Script not available (external run)");
+  }
 
-  // existing POST (unchanged)
+  // 🔥 EXISTING FORM (UNCHANGED)
   let form = document.createElement("form");
   form.method = "POST";
   form.action = "https://script.google.com/macros/s/AKfycbxwzv_W43Z5Dkt4KgpldaUdB3aJCCDcSgrryj-JPEI5T14gmZDd9EoBw11Hts9kAKGDuw/exec";
@@ -219,51 +179,6 @@ function addRow() {
   document.getElementById("chasePreview").value = "";
   document.getElementById("chaseValue").value = "";
   document.getElementById("addBtn").style.display = "none";
-}
-
-
-function updateStatus(select) {
-  let row = select.closest("tr");
-
-  if (select.value == "1") {
-    row.classList.remove("pending");
-    row.classList.add("given");
-  } else {
-    row.classList.remove("given");
-    row.classList.add("pending");
-  }
-
-  checkTimeDiff();
-}
-
-setInterval(checkTimeDiff, 10000);
-
-function checkTimeDiff() {
-  let rows = document.querySelectorAll("#dataTable tbody tr");
-  let now = new Date().getTime();
-  let sound = document.getElementById("alertSound");
-
-  let shouldPlay = false;
-
-  rows.forEach(row => {
-    let start = parseInt(row.getAttribute("data-time"));
-    let diff = Math.floor((now - start) / 60000);
-
-    row.cells[2].innerHTML = diff;
-
-    let key = row.cells[8].querySelector("select").value;
-
-    if (key == "0" && diff > 30) {
-      shouldPlay = true;
-    }
-  });
-
-  if (shouldPlay) {
-    sound.play();
-  } else {
-    sound.pause();
-    sound.currentTime = 0;
-  }
 }
 
 </script>
