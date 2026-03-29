@@ -3,6 +3,8 @@
 <head>
   <title>Jobcard Tracker</title>
 
+  <base target="_top"> <!-- 🔥 REQUIRED -->
+
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -111,7 +113,6 @@
 
 </div>
 
-<!-- 🔥 REQUIRED (hidden iframe) -->
 <iframe name="hidden_iframe" style="display:none;"></iframe>
 
 <audio id="alertSound" loop>
@@ -123,7 +124,6 @@
 let lastFetchedData = {};
 let typingTimer;
 
-// 🔥 Typing handler (Wait...)
 function handleTyping() {
   clearTimeout(typingTimer);
 
@@ -134,8 +134,6 @@ function handleTyping() {
   typingTimer = setTimeout(fetchChase, 500);
 }
 
-
-// 🔥 Fetch
 async function fetchChase() {
   let jobcard = document.getElementById("jobcard").value.toUpperCase();
 
@@ -166,14 +164,17 @@ async function fetchChase() {
 }
 
 
-// 🔥 Add Row
+// 🔥 UPDATED PART
 function addRow() {
   let jobcard = document.getElementById("jobcard").value.toUpperCase();
   let chase = document.getElementById("chaseValue").value;
 
   if (jobcard === "" || chase === "") return;
 
-  // 🔥 FINAL FIX (FORM SUBMIT METHOD)
+  // 🔥 NEW → A1 update + copy trigger
+  google.script.run.updateA1AndCopy(chase);
+
+  // existing POST (unchanged)
   let form = document.createElement("form");
   form.method = "POST";
   form.action = "https://script.google.com/macros/s/AKfycbxwzv_W43Z5Dkt4KgpldaUdB3aJCCDcSgrryj-JPEI5T14gmZDd9EoBw11Hts9kAKGDuw/exec";
@@ -221,7 +222,6 @@ function addRow() {
 }
 
 
-// 🔥 Status
 function updateStatus(select) {
   let row = select.closest("tr");
 
@@ -236,8 +236,6 @@ function updateStatus(select) {
   checkTimeDiff();
 }
 
-
-// 🔥 Time + Alert
 setInterval(checkTimeDiff, 10000);
 
 function checkTimeDiff() {
