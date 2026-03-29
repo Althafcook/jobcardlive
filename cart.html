@@ -123,7 +123,7 @@
 
 let lastFetchedData = {};
 
-// 🔥 Fetch Chase
+// 🔥 Fetch Chase (UPDATED)
 async function fetchChase() {
   let jobcard = document.getElementById("jobcard").value;
 
@@ -133,13 +133,25 @@ async function fetchChase() {
     return;
   }
 
-  let response = await fetch("YOUR_API_URL?jobcard=" + jobcard);
-  let data = await response.json();
+  try {
+    let response = await fetch("https://script.google.com/macros/s/AKfycby0k1Y-MDbXrJSom6yznBC8__xfiLHjA_GVdMlwQCTqMHlDqlnsBxMGASM1_rOfMFc1PA/exec?jobcard=" + jobcard);
+    let data = await response.json();
 
-  lastFetchedData = data;
+    lastFetchedData = data;
 
-  document.getElementById("chasePreview").value = data.chase || "";
-  document.getElementById("chaseValue").value = data.chase || "";
+    if (!data.chase) {
+      document.getElementById("chasePreview").value = "Not Found";
+      document.getElementById("chaseValue").value = "";
+    } else {
+      document.getElementById("chasePreview").value = data.chase;
+      document.getElementById("chaseValue").value = data.chase;
+    }
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("chasePreview").value = "Error";
+    document.getElementById("chaseValue").value = "";
+  }
 }
 
 
@@ -149,7 +161,7 @@ function addRow() {
   let chase = document.getElementById("chaseValue").value;
 
   if (jobcard === "" || chase === "") {
-    alert("Invalid Jobcard / Chase");
+    alert("Invalid Jobcard / Not Found");
     return;
   }
 
