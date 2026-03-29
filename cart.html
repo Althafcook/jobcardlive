@@ -123,7 +123,7 @@
 
 let lastFetchedData = {};
 
-// 🔥 FIXED FETCH
+// 🔥 FINAL FETCH (FIXED)
 async function fetchChase() {
   let jobcard = document.getElementById("jobcard").value.toUpperCase();
 
@@ -139,13 +139,13 @@ async function fetchChase() {
 
     lastFetchedData = data;
 
-    // 🔥 FIX HERE
     if (!data.aic) {
       document.getElementById("chasePreview").value = "Not Found";
       document.getElementById("chaseValue").value = "";
     } else {
-      document.getElementById("chasePreview").value = jobcard; // temp
-      document.getElementById("chaseValue").value = jobcard;
+      // ✅ REAL FIX
+      document.getElementById("chasePreview").value = data.chase;
+      document.getElementById("chaseValue").value = data.chase;
     }
 
   } catch (err) {
