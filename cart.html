@@ -37,11 +37,6 @@
       border: 1px solid #ccc;
     }
 
-    input:disabled {
-      background: #f1f1f1;
-      color: #555;
-    }
-
     button {
       background: #1f4e79;
       color: white;
@@ -65,6 +60,10 @@
     td {
       padding: 6px;
       border-bottom: 1px solid #eee;
+    }
+
+    .delete-btn {
+      background: red;
     }
   </style>
 </head>
@@ -95,6 +94,7 @@
       <th>Vehicle</th>
       <th>Item</th>
       <th>Status</th>
+      <th>Delete</th>
     </tr>
   </thead>
   <tbody></tbody>
@@ -102,7 +102,6 @@
 
 </div>
 
-<!-- 🔥 NEW ALERT SOUND -->
 <audio id="warnSound" loop>
   <source src="assets/sounds/warn.mp3" type="audio/mpeg">
 </audio>
@@ -121,7 +120,6 @@ function handleTyping() {
 
   typingTimer = setTimeout(fetchChase, 500);
 }
-
 
 // 🔥 Fetch
 async function fetchChase() {
@@ -149,7 +147,6 @@ async function fetchChase() {
   }
 }
 
-
 // 🔥 Add Row
 function addRow() {
   let jobcard = document.getElementById("jobcard").value.toUpperCase();
@@ -157,7 +154,6 @@ function addRow() {
 
   if (!jobcard || !chase) return;
 
-  // send to sheet
   let img = new Image();
   img.src = "https://script.google.com/macros/s/AKfycbylR0KHxVDdprDcowUH33duXOkOjWlCPRMDWx9uLpJRmcIkG0etvZGnM-F6s0D9a2lzuw/exec?chase=" + encodeURIComponent(chase);
 
@@ -170,9 +166,9 @@ function addRow() {
   row.insertCell(1).innerHTML = now.toLocaleTimeString();
   row.insertCell(2).innerHTML = "0";
 
-  // 🔥 Pause button
+  // 🔥 Pause (hidden initially)
   let pauseCell = row.insertCell(3);
-  pauseCell.innerHTML = `<button onclick="pauseRow(this)">Pause</button>`;
+  pauseCell.innerHTML = `<button style="display:none;" onclick="pauseRow(this)">Pause</button>`;
 
   row.insertCell(4).innerHTML = jobcard;
   row.insertCell(5).innerHTML = chase;
@@ -180,8 +176,12 @@ function addRow() {
   row.insertCell(7).innerHTML = lastFetchedData.vehicle || "";
   row.insertCell(8).innerHTML = "";
 
-  // 🔥 Status blank
+  // status blank
   row.insertCell(9).innerHTML = "";
+
+  // 🔥 Delete button
+  let deleteCell = row.insertCell(10);
+  deleteCell.innerHTML = `<button class="delete-btn" onclick="deleteRow(this)">X</button>`;
 
   row.setAttribute("data-time", now.getTime());
   row.setAttribute("data-pause", "0");
@@ -191,15 +191,16 @@ function addRow() {
   document.getElementById("addBtn").style.display = "none";
 }
 
-
-// 🔥 Pause function
-function pauseRow(btn) {
-  let row = btn.closest("tr");
-  let now = new Date().getTime();
-
-  row.setAttribute("data-pause", now);
+// 🔥 Delete Row
+function deleteRow(btn) {
+  btn.closest("tr").remove();
 }
 
+// 🔥 Pause
+function pauseRow(btn) {
+  let row = btn.closest("tr");
+  row.setAttribute("data-pause", new Date().getTime());
+}
 
 // 🔥 Time + Alert
 setInterval(checkTimeDiff, 10000);
@@ -218,21 +219,31 @@ function checkTimeDiff() {
     let diff = Math.floor((now - start) / 60000);
     row.cells[2].innerHTML = diff;
 
-    // 🔥 pause check (5 min)
+    // 🔥 Show pause after 20 min
+    if (diff >= 20) {
+      row.cells[3].querySelector("button").style.display = "inline-block";
+    }
+
+    // pause 5 min
     if (pauseTime && (now - pauseTime) < 5 * 60000) return;
 
-    if (diff > 20) {
-      shouldPlay = true;
-    }
+    if (diff >= 20) shouldPlay = true;
   });
 
   if (shouldPlay) {
-    sound.play();
+    sound.play().catch(()=>{});
   } else {
     sound.pause();
     sound.currentTime = 0;
   }
 }
+
+// 🔥 Background fix
+document.addEventListener("visibilitychange", function () {
+  if (!document.hidden) {
+    checkTimeDiff();
+  }
+});
 
 </script>
 
