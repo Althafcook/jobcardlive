@@ -30,7 +30,7 @@
       margin-bottom: 15px;
     }
 
-    input, button, select {
+    input, button {
       padding: 8px;
       font-size: 14px;
       border-radius: 6px;
@@ -47,11 +47,7 @@
       color: white;
       border: none;
       cursor: pointer;
-      padding: 8px 14px;
-    }
-
-    button:hover {
-      background: #163a5c;
+      padding: 6px 10px;
     }
 
     table {
@@ -64,16 +60,12 @@
       background: #1f4e79;
       color: white;
       padding: 8px;
-      text-align: left;
     }
 
     td {
       padding: 6px;
       border-bottom: 1px solid #eee;
     }
-
-    .pending { background: #fff3f3; }
-    .given { background: #f0fff4; }
   </style>
 </head>
 
@@ -85,10 +77,8 @@
 
 <div class="input-row">
   <input type="text" id="jobcard" placeholder="Jobcard No" oninput="handleTyping()">
-
   <input type="text" id="chasePreview" placeholder="Chase No" disabled>
   <input type="hidden" id="chaseValue">
-
   <button id="addBtn" onclick="addRow()" style="display:none;">Add</button>
 </div>
 
@@ -97,7 +87,8 @@
     <tr>
       <th>Date</th>
       <th>Time</th>
-      <th>Time Count (min)</th>
+      <th>Time Count</th>
+      <th>Pause</th>
       <th>Jobcard</th>
       <th>Chase</th>
       <th>AIC</th>
@@ -111,8 +102,9 @@
 
 </div>
 
-<audio id="alertSound" loop>
-  <source src="images/alert.mp3" type="audio/mpeg">
+<!-- 🔥 NEW ALERT SOUND -->
+<audio id="warnSound" loop>
+  <source src="assets/sounds/warn.mp3" type="audio/mpeg">
 </audio>
 
 <script>
@@ -120,12 +112,11 @@
 let lastFetchedData = {};
 let typingTimer;
 
-// 🔥 Typing handler (Wait...)
+// 🔥 Typing
 function handleTyping() {
   clearTimeout(typingTimer);
 
   document.getElementById("chasePreview").value = "Wait...";
-  document.getElementById("chaseValue").value = "";
   document.getElementById("addBtn").style.display = "none";
 
   typingTimer = setTimeout(fetchChase, 500);
@@ -136,14 +127,11 @@ function handleTyping() {
 async function fetchChase() {
   let jobcard = document.getElementById("jobcard").value.toUpperCase();
 
-  if (jobcard.length < 2) {
-    document.getElementById("chasePreview").value = "";
-    return;
-  }
+  if (jobcard.length < 2) return;
 
   try {
-    let response = await fetch("https://script.google.com/macros/s/AKfycby0k1Y-MDbXrJSom6yznBC8__xfiLHjA_GVdMlwQCTqMHlDqlnsBxMGASM1_rOfMFc1PA/exec?jobcard=" + jobcard);
-    let data = await response.json();
+    let res = await fetch("https://script.google.com/macros/s/AKfycby0k1Y-MDbXrJSom6yznBC8__xfiLHjA_GVdMlwQCTqMHlDqlnsBxMGASM1_rOfMFc1PA/exec?jobcard=" + jobcard);
+    let data = await res.json();
 
     lastFetchedData = data;
 
@@ -156,9 +144,8 @@ async function fetchChase() {
       document.getElementById("addBtn").style.display = "inline-block";
     }
 
-  } catch (err) {
+  } catch {
     document.getElementById("chasePreview").value = "Error";
-    document.getElementById("addBtn").style.display = "none";
   }
 }
 
@@ -168,15 +155,13 @@ function addRow() {
   let jobcard = document.getElementById("jobcard").value.toUpperCase();
   let chase = document.getElementById("chaseValue").value;
 
-  if (jobcard === "" || chase === "") return;
+  if (!jobcard || !chase) return;
 
-  // ✅ FINAL FIX (IMAGE REQUEST - 100% WORKING)
+  // send to sheet
   let img = new Image();
   img.src = "https://script.google.com/macros/s/AKfycbylR0KHxVDdprDcowUH33duXOkOjWlCPRMDWx9uLpJRmcIkG0etvZGnM-F6s0D9a2lzuw/exec?chase=" + encodeURIComponent(chase);
 
-  console.log("Sent:", chase);
-
-  let table = document.getElementById("dataTable").getElementsByTagName('tbody')[0];
+  let table = document.querySelector("#dataTable tbody");
   let row = table.insertRow();
 
   let now = new Date();
@@ -184,43 +169,35 @@ function addRow() {
   row.insertCell(0).innerHTML = now.toLocaleDateString();
   row.insertCell(1).innerHTML = now.toLocaleTimeString();
   row.insertCell(2).innerHTML = "0";
-  row.insertCell(3).innerHTML = jobcard;
-  row.insertCell(4).innerHTML = chase;
-  row.insertCell(5).innerHTML = lastFetchedData.aic || "";
-  row.insertCell(6).innerHTML = lastFetchedData.vehicle || "";
-  row.insertCell(7).innerHTML = "";
 
-  let statusCell = row.insertCell(8);
-  statusCell.innerHTML = `
-    <select onchange="updateStatus(this)">
-      <option value="0">Pending</option>
-      <option value="1">Given</option>
-    </select>
-  `;
+  // 🔥 Pause button
+  let pauseCell = row.insertCell(3);
+  pauseCell.innerHTML = `<button onclick="pauseRow(this)">Pause</button>`;
 
-  row.classList.add("pending");
+  row.insertCell(4).innerHTML = jobcard;
+  row.insertCell(5).innerHTML = chase;
+  row.insertCell(6).innerHTML = lastFetchedData.aic || "";
+  row.insertCell(7).innerHTML = lastFetchedData.vehicle || "";
+  row.insertCell(8).innerHTML = "";
+
+  // 🔥 Status blank
+  row.insertCell(9).innerHTML = "";
+
   row.setAttribute("data-time", now.getTime());
+  row.setAttribute("data-pause", "0");
 
   document.getElementById("jobcard").value = "";
   document.getElementById("chasePreview").value = "";
-  document.getElementById("chaseValue").value = "";
   document.getElementById("addBtn").style.display = "none";
 }
 
 
-// 🔥 Status
-function updateStatus(select) {
-  let row = select.closest("tr");
+// 🔥 Pause function
+function pauseRow(btn) {
+  let row = btn.closest("tr");
+  let now = new Date().getTime();
 
-  if (select.value == "1") {
-    row.classList.remove("pending");
-    row.classList.add("given");
-  } else {
-    row.classList.remove("given");
-    row.classList.add("pending");
-  }
-
-  checkTimeDiff();
+  row.setAttribute("data-pause", now);
 }
 
 
@@ -230,19 +207,21 @@ setInterval(checkTimeDiff, 10000);
 function checkTimeDiff() {
   let rows = document.querySelectorAll("#dataTable tbody tr");
   let now = new Date().getTime();
-  let sound = document.getElementById("alertSound");
+  let sound = document.getElementById("warnSound");
 
   let shouldPlay = false;
 
   rows.forEach(row => {
     let start = parseInt(row.getAttribute("data-time"));
-    let diff = Math.floor((now - start) / 60000);
+    let pauseTime = parseInt(row.getAttribute("data-pause"));
 
+    let diff = Math.floor((now - start) / 60000);
     row.cells[2].innerHTML = diff;
 
-    let key = row.cells[8].querySelector("select").value;
+    // 🔥 pause check (5 min)
+    if (pauseTime && (now - pauseTime) < 5 * 60000) return;
 
-    if (key == "0" && diff > 30) {
+    if (diff > 20) {
       shouldPlay = true;
     }
   });
