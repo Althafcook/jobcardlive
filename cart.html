@@ -1,87 +1,135 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Jobcard Entry</title>
+  <title>Jobcard Tracker</title>
 
   <style>
-    body { font-family: Arial; padding: 20px; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f9;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    h3 {
+      margin-bottom: 15px;
+      color: #1f4e79;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
 
     input, button, select {
       padding: 8px;
       font-size: 14px;
-      margin-right: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    input:disabled {
+      background: #f1f1f1;
+      color: #555;
+    }
+
+    button {
+      background: #1f4e79;
+      color: white;
+      border: none;
+      cursor: pointer;
+      padding: 8px 14px;
+    }
+
+    button:hover {
+      background: #163a5c;
     }
 
     table {
       border-collapse: collapse;
       width: 100%;
-      margin-top: 20px;
+      font-size: 13px;
     }
 
     th {
-      background-color: #1f4e79;
+      background: #1f4e79;
       color: white;
-      padding: 10px;
+      padding: 8px;
+      text-align: left;
     }
 
     td {
-      border: 1px solid #ccc;
-      padding: 8px;
+      padding: 6px;
+      border-bottom: 1px solid #eee;
     }
 
     .pending {
-      background-color: #ffe5e5;
+      background: #fff3f3;
     }
 
     .given {
-      background-color: #e5ffe5;
+      background: #f0fff4;
     }
   </style>
 </head>
 
 <body>
 
-<h3>Jobcard Entry</h3>
+<div class="container">
 
-<!-- 🔹 Input Section -->
-<input type="text" id="jobcard" placeholder="Enter Jobcard No" onkeyup="fetchChase()">
+<h3>Jobcard Tracker</h3>
 
-<input type="text" id="chasePreview" placeholder="Chase No" readonly>
+<div class="input-row">
+  <input type="text" id="jobcard" placeholder="Jobcard No" onkeyup="fetchChase()">
 
-<button onclick="addRow()">Add</button>
+  <input type="text" id="chasePreview" placeholder="Chase No" disabled>
+  <input type="hidden" id="chaseValue">
 
-<!-- 🔹 Table -->
+  <button onclick="addRow()">Add</button>
+</div>
+
 <table id="dataTable">
   <thead>
     <tr>
       <th>Date</th>
       <th>Time</th>
-      <th>Jobcard No.</th>
-      <th>Chase no.</th>
+      <th>Jobcard</th>
+      <th>Chase</th>
       <th>AIC</th>
       <th>Vehicle</th>
-      <th>item1</th>
-      <th>Given Status</th>
+      <th>Item</th>
+      <th>Status</th>
     </tr>
   </thead>
   <tbody></tbody>
 </table>
 
-<!-- 🔊 Alert Sound -->
+</div>
+
 <audio id="alertSound" loop>
   <source src="images/alert.mp3" type="audio/mpeg">
 </audio>
 
 <script>
 
-let lastFetchedData = {}; // store API data
+let lastFetchedData = {};
 
-// 🔥 Fetch Chase Preview
+// 🔥 Fetch Chase
 async function fetchChase() {
   let jobcard = document.getElementById("jobcard").value;
 
   if (jobcard.length < 2) {
     document.getElementById("chasePreview").value = "";
+    document.getElementById("chaseValue").value = "";
     return;
   }
 
@@ -91,16 +139,17 @@ async function fetchChase() {
   lastFetchedData = data;
 
   document.getElementById("chasePreview").value = data.chase || "";
+  document.getElementById("chaseValue").value = data.chase || "";
 }
 
 
 // 🔥 Add Row
 function addRow() {
   let jobcard = document.getElementById("jobcard").value;
-  let chase = document.getElementById("chasePreview").value;
+  let chase = document.getElementById("chaseValue").value;
 
   if (jobcard === "" || chase === "") {
-    alert("Check Jobcard / Chase No");
+    alert("Invalid Jobcard / Chase");
     return;
   }
 
@@ -117,9 +166,7 @@ function addRow() {
   row.insertCell(5).innerHTML = lastFetchedData.vehicle || "";
   row.insertCell(6).innerHTML = "";
 
-  // 🔥 Given Status (Key logic)
   let statusCell = row.insertCell(7);
-
   statusCell.innerHTML = `
     <select onchange="updateStatus(this)">
       <option value="0">Pending</option>
@@ -129,15 +176,15 @@ function addRow() {
 
   row.classList.add("pending");
 
-  // store timestamp
   row.setAttribute("data-time", now.getTime());
 
   document.getElementById("jobcard").value = "";
   document.getElementById("chasePreview").value = "";
+  document.getElementById("chaseValue").value = "";
 }
 
 
-// 🔥 Update Status
+// 🔥 Status Update
 function updateStatus(select) {
   let row = select.closest("tr");
 
@@ -153,33 +200,32 @@ function updateStatus(select) {
 }
 
 
-// 🔥 Check Time Difference every 10 sec
+// 🔥 Alert Check
 setInterval(checkTimeDiff, 10000);
 
 function checkTimeDiff() {
   let rows = document.querySelectorAll("#dataTable tbody tr");
   let now = new Date().getTime();
-  let alertSound = document.getElementById("alertSound");
+  let sound = document.getElementById("alertSound");
 
   let shouldPlay = false;
 
   rows.forEach(row => {
-    let startTime = parseInt(row.getAttribute("data-time"));
-    let diffMinutes = (now - startTime) / 60000;
+    let start = parseInt(row.getAttribute("data-time"));
+    let diff = (now - start) / 60000;
 
-    let select = row.cells[7].querySelector("select");
-    let key = select.value;
+    let key = row.cells[7].querySelector("select").value;
 
-    if (key == "0" && diffMinutes > 30) {
+    if (key == "0" && diff > 30) {
       shouldPlay = true;
     }
   });
 
   if (shouldPlay) {
-    alertSound.play();
+    sound.play();
   } else {
-    alertSound.pause();
-    alertSound.currentTime = 0;
+    sound.pause();
+    sound.currentTime = 0;
   }
 }
 
