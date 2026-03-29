@@ -3,6 +3,9 @@
 <head>
   <title>Jobcard Tracker</title>
 
+  <!-- 🔥 REQUIRED for google.script.run -->
+  <base target="_top">
+
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -111,7 +114,6 @@
 
 </div>
 
-<!-- 🔥 REQUIRED (hidden iframe) -->
 <iframe name="hidden_iframe" style="display:none;"></iframe>
 
 <audio id="alertSound" loop>
@@ -123,7 +125,7 @@
 let lastFetchedData = {};
 let typingTimer;
 
-// 🔥 Typing handler (Wait...)
+// 🔥 Typing handler
 function handleTyping() {
   clearTimeout(typingTimer);
 
@@ -173,7 +175,16 @@ function addRow() {
 
   if (jobcard === "" || chase === "") return;
 
-  // 🔥 FINAL FIX (FORM SUBMIT METHOD)
+  // 🔥 SAFE A1 TRIGGER (no break)
+  try {
+    if (typeof google !== "undefined" && google.script && google.script.run) {
+      google.script.run.updateA1AndCopy(chase);
+    }
+  } catch (e) {
+    console.log("A1 trigger skipped");
+  }
+
+  // 🔥 EXISTING FORM (UNCHANGED)
   let form = document.createElement("form");
   form.method = "POST";
   form.action = "https://script.google.com/macros/s/AKfycbxwzv_W43Z5Dkt4KgpldaUdB3aJCCDcSgrryj-JPEI5T14gmZDd9EoBw11Hts9kAKGDuw/exec";
