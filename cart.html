@@ -166,7 +166,6 @@ function addRow() {
   row.insertCell(1).innerHTML = now.toLocaleTimeString();
   row.insertCell(2).innerHTML = "0";
 
-  // 🔥 Pause (hidden initially)
   let pauseCell = row.insertCell(3);
   pauseCell.innerHTML = `<button style="display:none;" onclick="pauseRow(this)">Pause</button>`;
 
@@ -176,10 +175,8 @@ function addRow() {
   row.insertCell(7).innerHTML = lastFetchedData.vehicle || "";
   row.insertCell(8).innerHTML = "";
 
-  // status blank
   row.insertCell(9).innerHTML = "";
 
-  // 🔥 Delete button
   let deleteCell = row.insertCell(10);
   deleteCell.innerHTML = `<button class="delete-btn" onclick="deleteRow(this)">X</button>`;
 
@@ -191,9 +188,12 @@ function addRow() {
   document.getElementById("addBtn").style.display = "none";
 }
 
-// 🔥 Delete Row
+// 🔥 DELETE FIX (IMPORTANT)
 function deleteRow(btn) {
   btn.closest("tr").remove();
+
+  // 🔥 instantly re-check alert
+  checkTimeDiff();
 }
 
 // 🔥 Pause
@@ -219,12 +219,10 @@ function checkTimeDiff() {
     let diff = Math.floor((now - start) / 60000);
     row.cells[2].innerHTML = diff;
 
-    // 🔥 Show pause after 20 min
     if (diff >= 20) {
       row.cells[3].querySelector("button").style.display = "inline-block";
     }
 
-    // pause 5 min
     if (pauseTime && (now - pauseTime) < 5 * 60000) return;
 
     if (diff >= 20) shouldPlay = true;
