@@ -10,7 +10,7 @@
             background-color: white;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* 🔥 top */
+            align-items: flex-start;
             padding-top: 30px;
             font-family: Arial, sans-serif;
         }
@@ -19,8 +19,8 @@
             background-color: #007BFF;
             color: white;
             font-size: 40px;
-            width: 90vw;          /* 🔥 almost full width */
-            height: 25vh;         /* 🔥 big height */
+            width: 90vw;
+            height: 25vh;
             border: none;
             border-radius: 15px;
             cursor: pointer;
@@ -37,9 +37,16 @@
 
     <button class="btn" onclick="sendEnter()">ENTER</button>
 
+    <!-- 🔊 Sound file -->
+    <audio id="clickSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
+
     <script>
         function sendEnter() {
-            // 🔥 silent request (no error popup)
+
+            // 🔊 play sound
+            document.getElementById("clickSound").play();
+
+            // 🔥 silent request
             var img = new Image();
             img.src = "http://10.80.96.193:5000/enter?rand=" + new Date().getTime();
         }
