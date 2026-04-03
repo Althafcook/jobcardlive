@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enter Button</title>
+
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .btn {
+            background-color: #007BFF;
+            color: white;
+            font-size: 28px;
+            padding: 20px 60px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="btn" onclick="sendEnter()">ENTER</button>
+
+    <script>
+        function sendEnter() {
+            fetch("http://10.80.96.193:5000/enter")
+            .then(() => console.log("Enter pressed"))
+            .catch(() => alert("Connection error"));
+        }
+    </script>
+
+</body>
+</html>
